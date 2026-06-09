@@ -1,0 +1,21 @@
+.page{flex:1;padding-bottom:48px}
+.layout{display:grid;grid-template-columns:210px 1fr;gap:20px;padding:28px 0}
+.sidebar{display:flex;flex-direction:column;gap:4px}
+.sideLabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:8px 12px 4px}
+.catBtn{display:flex;align-items:center;padding:9px 12px;border-radius:8px;font-size:14px;color:var(--t2);cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.catBtn:hover{background:var(--bg3);color:var(--t1)}
+.catActive{background:var(--glow)!important;color:var(--accent)!important}
+.forumHeader{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.threadList{display:flex;flex-direction:column;gap:10px}
+.thread{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px 20px;cursor:pointer;transition:all .15s;display:flex;align-items:flex-start;gap:14px}
+.thread:hover{border-color:var(--border2);background:var(--bg3)}
+.avatar{width:38px;height:38px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;color:#fff}
+.avatarSm{width:28px;height:28px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;color:#fff}
+.threadTitle{font-size:15px;font-weight:600;margin-bottom:4px}
+.threadMeta{font-size:12px;color:var(--t3);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.threadStats{display:flex;align-items:center;gap:12px;flex-shrink:0;font-size:12px;color:var(--t3)}
+.empty{text-align:center;padding:40px;color:var(--t3);font-size:14px}
+.back{display:flex;align-items:center;gap:8px;color:var(--t2);cursor:pointer;font-size:14px;margin-bottom:16px;background:none;border:none}
+.back:hover{color:var(--t1)}
+.gateBox{background:var(--glow);border:1px solid rgba(79,142,247,.2);border-radius:10px;padding:16px;font-size:14px;color:var(--t2)}
+@media(max-width:700px){.layout{grid-template-columns:1fr}.sidebar{flex-direction:row;flex-wrap:wrap}}

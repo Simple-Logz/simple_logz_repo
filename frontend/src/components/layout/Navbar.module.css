@@ -1,0 +1,22 @@
+.navbar{background:var(--bg2);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:200;height:60px}
+.inner{display:flex;align-items:center;justify-content:space-between;height:60px;gap:16px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--t1);text-decoration:none}
+.logo{width:34px;height:34px;border-radius:8px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:14px;font-weight:700;color:#fff;flex-shrink:0}
+.links{display:flex;align-items:center;gap:4px;list-style:none;flex:1;padding:0 16px}
+.links li a{padding:6px 12px;border-radius:8px;font-size:14px;font-weight:500;color:var(--t2);transition:all .15s;display:block}
+.links li a:hover{background:var(--bg3);color:var(--t1)}
+.links li.active a{color:var(--accent);background:var(--glow)}
+.actions{display:flex;align-items:center;gap:8px}
+.iconBtn{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center}
+.userWrap{position:relative}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:700;font-size:13px;display:flex;align-items:center;justify-content:center;border:2px solid var(--border2);overflow:hidden;cursor:pointer}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.dropdown{position:absolute;top:44px;right:0;background:var(--bg2);border:1px solid var(--border2);border-radius:14px;box-shadow:var(--shadow);min-width:210px;overflow:hidden;animation:fadeIn .15s ease;z-index:300}
+.dropHeader{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:3px}
+.dropName{font-size:14px;font-weight:600}
+.dropEmail{font-size:12px;color:var(--t3)}
+.dropItem{display:flex;align-items:center;gap:10px;padding:10px 16px;font-size:14px;color:var(--t2);cursor:pointer;transition:all .15s;text-decoration:none;width:100%;text-align:left}
+.dropItem:hover{background:var(--bg3);color:var(--t1)}
+.dropDivider{height:1px;background:var(--border);margin:4px 0}
+.dropDanger:hover{background:rgba(248,113,113,.08)!important;color:var(--red)!important}
+@media(max-width:640px){.links{display:none}}

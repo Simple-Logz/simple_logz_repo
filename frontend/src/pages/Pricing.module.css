@@ -1,0 +1,27 @@
+.page{padding:48px 0 60px;flex:1}
+.header{text-align:center;margin-bottom:48px}
+.title{font-size:36px;font-weight:700;letter-spacing:-.5px;margin-bottom:10px}
+.sub{font-size:16px;color:var(--t2)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;align-items:start;margin-bottom:60px}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;position:relative}
+.featured{border-color:var(--accent);background:linear-gradient(135deg,var(--bg2),rgba(79,142,247,.04));box-shadow:0 0 0 1px var(--accent),var(--shadow)}
+.badge{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:var(--accent);color:#fff;padding:3px 14px;border-radius:99px;font-size:11px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.planName{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t2);margin-bottom:12px}
+.planPrice{font-size:42px;font-weight:700;letter-spacing:-1px;margin-bottom:4px}
+.period{font-size:14px;color:var(--t3);margin-left:2px}
+.planDesc{font-size:14px;color:var(--t2);margin:12px 0 24px;line-height:1.6}
+.features{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:28px}
+.feature{display:flex;align-items:flex-start;gap:10px;font-size:14px}
+.check{color:var(--green);font-weight:700;flex-shrink:0;margin-top:1px}
+.cross{color:var(--t3);flex-shrink:0;margin-top:1px}
+.cta{width:100%;justify-content:center;padding:12px;font-size:15px}
+.faq{max-width:720px;margin:0 auto}
+.faqTitle{font-size:24px;font-weight:700;text-align:center;margin-bottom:24px}
+.faqGrid{display:flex;flex-direction:column;gap:0;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.faqItem{padding:20px 24px;border-bottom:1px solid var(--border)}
+.faqItem:last-child{border-bottom:none}
+.faqQ{font-weight:600;margin-bottom:6px}
+.faqA{font-size:14px;color:var(--t2);line-height:1.65}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:460px;width:100%;position:relative;box-shadow:var(--shadow)}
+.modalClose{position:absolute;top:16px;right:20px;font-size:18px;color:var(--t3);cursor:pointer}

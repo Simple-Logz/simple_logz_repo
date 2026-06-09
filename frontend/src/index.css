@@ -1,0 +1,75 @@
+/* ── Tokens ─────────────────────────────────────────────── */
+:root {
+  --bg:       #0e1117;  --bg2: #161b25;  --bg3: #1c2333;  --bg4: #222d40;
+  --border:   #2a3650;  --border2: #344060;
+  --accent:   #4f8ef7;  --accent2: #3a7ae8;  --glow: rgba(79,142,247,0.14);
+  --green:    #34d399;  --yellow: #fbbf24;  --red: #f87171;
+  --t1: #f0f4ff;  --t2: #9baec8;  --t3: #5a6a85;
+  --mono: "JetBrains Mono", monospace;
+  --sans: "Inter", system-ui, sans-serif;
+  --r: 8px;  --r2: 12px;  --r3: 18px;
+  --shadow: 0 4px 24px rgba(0,0,0,.45);
+}
+[data-theme="light"] {
+  --bg:#f8faff; --bg2:#fff; --bg3:#f0f4ff; --bg4:#e8eeff;
+  --border:#dde3f0; --border2:#c8d0e8;
+  --accent:#3a7ae8; --accent2:#2d6fd4; --glow:rgba(58,122,232,.1);
+  --t1:#0f172a; --t2:#475569; --t3:#94a3b8;
+  --shadow:0 4px 24px rgba(0,0,0,.08);
+}
+/* ── Reset ──────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.6;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+button{cursor:pointer;font-family:inherit;border:none;background:none}
+input,textarea,select{font-family:inherit}
+a{color:var(--accent);text-decoration:none}
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes scanFill{0%{width:0}70%,100%{width:100%}}
+/* ── Layout ─────────────────────────────────────────────── */
+.container{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
+.page{animation:fadeIn .25s ease;flex:1;display:flex;flex-direction:column}
+/* ── Buttons ─────────────────────────────────────────────── */
+.btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:var(--r);font-size:14px;font-weight:500;transition:all .15s;cursor:pointer;border:none}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
+.btn-outline{background:transparent;border:1px solid var(--border2);color:var(--t2)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
+.btn-ghost{background:transparent;color:var(--t2);padding:7px 10px}.btn-ghost:hover{background:var(--bg3);color:var(--t1)}
+.btn-danger{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
+.btn-sm{padding:5px 11px;font-size:12px}
+.btn-lg{padding:13px 28px;font-size:16px;border-radius:var(--r2)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+/* ── Card ────────────────────────────────────────────────── */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r2);padding:24px}
+/* ── Form ────────────────────────────────────────────────── */
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:13px;font-weight:500;color:var(--t2)}
+.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 12px;color:var(--t1);font-size:14px;outline:none;transition:border-color .15s;width:100%}
+.form-input:focus{border-color:var(--accent)}
+.form-input::placeholder{color:var(--t3)}
+textarea.form-input{resize:vertical;line-height:1.6}
+/* ── Badge ───────────────────────────────────────────────── */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:11px;font-weight:600}
+.badge-blue{background:rgba(79,142,247,.15);color:var(--accent)}
+.badge-green{background:rgba(52,211,153,.15);color:var(--green)}
+.badge-red{background:rgba(248,113,113,.15);color:var(--red)}
+.badge-yellow{background:rgba(251,191,36,.15);color:var(--yellow)}
+.badge-gray{background:var(--bg3);color:var(--t2)}
+/* ── Divider ─────────────────────────────────────────────── */
+.divider{display:flex;align-items:center;gap:12px;color:var(--t3);font-size:12px}
+.divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
+/* ── Spinner ─────────────────────────────────────────────── */
+.spinner{width:18px;height:18px;border:2px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0}
+/* ── Toggle ──────────────────────────────────────────────── */
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:var(--bg4);border-radius:99px;cursor:pointer;transition:background .2s}
+.toggle-slider::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s}
+.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle input:checked+.toggle-slider::after{transform:translateX(20px)}
+/* ── Responsive ──────────────────────────────────────────── */
+@media(max-width:600px){.container{padding:0 16px}}
