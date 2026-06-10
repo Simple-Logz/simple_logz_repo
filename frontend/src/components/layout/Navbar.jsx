@@ -31,6 +31,7 @@ export default function Navbar({ onThemeToggle, theme }) {
     { to: "/terminal",  label: "Terminal" },
     { to: "/forum",     label: "Community" },
     { to: "/pricing",   label: "Pricing" },
+    { to: "/about",     label: "About" },
   ];
 
   const initials = profile?.name

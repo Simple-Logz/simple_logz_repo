@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from "./hooks/useAuth.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
 import Navbar from "./components/layout/Navbar.jsx";
 import Landing     from "./pages/Landing.jsx";
+import About       from "./pages/About.jsx";
 import Login       from "./pages/Login.jsx";
 import Signup      from "./pages/Signup.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
@@ -37,6 +38,7 @@ function AppShell() {
         <Route path="/login"         element={<Login/>}/>
         <Route path="/signup"        element={<Signup/>}/>
         <Route path="/auth/callback" element={<AuthCallback/>}/>
+        <Route path="/about"         element={<About/>}/>
         <Route path="/analyzer"      element={<Navigate to="/" replace/>}/>
         <Route path="/pricing"       element={<Pricing/>}/>
         <Route path="/forum"         element={<Forum/>}/>

@@ -23,7 +23,7 @@
 }
 
 /* ── Two-panel layout ───────────────────────────────────────── */
-.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
 
 /* ── Panels ─────────────────────────────────────────────────── */
 .panel{
