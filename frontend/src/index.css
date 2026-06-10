@@ -20,8 +20,8 @@
 
 /* ── Reset ──────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:17px;scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+html{font-size:18px;scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 input,textarea,select{font-family:inherit}
 a{color:var(--accent);text-decoration:none}
@@ -84,3 +84,9 @@ textarea.form-input{resize:vertical;line-height:1.65}
 
 /* ── Responsive ──────────────────────────────────────────── */
 @media(max-width:600px){.container{padding:0 16px}}
+
+/* ── Global font boost ───────────────────────────────────────── */
+p, li, div{font-size:inherit}
+.featureDesc, .footerDesc, .footerLinks a, .footerBottom{font-size:15px!important}
+.featureTitle{font-size:17px!important}
+.sectionSub{font-size:17px!important}
