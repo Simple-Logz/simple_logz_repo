@@ -21,9 +21,9 @@
 /* ── Reset ──────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{font-size:18px;scroll-behavior:smooth}
-body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.65;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
-input,textarea,select{font-family:inherit}
+input,textarea,select{font-family:inherit;font-size:16px}
 a{color:var(--accent);text-decoration:none}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--bg)}
@@ -35,17 +35,17 @@ a{color:var(--accent);text-decoration:none}
 @keyframes scanFill{0%{width:0}70%,100%{width:100%}}
 
 /* ── Layout ─────────────────────────────────────────────── */
-.container{max-width:1140px;margin:0 auto;padding:0 24px;width:100%}
+.container{max-width:1140px;margin:0 auto;padding:0 28px;width:100%}
 .page{animation:fadeIn .25s ease;flex:1;display:flex;flex-direction:column}
 
 /* ── Buttons ─────────────────────────────────────────────── */
-.btn{display:inline-flex;align-items:center;gap:7px;padding:9px 18px;border-radius:var(--r);font-size:15px;font-weight:500;transition:all .15s;cursor:pointer;border:none}
+.btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--r);font-size:15px;font-weight:500;transition:all .15s;cursor:pointer;border:none}
 .btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent2)}
 .btn-outline{background:transparent;border:1px solid var(--border2);color:var(--t2)}.btn-outline:hover{border-color:var(--accent);color:var(--accent)}
 .btn-ghost{background:transparent;color:var(--t2);padding:8px 12px}.btn-ghost:hover{background:var(--bg3);color:var(--t1)}
 .btn-danger{background:rgba(248,113,113,.1);color:var(--red);border:1px solid rgba(248,113,113,.2)}
-.btn-sm{padding:6px 13px;font-size:13px}
-.btn-lg{padding:14px 30px;font-size:17px;border-radius:var(--r2)}
+.btn-sm{padding:7px 14px;font-size:14px}
+.btn-lg{padding:14px 32px;font-size:17px;border-radius:var(--r2)}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 
 /* ── Card ────────────────────────────────────────────────── */
@@ -53,11 +53,11 @@ a{color:var(--accent);text-decoration:none}
 
 /* ── Form ────────────────────────────────────────────────── */
 .form-group{display:flex;flex-direction:column;gap:6px}
-.form-label{font-size:14px;font-weight:500;color:var(--t2)}
-.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 14px;color:var(--t1);font-size:15px;outline:none;transition:border-color .15s;width:100%}
+.form-label{font-size:15px;font-weight:500;color:var(--t2)}
+.form-input{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:11px 14px;color:var(--t1);font-size:15px;outline:none;transition:border-color .15s;width:100%}
 .form-input:focus{border-color:var(--accent)}
 .form-input::placeholder{color:var(--t3)}
-textarea.form-input{resize:vertical;line-height:1.65}
+textarea.form-input{resize:vertical;line-height:1.7}
 
 /* ── Badge ───────────────────────────────────────────────── */
 .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600}
@@ -68,7 +68,7 @@ textarea.form-input{resize:vertical;line-height:1.65}
 .badge-gray{background:var(--bg3);color:var(--t2)}
 
 /* ── Divider ─────────────────────────────────────────────── */
-.divider{display:flex;align-items:center;gap:12px;color:var(--t3);font-size:13px}
+.divider{display:flex;align-items:center;gap:12px;color:var(--t3);font-size:14px}
 .divider::before,.divider::after{content:"";flex:1;height:1px;background:var(--border)}
 
 /* ── Spinner ─────────────────────────────────────────────── */
@@ -86,7 +86,32 @@ textarea.form-input{resize:vertical;line-height:1.65}
 @media(max-width:600px){.container{padding:0 16px}}
 
 /* ── Global font boost ───────────────────────────────────────── */
-p, li, div{font-size:inherit}
-.featureDesc, .footerDesc, .footerLinks a, .footerBottom{font-size:15px!important}
-.featureTitle{font-size:17px!important}
-.sectionSub{font-size:17px!important}
+[class*="featureDesc"]{font-size:15px!important;line-height:1.7!important}
+[class*="featureTitle"]{font-size:18px!important;font-weight:600!important}
+[class*="sectionSub"]{font-size:17px!important}
+[class*="sectionTitle"]{font-size:clamp(26px,3.5vw,38px)!important}
+[class*="footerDesc"],[class*="footerLinks"] a,[class*="footerBottom"]{font-size:15px!important}
+[class*="footerHead"]{font-size:13px!important}
+[class*="cardDesc"]{font-size:14px!important}
+[class*="cardName"]{font-size:17px!important}
+[class*="plainEnglish"]{font-size:16px!important}
+[class*="stepAction"]{font-size:15px!important}
+[class*="metricValue"]{font-size:15px!important}
+[class*="timelineText"]{font-size:16px!important}
+[class*="pillarBody"]{font-size:15px!important}
+[class*="pillarTitle"]{font-size:18px!important}
+[class*="heroSub"]{font-size:18px!important}
+[class*="ctaSub"]{font-size:16px!important}
+[class*="emptySub"]{font-size:15px!important}
+[class*="emptyTitle"]{font-size:20px!important}
+[class*="mobileLink"]{font-size:17px!important}
+[class*="brandName"]{font-size:18px!important}
+[class*="dropItem"]{font-size:15px!important}
+[class*="dropName"]{font-size:15px!important}
+[class*="panelLabel"]{font-size:12px!important;letter-spacing:2px!important}
+[class*="textarea"]{font-size:15px!important}
+[class*="chip"]{font-size:13px!important}
+[class*="examplesLabel"]{font-size:13px!important}
+[class*="statNum"]{font-size:clamp(28px,3vw,42px)!important}
+[class*="statLabel"]{font-size:14px!important}
+[class*="title"]:not([class*="featureTitle"]):not([class*="pillarTitle"]):not([class*="ctaTitle"]):not([class*="sectionTitle"]):not([class*="heroTitle"]){font-size:clamp(16px,2vw,20px)}
