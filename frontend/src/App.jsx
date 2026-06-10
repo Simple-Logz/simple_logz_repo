@@ -7,7 +7,7 @@ import Landing     from "./pages/Landing.jsx";
 import Login       from "./pages/Login.jsx";
 import Signup      from "./pages/Signup.jsx";
 import AuthCallback from "./pages/AuthCallback.jsx";
-import Analyzer    from "./pages/Analyzer.jsx";
+
 import Pricing     from "./pages/Pricing.jsx";
 import Forum       from "./pages/Forum.jsx";
 import Terminal    from "./pages/Terminal.jsx";
@@ -37,7 +37,7 @@ function AppShell() {
         <Route path="/login"         element={<Login/>}/>
         <Route path="/signup"        element={<Signup/>}/>
         <Route path="/auth/callback" element={<AuthCallback/>}/>
-        <Route path="/analyzer"      element={<Analyzer/>}/>
+        <Route path="/analyzer"      element={<Navigate to="/" replace/>}/>
         <Route path="/pricing"       element={<Pricing/>}/>
         <Route path="/forum"         element={<Forum/>}/>
         <Route path="/terminal"      element={<Terminal/>}/>
