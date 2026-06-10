@@ -11,11 +11,12 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 
-import analyzeRouter from "./routes/analyze.js";
-import authRouter    from "./routes/auth.js";
-import stripeRouter  from "./routes/stripe.js";
-import forumRouter   from "./routes/forum.js";
-import userRouter    from "./routes/user.js";
+import analyzeRouter   from "./routes/analyze.js";
+import stepchatRouter  from "./routes/stepchat.js";
+import authRouter      from "./routes/auth.js";
+import stripeRouter    from "./routes/stripe.js";
+import forumRouter     from "./routes/forum.js";
+import userRouter      from "./routes/user.js";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -25,8 +26,20 @@ app.use(helmet());
 app.use(morgan("dev"));
 
 // ── CORS ─────────────────────────────────────────────────────
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  process.env.FRONTEND_URL,
+].filter(Boolean);
+
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin) || origin.endsWith(".netlify.app")) {
+      return callback(null, true);
+    }
+    return callback(new Error("Not allowed by CORS"));
+  },
   credentials: true,
 }));
 
@@ -35,11 +48,12 @@ app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json({ limit: "1mb" }));
 
 // ── Routes ───────────────────────────────────────────────────
-app.use("/api/analyze", analyzeRouter);
-app.use("/api/auth",    authRouter);
-app.use("/api/stripe",  stripeRouter);
-app.use("/api/forum",   forumRouter);
-app.use("/api/user",    userRouter);
+app.use("/api/analyze",  analyzeRouter);
+app.use("/api/stepchat", stepchatRouter);
+app.use("/api/auth",     authRouter);
+app.use("/api/stripe",   stripeRouter);
+app.use("/api/forum",    forumRouter);
+app.use("/api/user",     userRouter);
 
 // ── Health check ─────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {

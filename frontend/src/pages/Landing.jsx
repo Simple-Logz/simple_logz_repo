@@ -24,6 +24,15 @@ function IconLock() {
 function IconHistory() {
   return <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><polyline points="12 8 12 12 14 14"/><path d="M3.05 11a9 9 0 1 1 .5 4m-.5 5v-5h5"/></svg>;
 }
+function IconChat() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>;
+}
+function IconSend() {
+  return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>;
+}
+function IconCopy() {
+  return <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>;
+}
 
 // ── Analyzer constants ────────────────────────────────────────
 const EXAMPLES = {
@@ -44,6 +53,129 @@ const FEATURES = [
   { icon: <IconLock/>, title: "Federated Identity", desc: "Sign in with Google, GitHub, Microsoft, or Apple. Real OAuth authentication via Supabase. No new passwords to manage." },
   { icon: <IconHistory/>, title: "Analysis History", desc: "Every log analysis is saved to your personal dashboard. Search, revisit, and track recurring issues across your infrastructure." },
 ];
+
+const API_BASE = import.meta.env.VITE_API_URL || "";
+
+// ── Per-step chat component ───────────────────────────────────
+function StepChat({ step, result, log }) {
+  const [open,    setOpen]    = useState(false);
+  const [msgs,    setMsgs]    = useState([]);
+  const [input,   setInput]   = useState("");
+  const [loading, setLoading] = useState(false);
+  const [copied,  setCopied]  = useState(false);
+  const bottomRef = useRef(null);
+
+  async function sendMessage(text) {
+    if (!text.trim() || loading) return;
+    const userMsg = { role: "user", content: text.trim() };
+    const next = [...msgs, userMsg];
+    setMsgs(next);
+    setInput("");
+    setLoading(true);
+
+    try {
+      const res = await fetch(`${API_BASE}/api/stepchat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          step,
+          log,
+          analysis: result,
+          messages: next,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Chat failed");
+      setMsgs(m => [...m, { role: "assistant", content: data.reply }]);
+    } catch (err) {
+      setMsgs(m => [...m, { role: "assistant", content: `Sorry, I couldn't answer that right now. Try again in a moment.` }]);
+    } finally {
+      setLoading(false);
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: "smooth" }), 50);
+    }
+  }
+
+  function copyCmd() {
+    if (!step.command) return;
+    navigator.clipboard.writeText(step.command);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  return (
+    <div className={styles.stepWrap}>
+      {/* Step header */}
+      <div className={styles.stepHeader}>
+        <div className={styles.stepNum}>{step.step}</div>
+        <div className={styles.stepContent}>
+          <div className={styles.stepAction}>{step.action}</div>
+          {step.command && (
+            <div className={styles.cmdWrap}>
+              <code className={styles.cmd}>$ {step.command}</code>
+              <button className={styles.copyBtn} onClick={copyCmd} title="Copy command">
+                <IconCopy/> {copied ? "Copied!" : "Copy"}
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Ask about this step */}
+      <button
+        className={`${styles.chatToggle} ${open ? styles.chatToggleOpen : ""}`}
+        onClick={() => setOpen(o => !o)}
+      >
+        <IconChat/>
+        {open ? "Hide chat" : msgs.length > 0 ? `${msgs.filter(m=>m.role==="assistant").length} replies · Ask more` : "Ask about this step"}
+      </button>
+
+      {open && (
+        <div className={styles.chatBox}>
+          {msgs.length === 0 && (
+            <div className={styles.chatEmpty}>
+              <div>Ask anything about this step — "What does this command do?", "I got a different error", "Is this safe to run in production?"</div>
+              <div className={styles.chatSuggestions}>
+                {["What does this mean?", "I got an error", "Is this safe?", "Show me an example"].map(q => (
+                  <button key={q} className={styles.suggestion} onClick={() => sendMessage(q)}>{q}</button>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className={styles.chatMsgs}>
+            {msgs.map((m, i) => (
+              <div key={i} className={`${styles.chatMsg} ${m.role === "user" ? styles.chatUser : styles.chatBot}`}>
+                {m.role === "assistant" && <div className={styles.chatBotLabel}>AI</div>}
+                <div className={styles.chatMsgText}>{m.content}</div>
+              </div>
+            ))}
+            {loading && (
+              <div className={`${styles.chatMsg} ${styles.chatBot}`}>
+                <div className={styles.chatBotLabel}>AI</div>
+                <div className={styles.chatMsgText}>
+                  <span className={styles.typingDots}><span/><span/><span/></span>
+                </div>
+              </div>
+            )}
+            <div ref={bottomRef}/>
+          </div>
+          <div className={styles.chatInputWrap}>
+            <input
+              className={styles.chatInput}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              onKeyDown={e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(input); }}}
+              placeholder="Ask a follow-up question…"
+              disabled={loading}
+            />
+            <button className={styles.chatSend} onClick={() => sendMessage(input)} disabled={!input.trim() || loading}>
+              <IconSend/>
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 // ── Main component ────────────────────────────────────────────
 export default function Landing() {
@@ -156,168 +288,168 @@ export default function Landing() {
           )}
 
           <div className={styles.analyzerFrame}>
-          <div className={styles.layout}>
-            {/* Input panel */}
-            <div className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <span className={styles.panelLabel}>INPUT LOG</span>
-                <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                  <select className={`form-input ${styles.select}`} value={source} onChange={e=>setSource(e.target.value)}>
-                    <option value="auto">Auto-detect</option>
-                    <option value="kubernetes">Kubernetes</option>
-                    <option value="docker">Docker</option>
-                    <option value="aws">AWS</option>
-                    <option value="nginx">Nginx</option>
-                    <option value="postgres">Postgres</option>
-                    <option value="nodejs">Node.js</option>
-                    <option value="python">Python</option>
-                    <option value="linux">Linux/Syslog</option>
-                  </select>
-                  <button className="btn btn-ghost btn-sm" onClick={()=>fileRef.current?.click()}>↑ File</button>
-                  <input ref={fileRef} type="file" accept=".log,.txt,.json" style={{display:"none"}} onChange={handleFile}/>
-                </div>
-              </div>
-              <textarea
-                className={styles.textarea}
-                value={log}
-                onChange={e=>setLog(e.target.value)}
-                onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();runAnalysis();}}}
-                placeholder={"Paste your error log here…\n\nCtrl+Enter to analyze"}
-                spellCheck={false}
-                disabled={status==="analyzing"}
-              />
-              <div className={styles.panelFooter}>
-                <div className={styles.examples}>
-                  <span className={styles.examplesLabel}>Try:</span>
-                  {Object.keys(EXAMPLES).map(k => (
-                    <button key={k} className={styles.chip} onClick={()=>loadExample(k)}>{k}</button>
-                  ))}
-                </div>
-                <div style={{display:"flex",gap:8}}>
-                  {log && <button className="btn btn-ghost btn-sm" onClick={()=>{setLog("");setResult(null);setStatus("idle");}}>Clear</button>}
-                  <button className="btn btn-primary" onClick={runAnalysis} disabled={!canAnalyze}>
-                    {status==="analyzing" ? <><span className="spinner"/>Analyzing…</> : "→ Analyze"}
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Result panel */}
-            <div className={styles.panel}>
-              <div className={styles.panelHeader}>
-                <span className={styles.panelLabel}>RESULT</span>
-                {result && isPro && (
-                  <button className="btn btn-ghost btn-sm" onClick={exportReport}>↓ Export</button>
-                )}
-                {result && !isPro && (
-                  <Link to="/pricing" className="btn btn-outline btn-sm">↓ Export (Developer)</Link>
-                )}
-              </div>
-
-              {status === "idle" && (
-                <div className={styles.empty}>
-                  <div style={{fontSize:32}}>📋</div>
-                  <div>Paste a log and click Analyze</div>
-                  <div style={{fontSize:12,color:"var(--t3)"}}>Ctrl+Enter to analyze quickly</div>
-                </div>
-              )}
-
-              {status === "analyzing" && (
-                <div className={styles.analyzing}>
-                  <span className="spinner" style={{width:28,height:28,borderWidth:3}}/>
-                  <div>Analyzing…</div>
-                  <div className={styles.scanBar}><div className={styles.scanFill}/></div>
-                  <div style={{fontSize:12,color:"var(--t3)"}}>Reading error patterns · Building fix plan</div>
-                </div>
-              )}
-
-              {(status === "done" || status === "error") && result && (
-                <div style={{display:"flex",flexDirection:"column",flex:1}}>
-                  <div className={styles.metrics}>
-                    <div className={styles.metric}>
-                      <div className={styles.metricLabel}>Severity</div>
-                      <div className={styles.metricValue} style={{color:sevColor[result.severity]||"var(--t1)"}}>{result.severity}</div>
-                    </div>
-                    <div className={styles.metric}>
-                      <div className={styles.metricLabel}>Source</div>
-                      <div className={styles.metricValue}>{result.source_detected}</div>
-                    </div>
-                    <div className={styles.metric}>
-                      <div className={styles.metricLabel}>Root Cause</div>
-                      <div className={styles.metricValue}>{result.root_cause_category}</div>
-                    </div>
-                    <div className={styles.metric}>
-                      <div className={styles.metricLabel}>Fix Time</div>
-                      <div className={styles.metricValue}>{result.estimated_fix_time}</div>
-                    </div>
+            <div className={styles.layout}>
+              {/* Input panel */}
+              <div className={styles.panel}>
+                <div className={styles.panelHeader}>
+                  <span className={styles.panelLabel}>INPUT LOG</span>
+                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                    <select className={`form-input ${styles.select}`} value={source} onChange={e=>setSource(e.target.value)}>
+                      <option value="auto">Auto-detect</option>
+                      <option value="kubernetes">Kubernetes</option>
+                      <option value="docker">Docker</option>
+                      <option value="aws">AWS</option>
+                      <option value="nginx">Nginx</option>
+                      <option value="postgres">Postgres</option>
+                      <option value="nodejs">Node.js</option>
+                      <option value="python">Python</option>
+                      <option value="linux">Linux/Syslog</option>
+                    </select>
+                    <button className="btn btn-ghost btn-sm" onClick={()=>fileRef.current?.click()}>↑ File</button>
+                    <input ref={fileRef} type="file" accept=".log,.txt,.json" style={{display:"none"}} onChange={handleFile}/>
                   </div>
-
-                  <div className={styles.tabs}>
-                    {TABS.map((t, i) => (
-                      <button key={t} className={`${styles.tab} ${activeTab===i?styles.tabActive:""}`} onClick={()=>setActiveTab(i)}>{t}</button>
+                </div>
+                <textarea
+                  className={styles.textarea}
+                  value={log}
+                  onChange={e=>setLog(e.target.value)}
+                  onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();runAnalysis();}}}
+                  placeholder={"Paste your error log here…\n\nCtrl+Enter to analyze"}
+                  spellCheck={false}
+                  disabled={status==="analyzing"}
+                />
+                <div className={styles.panelFooter}>
+                  <div className={styles.examples}>
+                    <span className={styles.examplesLabel}>Try:</span>
+                    {Object.keys(EXAMPLES).map(k => (
+                      <button key={k} className={styles.chip} onClick={()=>loadExample(k)}>{k}</button>
                     ))}
                   </div>
-
-                  <div className={styles.tabBody}>
-                    {activeTab === 0 && (
-                      <div>
-                        <p className={styles.plainEnglish}>{result.plain_english}</p>
-                        <div style={{marginTop:14,display:"flex",gap:8,flexWrap:"wrap"}}>
-                          <span className="badge badge-blue">{result.root_cause_category}</span>
-                          <span className="badge badge-gray">Confidence: {result.confidence}</span>
-                        </div>
-                      </div>
-                    )}
-                    {activeTab === 1 && (
-                      <div>
-                        <ol className={styles.steps}>
-                          {(result.resolution_steps||[]).map(s => (
-                            <li key={s.step} className={styles.step}>
-                              <div className={styles.stepNum}>{s.step}</div>
-                              <div>
-                                <div className={styles.stepAction}>{s.action}</div>
-                                {s.command && <code className={styles.cmd}>$ {s.command}</code>}
-                              </div>
-                            </li>
-                          ))}
-                        </ol>
-                        {!isPro && (
-                          <div className={styles.planGate}>
-                            <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
-                            <div style={{fontSize:13,color:"var(--t2)",marginBottom:14}}>Upgrade for complete step-by-step commands and downloadable reports.</div>
-                            <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $10/mo</Link>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                    {activeTab === 2 && (
-                      <div>
-                        <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.8,marginBottom:16}}>{result.technical_context}</p>
-                        {(result.related_errors||[]).length > 0 && (
-                          <>
-                            <div className={styles.sectionLabel}>Related errors</div>
-                            <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
-                              {result.related_errors.map((e,i)=><li key={i} style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--t2)",paddingLeft:14,position:"relative"}}>→ {e}</li>)}
-                            </ul>
-                          </>
-                        )}
-                      </div>
-                    )}
-                    {activeTab === 3 && (
-                      <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:12}}>
-                        {(result.prevention||[]).map((p,i)=>(
-                          <li key={i} style={{display:"flex",gap:10,fontSize:14}}>
-                            <span style={{color:"var(--green)",fontWeight:700,flexShrink:0}}>✓</span>{p}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
+                  <div style={{display:"flex",gap:8}}>
+                    {log && <button className="btn btn-ghost btn-sm" onClick={()=>{setLog("");setResult(null);setStatus("idle");}}>Clear</button>}
+                    <button className="btn btn-primary" onClick={runAnalysis} disabled={!canAnalyze}>
+                      {status==="analyzing" ? <><span className="spinner"/>Analyzing…</> : "→ Analyze"}
+                    </button>
                   </div>
                 </div>
-              )}
+              </div>
+
+              {/* Result panel */}
+              <div className={styles.panel}>
+                <div className={styles.panelHeader}>
+                  <span className={styles.panelLabel}>RESULT</span>
+                  {result && isPro && (
+                    <button className="btn btn-ghost btn-sm" onClick={exportReport}>↓ Export</button>
+                  )}
+                  {result && !isPro && (
+                    <Link to="/pricing" className="btn btn-outline btn-sm">↓ Export (Developer)</Link>
+                  )}
+                </div>
+
+                {status === "idle" && (
+                  <div className={styles.empty}>
+                    <div style={{fontSize:32}}>📋</div>
+                    <div>Paste a log and click Analyze</div>
+                    <div style={{fontSize:12,color:"var(--t3)"}}>Ctrl+Enter to analyze quickly</div>
+                  </div>
+                )}
+
+                {status === "analyzing" && (
+                  <div className={styles.analyzing}>
+                    <span className="spinner" style={{width:28,height:28,borderWidth:3}}/>
+                    <div>Analyzing…</div>
+                    <div className={styles.scanBar}><div className={styles.scanFill}/></div>
+                    <div style={{fontSize:12,color:"var(--t3)"}}>Reading error patterns · Building fix plan</div>
+                  </div>
+                )}
+
+                {(status === "done" || status === "error") && result && (
+                  <div style={{display:"flex",flexDirection:"column",flex:1}}>
+                    <div className={styles.metrics}>
+                      <div className={styles.metric}>
+                        <div className={styles.metricLabel}>Severity</div>
+                        <div className={styles.metricValue} style={{color:sevColor[result.severity]||"var(--t1)"}}>{result.severity}</div>
+                      </div>
+                      <div className={styles.metric}>
+                        <div className={styles.metricLabel}>Source</div>
+                        <div className={styles.metricValue}>{result.source_detected}</div>
+                      </div>
+                      <div className={styles.metric}>
+                        <div className={styles.metricLabel}>Root Cause</div>
+                        <div className={styles.metricValue}>{result.root_cause_category}</div>
+                      </div>
+                      <div className={styles.metric}>
+                        <div className={styles.metricLabel}>Fix Time</div>
+                        <div className={styles.metricValue}>{result.estimated_fix_time}</div>
+                      </div>
+                    </div>
+
+                    <div className={styles.tabs}>
+                      {TABS.map((t, i) => (
+                        <button key={t} className={`${styles.tab} ${activeTab===i?styles.tabActive:""}`} onClick={()=>setActiveTab(i)}>{t}</button>
+                      ))}
+                    </div>
+
+                    <div className={styles.tabBody}>
+                      {activeTab === 0 && (
+                        <div>
+                          <p className={styles.plainEnglish}>{result.plain_english}</p>
+                          <div style={{marginTop:14,display:"flex",gap:8,flexWrap:"wrap"}}>
+                            <span className="badge badge-blue">{result.root_cause_category}</span>
+                            <span className="badge badge-gray">Confidence: {result.confidence}</span>
+                          </div>
+                        </div>
+                      )}
+
+                      {activeTab === 1 && (
+                        <div>
+                          <div className={styles.stepsIntro}>
+                            Follow these steps to resolve the issue. Click <strong>"Ask about this step"</strong> under any step to chat with AI for clarification.
+                          </div>
+                          <div className={styles.stepsList}>
+                            {(result.resolution_steps||[]).map(s => (
+                              <StepChat key={s.step} step={s} result={result} log={log} />
+                            ))}
+                          </div>
+                          {!isPro && (
+                            <div className={styles.planGate}>
+                              <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
+                              <div style={{fontSize:13,color:"var(--t2)",marginBottom:14}}>Upgrade for complete step-by-step commands, per-step AI chat, and downloadable reports.</div>
+                              <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $10/mo</Link>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {activeTab === 2 && (
+                        <div>
+                          <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.8,marginBottom:16}}>{result.technical_context}</p>
+                          {(result.related_errors||[]).length > 0 && (
+                            <>
+                              <div className={styles.sectionLabel}>Related errors</div>
+                              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
+                                {result.related_errors.map((e,i)=><li key={i} style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--t2)",paddingLeft:14,position:"relative"}}>→ {e}</li>)}
+                              </ul>
+                            </>
+                          )}
+                        </div>
+                      )}
+
+                      {activeTab === 3 && (
+                        <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:12}}>
+                          {(result.prevention||[]).map((p,i)=>(
+                            <li key={i} style={{display:"flex",gap:10,fontSize:14}}>
+                              <span style={{color:"var(--green)",fontWeight:700,flexShrink:0}}>✓</span>{p}
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-          </div>{/* end analyzerFrame */}
         </div>
       </div>
 

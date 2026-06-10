@@ -186,3 +186,49 @@
   .ctaInner{padding:32px 20px}
   .analyzerFrame{padding:10px}
 }
+
+/* ── Resolution steps with chat ─────────────────────────────── */
+.stepsIntro{font-size:13px;color:var(--t2);margin-bottom:16px;padding:10px 14px;background:rgba(79,142,247,.06);border:1px solid rgba(79,142,247,.15);border-radius:8px;line-height:1.6}
+.stepsList{display:flex;flex-direction:column;gap:12px}
+.stepWrap{border:1px solid var(--border);border-radius:10px;overflow:hidden;background:var(--bg)}
+.stepHeader{display:flex;gap:12px;align-items:flex-start;padding:14px}
+.stepContent{flex:1;min-width:0}
+.stepAction{font-size:14px;line-height:1.6;color:var(--t1);font-weight:500}
+.cmdWrap{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.cmd{display:block;background:rgba(0,0,0,.4);border:1px solid var(--border);border-left:3px solid var(--accent);border-radius:6px;padding:8px 12px;font-family:var(--mono);font-size:12px;color:#93c5fd;overflow-x:auto;white-space:pre;flex:1;min-width:0}
+.copyBtn{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--t3);background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:4px 8px;cursor:pointer;transition:all .15s;white-space:nowrap;flex-shrink:0}
+.copyBtn:hover{color:var(--accent);border-color:var(--accent)}
+
+/* ── Chat toggle button ──────────────────────────────────────── */
+.chatToggle{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:600;color:var(--t2);background:rgba(79,142,247,.05);border:none;border-top:1px solid var(--border);padding:8px 14px;cursor:pointer;transition:all .15s;width:100%;text-align:left;letter-spacing:.3px}
+.chatToggle:hover{color:var(--accent);background:rgba(79,142,247,.1)}
+.chatToggleOpen{color:var(--accent);background:rgba(79,142,247,.08)}
+
+/* ── Chat box ────────────────────────────────────────────────── */
+.chatBox{border-top:1px solid var(--border);background:var(--bg2)}
+.chatEmpty{padding:14px;font-size:13px;color:var(--t3);line-height:1.6}
+.chatSuggestions{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.suggestion{background:var(--bg3);border:1px solid var(--border);border-radius:99px;padding:4px 10px;font-size:11px;color:var(--t2);cursor:pointer;transition:all .15s}
+.suggestion:hover{border-color:var(--accent);color:var(--accent)}
+.chatMsgs{display:flex;flex-direction:column;gap:8px;padding:12px 14px;max-height:200px;overflow-y:auto}
+.chatMsg{display:flex;flex-direction:column;gap:3px;max-width:90%}
+.chatUser{align-self:flex-end;align-items:flex-end}
+.chatBot{align-self:flex-start}
+.chatBotLabel{font-size:10px;font-weight:700;color:var(--accent);letter-spacing:1px;text-transform:uppercase;padding-left:2px}
+.chatMsgText{font-size:13px;line-height:1.6;padding:8px 12px;border-radius:10px;white-space:pre-wrap}
+.chatUser .chatMsgText{background:var(--accent);color:#fff;border-radius:10px 10px 2px 10px}
+.chatBot .chatMsgText{background:var(--bg3);color:var(--t1);border-radius:10px 10px 10px 2px;border:1px solid var(--border)}
+.chatInputWrap{display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border);background:var(--bg)}
+.chatInput{flex:1;background:var(--bg2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;font-size:13px;color:var(--t1);outline:none;transition:border-color .15s}
+.chatInput:focus{border-color:var(--accent)}
+.chatInput::placeholder{color:var(--t3)}
+.chatSend{width:34px;height:34px;border-radius:8px;background:var(--accent);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;transition:opacity .15s}
+.chatSend:disabled{opacity:.4;cursor:not-allowed}
+.chatSend:not(:disabled):hover{opacity:.85}
+
+/* ── Typing dots ─────────────────────────────────────────────── */
+.typingDots{display:inline-flex;gap:4px;align-items:center;height:16px}
+.typingDots span{width:6px;height:6px;border-radius:50%;background:var(--t3);animation:bounce 1.2s infinite}
+.typingDots span:nth-child(2){animation-delay:.2s}
+.typingDots span:nth-child(3){animation-delay:.4s}
+@keyframes bounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
