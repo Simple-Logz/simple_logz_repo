@@ -67,8 +67,11 @@ export default function Navbar({ onThemeToggle, theme }) {
 
           {/* Brand */}
           <Link to="/" className={styles.brand}>
-            <div className={styles.logo}>SL</div>
-            <span className={styles.brandName}>SimpleLogz</span>
+            <img
+              src={theme === "dark" ? "/simplelogz-logo-dark.png" : "/simplelogz-logo-light.png"}
+              alt="SimpleLogz"
+              className={styles.logoImg}
+            />
           </Link>
 
           {/* Desktop nav links */}
