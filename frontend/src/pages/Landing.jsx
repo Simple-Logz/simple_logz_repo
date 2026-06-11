@@ -455,15 +455,6 @@ export default function Landing() {
 
       {/* ── Stats + Features + CTA + Footer ───────────────── */}
       <div className="container">
-        <div className={styles.stats}>
-          <div className={styles.stat}><div className={styles.statNum}>50,000+</div><div className={styles.statLabel}>Logs analyzed</div></div>
-          <div className={styles.statDivider}/>
-          <div className={styles.stat}><div className={styles.statNum}>8</div><div className={styles.statLabel}>Platforms supported</div></div>
-          <div className={styles.statDivider}/>
-          <div className={styles.stat}><div className={styles.statNum}>&lt; 3s</div><div className={styles.statLabel}>Average analysis time</div></div>
-          <div className={styles.statDivider}/>
-          <div className={styles.stat}><div className={styles.statNum}>98%</div><div className={styles.statLabel}>Accuracy rate</div></div>
-        </div>
 
         <div className={styles.sectionHead}>
           <div className={styles.sectionEyebrow}>Platform Features</div>
