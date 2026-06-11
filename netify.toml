@@ -1,7 +1,11 @@
 [build]
   base = "frontend"
   command = "npm run build"
+<<<<<<< HEAD
   publish = "dist"
+=======
+  publish = "frontend/dist"
+>>>>>>> origin/SimpleLogz/Test
 
 [[headers]]
   for = "*.js"
