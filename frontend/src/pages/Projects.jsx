@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
@@ -30,6 +31,12 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
   const [stack,  setStack]  = useState(existing?.stack || []);
   const [saving, setSaving] = useState(false);
 
+  // Lock body scroll while modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+
   function toggleStack(s) {
     setStack(prev => prev.includes(s) ? prev.filter(x => x !== s) : [...prev, s]);
   }
@@ -59,7 +66,7 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
     }
   }
 
-  return (
+  return createPortal(
     <div className={styles.overlay} onClick={e => e.target === e.currentTarget && onClose()}>
       <div className={styles.modal}>
         <div className={styles.modalHeader}>
@@ -121,11 +128,10 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
-
-// ── Projects page ─────────────────────────────────────────────
 export default function Projects() {
   const { getToken, isLoggedIn } = useAuth();
   const { showToast } = useToast();
