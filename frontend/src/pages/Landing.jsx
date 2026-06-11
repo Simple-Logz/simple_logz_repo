@@ -453,7 +453,7 @@ export default function Landing() {
         </div>
       </div>
 
-      {/* ── Stats + Features + CTA + Footer ───────────────── */}
+      {/* ── Features + CTA + Footer ───────────────── */}
       <div className="container">
 
         <div className={styles.sectionHead}>
