@@ -480,9 +480,15 @@ function CodeInspectorTab({ project }) {
     setFixingIdx(idx); setFixError(null);
     try {
       const token = await getToken();
+      // Pass description as the fallback suggestion if suggestion is missing
       const data  = await apiFetch("/api/apply-fix", {
         method: "POST",
-        body: JSON.stringify({ code, line: iss.line, description: iss.description, suggestion: iss.suggestion }),
+        body: JSON.stringify({
+          code,
+          line: iss.line,
+          description: iss.description,
+          suggestion: iss.suggestion || iss.description,
+        }),
       }, token);
       setCode(data.patched_code);
       setResolved(prev => new Set([...prev, idx]));
@@ -573,18 +579,16 @@ function CodeInspectorTab({ project }) {
                         </button>
                         <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
                         <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
-                        {iss.suggestion && (
-                          <button
-                            className={styles.runFixBtn}
-                            onClick={() => applyFix(i, iss)}
-                            disabled={fixingIdx !== null}
-                            title="Apply this fix automatically"
-                          >
-                            {isFixing
-                              ? <><span className="spinner" style={{width:10,height:10,borderWidth:2}}/> Fixing…</>
-                              : <>⚡ Fix Now</>}
-                          </button>
-                        )}
+                        <button
+                          className={styles.runFixBtn}
+                          onClick={() => applyFix(i, iss)}
+                          disabled={fixingIdx !== null}
+                          title="Apply this fix automatically"
+                        >
+                          {isFixing
+                            ? <><span className="spinner" style={{width:10,height:10,borderWidth:2}}/> Fixing…</>
+                            : <>⚡ Fix Now</>}
+                        </button>
                       </div>
                       <div className={styles.flaggedDesc}>{iss.description}</div>
                       {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
