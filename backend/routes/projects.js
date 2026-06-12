@@ -28,18 +28,12 @@ router.post("/", requireAuth, async (req, res) => {
 
   const plan = await getUserPlan(req.user.id);
 
-  // Free plan: max 1 project
-  if (plan === "free") {
-    const { count } = await supabase
-      .from("projects")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", req.user.id);
-    if (count >= 1) {
-      return res.status(403).json({
-        error: "Free plan is limited to 1 project. Upgrade to Developer for unlimited projects.",
-        upgrade: true,
-      });
-    }
+  // Free plan: no projects allowed
+  if (plan !== "developer") {
+    return res.status(403).json({
+      error: "Projects are a Developer plan feature. Upgrade to create unlimited project workspaces.",
+      upgrade: true,
+    });
   }
 
   const { data, error } = await supabase

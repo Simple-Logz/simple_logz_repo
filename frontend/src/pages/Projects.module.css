@@ -4,6 +4,17 @@
 .title { font-size:clamp(22px,2.5vw,30px); font-weight:700; letter-spacing:-.5px; margin-bottom:6px }
 .sub { font-size:14px; color:var(--t2); line-height:1.6; max-width:480px }
 
+/* ── Upgrade banner ──────────────────────────────────────────── */
+.upgradeBanner {
+  display:flex; align-items:center; gap:16px; padding:18px 22px;
+  background:linear-gradient(135deg,rgba(108,92,231,0.08),rgba(162,155,254,0.05));
+  border:1px solid rgba(108,92,231,0.25); border-radius:14px;
+  margin-bottom:32px; flex-wrap:wrap;
+}
+.upgradeBannerIcon { font-size:28px; flex-shrink:0 }
+.upgradeBannerTitle { font-size:14px; font-weight:700; color:var(--t1); margin-bottom:4px }
+.upgradeBannerSub { font-size:13px; color:var(--t2); line-height:1.5 }
+
 /* ── Empty / loading ─────────────────────────────────────────── */
 .loading { display:flex; align-items:center; justify-content:center; min-height:400px }
 .empty { display:flex; flex-direction:column; align-items:center; text-align:center; padding:80px 40px; gap:16px }

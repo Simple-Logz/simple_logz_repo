@@ -175,9 +175,10 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
 
 // ── Projects page ─────────────────────────────────────────────
 export default function Projects() {
-  const { getToken, isLoggedIn } = useAuth();
+  const { getToken, isLoggedIn, profile } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const isDeveloper = profile?.plan === "developer";
   const [projects,    setProjects]    = useState([]);
   const [loading,     setLoading]     = useState(true);
   const [showModal,   setShowModal]   = useState(false);
@@ -239,10 +240,28 @@ export default function Projects() {
             <h1 className={styles.title}>Projects</h1>
             <p className={styles.sub}>Each project is a dedicated workspace for one application, service, or environment.</p>
           </div>
-          <button className="btn btn-primary" onClick={() => { setEditProject(null); setShowModal(true); }}>
-            <IconPlus/> New project
-          </button>
+          {isDeveloper ? (
+            <button className="btn btn-primary" onClick={() => { setEditProject(null); setShowModal(true); }}>
+              <IconPlus/> New project
+            </button>
+          ) : (
+            <a href="/pricing" className="btn btn-outline" style={{display:"flex",alignItems:"center",gap:8,fontSize:13}}>
+              🔒 Upgrade to create projects
+            </a>
+          )}
         </div>
+
+        {/* ── Free plan upgrade banner ──────────────── */}
+        {!isDeveloper && (
+          <div className={styles.upgradeBanner}>
+            <div className={styles.upgradeBannerIcon}>🚀</div>
+            <div>
+              <div className={styles.upgradeBannerTitle}>Projects are a Developer plan feature</div>
+              <div className={styles.upgradeBannerSub}>Upgrade to get unlimited projects, Log Analyzer, Code Inspector, AI Runbooks, Pattern Intelligence, and more.</div>
+            </div>
+            <a href="/pricing" className="btn btn-primary" style={{flexShrink:0,fontSize:13}}>Upgrade — $12/mo</a>
+          </div>
+        )}
 
         {/* ── Content ──────────────────────────────── */}
         {loading ? (
@@ -258,9 +277,13 @@ export default function Projects() {
             <p className={styles.emptySub}>
               Create your first project to start building a dedicated incident workspace for your application — with history, runbooks, and team collaboration all in one place.
             </p>
-            <button className="btn btn-primary" style={{marginTop:8}} onClick={() => setShowModal(true)}>
-              <IconPlus/> Create your first project
-            </button>
+            {isDeveloper ? (
+              <button className="btn btn-primary" style={{marginTop:8}} onClick={() => setShowModal(true)}>
+                <IconPlus/> Create your first project
+              </button>
+            ) : (
+              <a href="/pricing" className="btn btn-primary" style={{marginTop:8}}>Upgrade to get started</a>
+            )}
           </div>
         ) : (
           <div className={styles.grid}>

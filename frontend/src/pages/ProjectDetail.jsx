@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
@@ -266,22 +266,70 @@ function IncidentsTab({ analyses, projectId }) {
   );
 }
 
+// ── Shared Code Editor with line numbers ──────────────────────
+function CodeEditorPane({ value, onChange, placeholder, activeLine = null }) {
+  const textaRef = useRef(null);
+  const gutterRef = useRef(null);
+  const lines = value ? value.split("\n") : [""];
+  const count = Math.max(lines.length, 1);
+
+  // Sync gutter scroll to textarea scroll
+  function onScroll() {
+    if (gutterRef.current && textaRef.current)
+      gutterRef.current.scrollTop = textaRef.current.scrollTop;
+  }
+
+  // Jump to active line when it changes
+  useEffect(() => {
+    if (activeLine != null && textaRef.current) {
+      // line-height 1.6 × font-size 13px = 20.8px per line, top padding 14px
+      const lineH = 20.8;
+      const offset = 14 + (activeLine - 1) * lineH;
+      textaRef.current.scrollTop = Math.max(0, offset - 60);
+    }
+  }, [activeLine]);
+
+  return (
+    <div className={styles.editorWrap}>
+      <div className={styles.editorGutter} ref={gutterRef} aria-hidden="true">
+        {Array.from({ length: count }, (_, i) => (
+          <div
+            key={i}
+            className={styles.editorLineNum + (activeLine === i + 1 ? " " + styles.editorLineNumActive : "")}
+          >
+            {i + 1}
+          </div>
+        ))}
+      </div>
+      <textarea
+        ref={textaRef}
+        className={styles.editorTextarea}
+        value={value}
+        onChange={onChange}
+        onScroll={onScroll}
+        placeholder={placeholder}
+        spellCheck={false}
+      />
+    </div>
+  );
+}
+
 // ── Log Analyzer Tab ──────────────────────────────────────────
 const PLATFORMS = ["auto","Node.js","Python","Docker","Kubernetes","Nginx","Postgres","AWS","Linux","Java","Go","PHP","Ruby"];
 const SEV_DOT = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)", INFO:"var(--t3)", CLEAN:"var(--green)" };
 
 function LogAnalyzerTab({ project }) {
   const { getToken } = useAuth();
-  const [log,      setLog]      = useState("");
-  const [platform, setPlatform] = useState("auto");
-  const [result,   setResult]   = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState(null);
-  const lineCount = log.split("\n").length;
+  const [log,        setLog]        = useState("");
+  const [platform,   setPlatform]   = useState("auto");
+  const [result,     setResult]     = useState(null);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState(null);
+  const [activeLine, setActiveLine] = useState(null);
 
   async function analyze() {
     if (!log.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true); setError(null); setResult(null); setActiveLine(null);
     try {
       const token = await getToken();
       const data  = await apiFetch("/api/log-analyze", {
@@ -292,28 +340,29 @@ function LogAnalyzerTab({ project }) {
     finally { setLoading(false); }
   }
 
+  function jumpTo(lineNum) {
+    setActiveLine(lineNum);
+    setTimeout(() => setActiveLine(null), 2000); // flash for 2s then clear
+  }
+
   return (
     <div className={styles.tabContent}>
       <div className={styles.aiToolHeader}>
         <div>
           <div className={styles.secLabel}>Log Analyzer</div>
-          <p className={styles.aiToolDesc}>Paste any log output — AI identifies every error with exact line numbers, root cause, and a specific fix.</p>
+          <p className={styles.aiToolDesc}>Paste any log output — AI identifies every error with exact line numbers, root cause, and a specific fix. Click any line badge to jump to it.</p>
         </div>
         <select className={styles.platformSelect} value={platform} onChange={e => setPlatform(e.target.value)}>
           {PLATFORMS.map(p => <option key={p} value={p}>{p === "auto" ? "Auto-detect platform" : p}</option>)}
         </select>
       </div>
 
-      <div className={styles.logInputWrap}>
-        <textarea
-          className={styles.logTextarea}
-          value={log}
-          onChange={e => setLog(e.target.value)}
-          placeholder={"Paste your logs here...\n\nExamples:\n  • Docker container logs\n  • Node.js stack traces\n  • Kubernetes events\n  • Nginx / Postgres errors\n  • Python tracebacks\n  • AWS CloudWatch output"}
-          spellCheck={false}
-        />
-        <div className={styles.lineCounter}>{lineCount} line{lineCount !== 1 ? "s" : ""}</div>
-      </div>
+      <CodeEditorPane
+        value={log}
+        onChange={e => { setLog(e.target.value); if (result) setResult(null); }}
+        placeholder={"Paste your logs here...\n\nExamples:\n  • Docker container logs\n  • Node.js stack traces\n  • Kubernetes events\n  • Nginx / Postgres errors\n  • Python tracebacks\n  • AWS CloudWatch output"}
+        activeLine={activeLine}
+      />
 
       <div className={styles.analyzeRow}>
         <button
@@ -331,7 +380,6 @@ function LogAnalyzerTab({ project }) {
 
       {result && (
         <div className={styles.analysisResult}>
-          {/* Summary bar */}
           <div className={styles.resultSummaryBar}>
             <div className={styles.resultSevBadge} style={{background: SEV_DOT[result.overall_severity] + "22", color: SEV_DOT[result.overall_severity]}}>
               {result.overall_severity}
@@ -350,7 +398,6 @@ function LogAnalyzerTab({ project }) {
             </div>
           )}
 
-          {/* Flagged lines */}
           {result.flagged_lines?.length > 0 && (
             <div className={styles.flaggedSection}>
               <div className={styles.secLabel} style={{marginBottom:10}}>Flagged Lines</div>
@@ -358,7 +405,9 @@ function LogAnalyzerTab({ project }) {
                 {result.flagged_lines.map((fl, i) => (
                   <div key={i} className={styles.flaggedRow}>
                     <div className={styles.flaggedMeta}>
-                      <span className={styles.flaggedLineNum}>L{fl.line_number}</span>
+                      <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(fl.line_number)} title="Jump to this line">
+                        ↑ L{fl.line_number}
+                      </button>
                       <span className={styles.flaggedSev} style={{color: SEV_DOT[fl.severity]}}>{fl.severity}</span>
                       <span className={styles.flaggedType}>{fl.issue_type}</span>
                     </div>
@@ -371,7 +420,6 @@ function LogAnalyzerTab({ project }) {
             </div>
           )}
 
-          {/* Recommendations */}
           {result.recommendations?.length > 0 && (
             <div className={styles.recsSection}>
               <div className={styles.secLabel} style={{marginBottom:10}}>Recommendations</div>
@@ -405,14 +453,19 @@ function CodeInspectorTab({ project }) {
   const [result,     setResult]     = useState(null);
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState(null);
-  const [resolved,   setResolved]   = useState(new Set()); // indices of fixed issues
-  const [fixingIdx,  setFixingIdx]  = useState(null);      // index currently being fixed
+  const [resolved,   setResolved]   = useState(new Set());
+  const [fixingIdx,  setFixingIdx]  = useState(null);
   const [fixError,   setFixError]   = useState(null);
-  const lineCount = code.split("\n").length;
+  const [activeLine, setActiveLine] = useState(null);
+
+  function jumpTo(lineNum) {
+    setActiveLine(lineNum);
+    setTimeout(() => setActiveLine(null), 2000);
+  }
 
   async function inspect() {
     if (!code.trim()) return;
-    setLoading(true); setError(null); setResult(null); setResolved(new Set()); setFixError(null);
+    setLoading(true); setError(null); setResult(null); setResolved(new Set()); setFixError(null); setActiveLine(null);
     try {
       const token = await getToken();
       const data  = await apiFetch("/api/code-inspect", {
@@ -453,16 +506,12 @@ function CodeInspectorTab({ project }) {
         </select>
       </div>
 
-      <div className={styles.logInputWrap}>
-        <textarea
-          className={styles.logTextarea}
-          value={code}
-          onChange={e => { setCode(e.target.value); if (result) { setResult(null); setResolved(new Set()); } }}
-          placeholder={"Paste your code here...\n\nThe inspector will check for:\n  • Bugs and logic errors\n  • Security vulnerabilities\n  • Performance bottlenecks\n  • Deprecated patterns\n\nSupports JS, TS, Python, Go, Java, PHP, Ruby, Rust, and more."}
-          spellCheck={false}
-        />
-        <div className={styles.lineCounter}>{lineCount} line{lineCount !== 1 ? "s" : ""}</div>
-      </div>
+      <CodeEditorPane
+        value={code}
+        onChange={e => { setCode(e.target.value); if (result) { setResult(null); setResolved(new Set()); } }}
+        placeholder={"Paste your code here...\n\nThe inspector will check for:\n  • Bugs and logic errors\n  • Security vulnerabilities\n  • Performance bottlenecks\n  • Deprecated patterns\n\nSupports JS, TS, Python, Go, Java, PHP, Ruby, Rust, and more."}
+        activeLine={activeLine}
+      />
 
       <div className={styles.analyzeRow}>
         <button
@@ -519,7 +568,9 @@ function CodeInspectorTab({ project }) {
                   return (
                     <div key={i} className={styles.flaggedRow}>
                       <div className={styles.flaggedMeta}>
-                        <span className={styles.flaggedLineNum}>L{iss.line}</span>
+                        <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(iss.line)} title="Jump to this line">
+                          ↑ L{iss.line}
+                        </button>
                         <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
                         <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
                         {iss.suggestion && (
@@ -531,7 +582,7 @@ function CodeInspectorTab({ project }) {
                           >
                             {isFixing
                               ? <><span className="spinner" style={{width:10,height:10,borderWidth:2}}/> Fixing…</>
-                              : <>▶ Run Fix</>}
+                              : <>⚡ Fix Now</>}
                           </button>
                         )}
                       </div>
