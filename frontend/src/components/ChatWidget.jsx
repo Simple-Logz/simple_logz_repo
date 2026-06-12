@@ -151,6 +151,14 @@ export default function ChatWidget() {
         {open ? <IconClose/> : <IconChat/>}
       </button>
 
+      {/* Backdrop — click anywhere to close */}
+      {open && (
+        <div
+          onClick={() => setOpen(false)}
+          style={{ position:"fixed", inset:0, zIndex:898 }}
+        />
+      )}
+
       {/* Panel */}
       {open && (
         <div style={{
