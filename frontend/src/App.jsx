@@ -37,7 +37,7 @@ function AppShell() {
   return (
     <div style={{ display:"flex", minHeight:"100vh" }}>
       <Sidebar onThemeToggle={toggleTheme} theme={theme}/>
-      <div className="app-content" style={{ flex:1, display:"flex", flexDirection:"column", minHeight:"100vh", overflow:"auto" }}>
+      <div className="app-content" style={{ flex:1, display:"flex", flexDirection:"column", minHeight:"100vh", overflow:"auto", maxWidth:"100vw" }}>
         <Routes>
           <Route path="/"              element={<Landing/>}/>
           <Route path="/login"         element={<Login/>}/>

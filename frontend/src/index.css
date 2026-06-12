@@ -20,8 +20,8 @@
 
 /* ── Reset ──────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:18px;scroll-behavior:smooth;overflow-x:hidden}
-body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px;overflow-x:hidden;overscroll-behavior:none}
+html{font-size:18px;scroll-behavior:smooth;overflow-x:hidden;overflow-y:auto;touch-action:pan-y}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px;overflow-x:hidden;overscroll-behavior:none;touch-action:pan-y}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 input,textarea,select{font-family:inherit;font-size:16px}
 a{color:var(--accent);text-decoration:none}
@@ -99,21 +99,24 @@ textarea.form-input{resize:vertical;line-height:1.7}
   .sl-sidebar   { display: none !important; }
   .sl-hamburger { display: flex !important; }
 
-  /* Push all page content below the fixed hamburger bar */
-  .app-content  { padding-top: 62px !important; }
+  /* ── Lock page — nothing pans, nothing overflows ── */
+  html, body, #root {
+    overflow-x: hidden !important;
+    max-width: 100vw !important;
+    overscroll-behavior: none !important;
+    touch-action: pan-y !important; /* vertical scroll only */
+  }
 
-  /* Prevent ANY horizontal overflow / pendulum panning */
-  html, body    { overflow-x: hidden !important; max-width: 100vw; }
-  #root         { overflow-x: hidden; max-width: 100vw; }
+  /* Push page content below the fixed hamburger */
+  .app-content { padding-top: 64px !important; }
 
-  /* Tighter container padding on small screens */
-  .container    { padding: 0 16px; }
+  /* Tighter container on phones */
+  .container { padding: 0 14px !important; }
 
-  /* Prevent wide code blocks / textareas from blowing out the layout */
-  textarea, pre, code { max-width: 100%; word-break: break-word; }
-
-  /* Cards / grids don't exceed viewport */
-  .card         { max-width: 100%; }
+  /* Nothing wider than the screen */
+  * { max-width: 100vw; }
+  img, video, iframe, table { max-width: 100% !important; }
+  textarea, pre, code { max-width: 100% !important; word-break: break-all !important; overflow-x: hidden !important; }
 }
 
 /* ── Responsive ──────────────────────────────────────────── */
