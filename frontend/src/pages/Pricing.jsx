@@ -112,8 +112,8 @@ export default function Pricing() {
         {/* Header */}
         <div className={styles.header}>
           <div className={styles.eyebrow}>Pricing</div>
-          <h1 className={styles.title}>Build a real incident response workspace</h1>
-          <p className={styles.sub}>Start free. Upgrade to Developer when you're ready to go beyond single log analysis — into projects, timelines, runbooks, and team collaboration.</p>
+          <div className={styles.title}>Build a real incident response workspace</div>
+          <div className={styles.sub}>Start free. Upgrade to Developer when you're ready to go beyond single log analysis — into projects, timelines, runbooks, and team collaboration.</div>
         </div>
 
         {/* Plan cards */}
