@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
-import Navbar from "./components/layout/Navbar.jsx";
+import Sidebar from "./components/layout/Sidebar.jsx";
 import Landing     from "./pages/Landing.jsx";
 import About       from "./pages/About.jsx";
 import Projects    from "./pages/Projects.jsx";
@@ -32,8 +32,9 @@ function AppShell() {
   }
 
   return (
-    <div style={{display:"flex",flexDirection:"column",minHeight:"100vh"}}>
-      <Navbar onThemeToggle={toggleTheme} theme={theme}/>
+    <div style={{ display:"flex", minHeight:"100vh" }}>
+      <Sidebar onThemeToggle={toggleTheme} theme={theme}/>
+      <div style={{ flex:1, display:"flex", flexDirection:"column", minHeight:"100vh", overflow:"auto" }}>
       <Routes>
         <Route path="/"              element={<Landing/>}/>
         <Route path="/login"         element={<Login/>}/>
@@ -49,6 +50,7 @@ function AppShell() {
         <Route path="/settings"      element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
         <Route path="*"              element={<Navigate to="/" replace/>}/>
       </Routes>
+      </div>
     </div>
   );
 }
