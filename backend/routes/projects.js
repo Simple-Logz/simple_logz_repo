@@ -74,10 +74,12 @@ router.get("/:id", requireAuth, async (req, res) => {
 
 // PATCH /api/projects/:id — update project
 router.patch("/:id", requireAuth, async (req, res) => {
-  const { name, description, stack } = req.body;
+  const { name, description, stack, avatar_url } = req.body;
+  const updateData = { name, description, stack, updated_at: new Date().toISOString() };
+  if (avatar_url !== undefined) updateData.avatar_url = avatar_url;
   const { data, error } = await supabase
     .from("projects")
-    .update({ name, description, stack, updated_at: new Date().toISOString() })
+    .update(updateData)
     .eq("id", req.params.id)
     .eq("user_id", req.user.id)
     .select()

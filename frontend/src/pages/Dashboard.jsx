@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
 import { api } from "../lib/api.js";
+import { uploadToStorage } from "../lib/supabase.js";
 import styles from "./Dashboard.module.css";
 
 function IconAnalyze() { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>; }
@@ -111,13 +112,43 @@ export function Dashboard() {
 const SETTINGS_TABS = ["Profile", "Appearance", "Billing", "Notifications", "Danger Zone"];
 
 export function Settings() {
-  const { profile, signOut, getToken, refreshProfile } = useAuth();
+  const { profile, signOut, getToken, user, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  const [tab, setTab] = useState(0);
-  const [name, setName] = useState(profile?.name || "");
-  const [saving, setSaving] = useState(false);
-  const [darkMode, setDarkMode] = useState(document.documentElement.getAttribute("data-theme") === "dark");
+  const [tab,            setTab]            = useState(0);
+  const [name,           setName]           = useState(profile?.name || "");
+  const [saving,         setSaving]         = useState(false);
+  const [avatarPreview,  setAvatarPreview]  = useState(null);
+  const [avatarUploading,setAvatarUploading]= useState(false);
+  const [darkMode,       setDarkMode]       = useState(document.documentElement.getAttribute("data-theme") === "dark");
+  const avatarInputRef = useRef(null);
+
+  const initials = profile?.name
+    ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+
+  async function handleAvatarUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast("Image must be under 5MB", "error"); return; }
+    const preview = URL.createObjectURL(file);
+    setAvatarPreview(preview);
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const uploadPath = `${user.id}/avatar.${ext}`;
+      const avatarUrl = await uploadToStorage("avatars", uploadPath, file);
+      const token = await getToken();
+      await api.updateProfile({ name: profile?.name || name, avatar: avatarUrl }, token);
+      await refreshProfile();
+      showToast("Profile picture updated!", "success");
+    } catch (err) {
+      setAvatarPreview(null);
+      showToast("Upload failed: " + err.message, "error");
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
 
   async function saveName() {
     setSaving(true);
@@ -177,8 +208,38 @@ export function Settings() {
             {tab === 0 && (
               <div>
                 <h2 className={styles.sectionTitle}>Profile</h2>
-                <p className={styles.sectionSub}>Your display name and email address.</p>
+                <p className={styles.sectionSub}>Your display name, profile picture, and email address.</p>
                 <div className="card" style={{display:"flex",flexDirection:"column",gap:16}}>
+
+                  {/* Avatar upload */}
+                  <div className="form-group">
+                    <label className="form-label">Profile Picture</label>
+                    <div style={{display:"flex",alignItems:"center",gap:16,paddingTop:4}}>
+                      <div style={{
+                        width:72,height:72,borderRadius:"50%",overflow:"hidden",flexShrink:0,
+                        background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",
+                        fontSize:22,fontWeight:700,color:"#fff",
+                        border:"2px solid var(--border2)",
+                      }}>
+                        {(avatarPreview || profile?.avatar)
+                          ? <img src={avatarPreview || profile?.avatar} alt="avatar" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                          : <span>{initials}</span>
+                        }
+                      </div>
+                      <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                        <button
+                          className="btn btn-outline btn-sm"
+                          onClick={() => avatarInputRef.current?.click()}
+                          disabled={avatarUploading}
+                        >
+                          {avatarUploading ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Uploading…</> : "Upload photo"}
+                        </button>
+                        <div style={{fontSize:12,color:"var(--t3)"}}>PNG, JPG, WebP up to 5MB</div>
+                      </div>
+                      <input ref={avatarInputRef} type="file" accept="image/png,image/jpeg,image/webp" style={{display:"none"}} onChange={handleAvatarUpload}/>
+                    </div>
+                  </div>
+
                   <div className="form-group"><label className="form-label">Display Name</label><input className="form-input" value={name} onChange={e => setName(e.target.value)}/></div>
                   <div className="form-group"><label className="form-label">Email</label><input className="form-input" value={profile?.email || ""} disabled style={{opacity:.5}}/></div>
                   <button className="btn btn-primary" style={{alignSelf:"flex-start"}} onClick={saveName} disabled={saving}>

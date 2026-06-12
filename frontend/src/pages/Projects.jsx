@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
+import { uploadToStorage } from "../lib/supabase.js";
 import styles from "./Projects.module.css";
 
 // Gradient palette for cards
@@ -59,12 +60,23 @@ function IconCalendar() {
 
 // ── Modal ─────────────────────────────────────────────────────
 export function ProjectModal({ onClose, onCreated, existing = null }) {
-  const { getToken, isPro } = useAuth();
+  const { getToken, user, isPro } = useAuth();
   const { showToast } = useToast();
-  const [name,   setName]   = useState(existing?.name || "");
-  const [desc,   setDesc]   = useState(existing?.description || "");
-  const [stack,  setStack]  = useState(existing?.stack || []);
-  const [saving, setSaving] = useState(false);
+  const [name,          setName]          = useState(existing?.name || "");
+  const [desc,          setDesc]          = useState(existing?.description || "");
+  const [stack,         setStack]         = useState(existing?.stack || []);
+  const [saving,        setSaving]        = useState(false);
+  const [avatarPreview, setAvatarPreview] = useState(existing?.avatar_url || null);
+  const [avatarFile,    setAvatarFile]    = useState(null);
+  const avatarInputRef = useRef(null);
+
+  function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast("Image must be under 5MB", "error"); return; }
+    setAvatarFile(file);
+    setAvatarPreview(URL.createObjectURL(file));
+  }
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -82,10 +94,29 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
       const token  = await getToken();
       const path   = existing ? `/api/projects/${existing.id}` : "/api/projects";
       const method = existing ? "PATCH" : "POST";
+
+      // First create/update the project to get its ID
       const { project } = await apiFetch(path, {
         method,
         body: JSON.stringify({ name, description: desc, stack }),
       }, token);
+
+      // Upload avatar if a new file was chosen
+      if (avatarFile && project?.id) {
+        try {
+          const ext = avatarFile.name.split(".").pop() || "jpg";
+          const uploadPath = `${project.id}/avatar.${ext}`;
+          const avatarUrl = await uploadToStorage("project-avatars", uploadPath, avatarFile);
+          // Save the URL back to the project
+          await apiFetch(`/api/projects/${project.id}`, {
+            method: "PATCH",
+            body: JSON.stringify({ name, description: desc, stack, avatar_url: avatarUrl }),
+          }, token);
+          project.avatar_url = avatarUrl;
+        } catch (uploadErr) {
+          showToast("Project saved but image upload failed: " + uploadErr.message, "error");
+        }
+      }
       showToast(existing ? "Project updated" : "Project created!", "success");
       onCreated(project);
       onClose();
@@ -112,6 +143,39 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
         </div>
 
         <div className={styles.modalBody}>
+          {/* Project avatar upload */}
+          <div style={{display:"flex",alignItems:"center",gap:16,marginBottom:20}}>
+            <div
+              onClick={() => avatarInputRef.current?.click()}
+              style={{
+                width:64,height:64,borderRadius:14,overflow:"hidden",flexShrink:0,
+                background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",
+                display:"flex",alignItems:"center",justifyContent:"center",
+                fontSize:22,fontWeight:700,color:"#fff",cursor:"pointer",
+                border:"2px dashed rgba(108,92,231,0.4)",position:"relative",
+              }}
+            >
+              {avatarPreview
+                ? <img src={avatarPreview} alt="Project" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : <span>{name?.charAt(0)?.toUpperCase() || "?"}</span>
+              }
+              <div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.35)",display:"flex",alignItems:"center",justifyContent:"center",opacity:0,transition:"opacity .15s"}}
+                onMouseEnter={e => e.currentTarget.style.opacity=1}
+                onMouseLeave={e => e.currentTarget.style.opacity=0}
+              >
+                <span style={{fontSize:11,color:"#fff",fontWeight:600}}>Change</span>
+              </div>
+            </div>
+            <div>
+              <div style={{fontSize:13,fontWeight:600,color:"var(--t1)",marginBottom:4}}>Project Image</div>
+              <button type="button" className="btn btn-outline btn-sm" onClick={() => avatarInputRef.current?.click()}>
+                {avatarFile ? "Image selected ✓" : "Upload image"}
+              </button>
+              <div style={{fontSize:11,color:"var(--t3)",marginTop:4}}>PNG, JPG up to 5MB</div>
+            </div>
+            <input ref={avatarInputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" style={{display:"none"}} onChange={handleAvatarChange}/>
+          </div>
+
           <div className="form-group">
             <label className="form-label">Project name *</label>
             <input
@@ -303,8 +367,11 @@ export default function Projects() {
                   <div className={styles.cardBody}>
                     {/* Avatar + name */}
                     <div className={styles.cardTop}>
-                      <div className={styles.cardAvatar} style={{ background: palette.avatar }}>
-                        {getInitial(p.name)}
+                      <div className={styles.cardAvatar} style={{ background: p.avatar_url ? "transparent" : palette.avatar, overflow:"hidden" }}>
+                        {p.avatar_url
+                          ? <img src={p.avatar_url} alt={p.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                          : getInitial(p.name)
+                        }
                       </div>
                       <div>
                         <div className={styles.cardName}>{p.name}</div>

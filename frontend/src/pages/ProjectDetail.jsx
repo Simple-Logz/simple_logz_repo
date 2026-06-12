@@ -997,7 +997,7 @@ function SettingsTab({ project, onUpdated, onDeleted }) {
 // ── Main ProjectDetail page ───────────────────────────────────
 export default function ProjectDetail() {
   const { id } = useParams();
-  const { getToken, isLoggedIn, loading: authLoading } = useAuth();
+  const { getToken, isLoggedIn, loading: authLoading, profile } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -1064,8 +1064,11 @@ export default function ProjectDetail() {
             <button className={styles.backBtn} onClick={() => navigate("/projects")}>
               <IconBack/> Projects
             </button>
-            <div className={styles.projectAvatar} style={{background: avatarBg}}>
-              {project.name.charAt(0).toUpperCase()}
+            <div className={styles.projectAvatar} style={{background: project.avatar_url ? "transparent" : avatarBg, overflow:"hidden"}}>
+              {project.avatar_url
+                ? <img src={project.avatar_url} alt={project.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : project.name.charAt(0).toUpperCase()
+              }
             </div>
             <div className={styles.projectMeta}>
               <div className={styles.projectName}>{project.name}</div>
@@ -1076,6 +1079,17 @@ export default function ProjectDetail() {
             {project.environment && (
               <span className={styles.envBadge}>{project.environment}</span>
             )}
+            {/* User avatar */}
+            <div title={profile?.name || "You"} style={{
+              width:34,height:34,borderRadius:"50%",overflow:"hidden",flexShrink:0,
+              background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",
+              fontSize:13,fontWeight:700,color:"#fff",border:"2px solid var(--border2)",
+            }}>
+              {profile?.avatar
+                ? <img src={profile.avatar} alt={profile?.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : <span>{profile?.name?.charAt(0)?.toUpperCase() || "U"}</span>
+              }
+            </div>
             <Link to={`/?project=${project.id}`} className="btn btn-primary btn-sm">
               <IconAnalyze/> Analyze log
             </Link>
