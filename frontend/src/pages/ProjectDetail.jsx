@@ -574,7 +574,7 @@ function CodeInspectorTab({ project }) {
                   return (
                     <div key={i} className={styles.flaggedRow}>
                       <div className={styles.flaggedRowInner}>
-                        <div className={styles.flaggedContent}>
+                        <div className={styles.flaggedBody}>
                           <div className={styles.flaggedMeta}>
                             <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(iss.line)} title="Jump to this line">
                               ↑ L{iss.line}
