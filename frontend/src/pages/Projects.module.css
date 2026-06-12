@@ -89,3 +89,61 @@
 .newCard {
   background: transparent;
   border: 1.5px dashed var(--border);
+  border-radius: 16px;
+  min-height: 180px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; cursor: pointer; transition: border-color .2s, background .2s;
+  color: var(--t3);
+}
+.newCard:hover { border-color: #6c5ce7; background: rgba(108,92,231,.04); color: #6c5ce7 }
+
+/* ── Stack chip grid ─────────────────────────────────────────── */
+.stackGrid { display:flex; flex-wrap:wrap; gap:8px; padding-top:4px }
+.stackChip {
+  padding: 6px 12px; border-radius: 8px; font-size: 12px; font-family: var(--mono);
+  border: 1px solid var(--border); color: var(--t2); cursor: pointer;
+  transition: all .15s; background: var(--bg3); user-select: none;
+}
+.stackChip:hover { border-color: var(--border2); color: var(--t1) }
+.stackChipActive { border-color: #6c5ce7 !important; background: rgba(108,92,231,.12) !important; color: #a78bfa !important }
+
+/* ── Plan note ───────────────────────────────────────────────── */
+.planNote {
+  font-size: 12px; color: var(--t3); line-height: 1.6;
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 14px;
+}
+
+/* ── Modal overlay ───────────────────────────────────────────── */
+.overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 500;
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.modal {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 20px;
+  width: 100%; max-width: 540px; max-height: 90vh; overflow-y: auto;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+}
+.modalHeader {
+  display: flex; align-items: flex-start; justify-content: space-between;
+  padding: 28px 28px 0; gap: 12px;
+}
+.modalTitle { font-size: 20px; font-weight: 700; margin-bottom: 4px }
+.modalSub { font-size: 13px; color: var(--t2); line-height: 1.5 }
+.modalClose {
+  background: none; border: none; color: var(--t3); cursor: pointer;
+  padding: 4px; border-radius: 6px; flex-shrink: 0; display: flex;
+}
+.modalClose:hover { color: var(--t1); background: var(--bg3) }
+.modalBody { padding: 20px 28px; display: flex; flex-direction: column; gap: 16px; flex: 1 }
+.modalFooter {
+  padding: 16px 28px 24px; display: flex; gap: 10px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media(max-width: 600px) {
+  .grid { grid-template-columns: 1fr }
+  .modal { max-height: 95vh }
+  .modalHeader, .modalBody, .modalFooter { padding-left: 20px; padding-right: 20px }
+}

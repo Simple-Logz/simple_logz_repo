@@ -80,4 +80,5 @@
 @media(max-width:600px){
   .hero{padding:48px 0 0}
   .statsGrid{grid-template-columns:repeat(2,1fr)}
+
 }

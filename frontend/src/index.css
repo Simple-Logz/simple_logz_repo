@@ -37,7 +37,7 @@ a{color:var(--accent);text-decoration:none}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .container{max-width:1140px;margin:0 auto;padding:0 28px;width:100%}
-.page{animation:fadeIn .25s ease;flex:1;display:flex;flex-direction:column}
+.page{animation:fadeIn .25s ease}
 
 /* ── Buttons ─────────────────────────────────────────────── */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--r);font-size:15px;font-weight:500;transition:all .15s;cursor:pointer;border:none}
