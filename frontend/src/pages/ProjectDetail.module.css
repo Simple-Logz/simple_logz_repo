@@ -161,7 +161,7 @@
   padding:14px 0; overflow:hidden; user-select:none;
 }
 .editorLineNum {
-  font-size:12px; font-family:var(--mono); color:var(--t3); line-height:1.6;
+  font-size:12px; font-family:var(--mono); color:#6b7fa8; line-height:1.6;
   height:calc(13px * 1.6); text-align:right; padding-right:10px;
   transition:color .15s, background .15s;
 }

@@ -267,25 +267,22 @@ function IncidentsTab({ analyses, projectId }) {
 }
 
 // ── Shared Code Editor with line numbers ──────────────────────
-function CodeEditorPane({ value, onChange, placeholder, activeLine = null }) {
+function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKeyDown }) {
   const textaRef = useRef(null);
   const gutterRef = useRef(null);
-  const lines = value ? value.split("\n") : [""];
-  const count = Math.max(lines.length, 1);
+  const lineH = 20.8; // 13px font-size × 1.6 line-height
+  const count = Math.max((value || "").split("\n").length, 1);
 
-  // Sync gutter scroll to textarea scroll
-  function onScroll() {
+  function syncGutter() {
     if (gutterRef.current && textaRef.current)
       gutterRef.current.scrollTop = textaRef.current.scrollTop;
   }
 
-  // Jump to active line when it changes
   useEffect(() => {
     if (activeLine != null && textaRef.current) {
-      // line-height 1.6 × font-size 13px = 20.8px per line, top padding 14px
-      const lineH = 20.8;
       const offset = 14 + (activeLine - 1) * lineH;
       textaRef.current.scrollTop = Math.max(0, offset - 60);
+      syncGutter();
     }
   }, [activeLine]);
 
@@ -306,7 +303,8 @@ function CodeEditorPane({ value, onChange, placeholder, activeLine = null }) {
         className={styles.editorTextarea}
         value={value}
         onChange={onChange}
-        onScroll={onScroll}
+        onScroll={syncGutter}
+        onKeyDown={onKeyDown}
         placeholder={placeholder}
         spellCheck={false}
       />
@@ -448,19 +446,33 @@ function scoreColor(s) {
 
 function CodeInspectorTab({ project }) {
   const { getToken } = useAuth();
-  const [code,       setCode]       = useState("");
-  const [lang,       setLang]       = useState("auto");
-  const [result,     setResult]     = useState(null);
-  const [loading,    setLoading]    = useState(false);
-  const [error,      setError]      = useState(null);
-  const [resolved,   setResolved]   = useState(new Set());
-  const [fixingIdx,  setFixingIdx]  = useState(null);
-  const [fixError,   setFixError]   = useState(null);
-  const [activeLine, setActiveLine] = useState(null);
+  const [code,        setCode]       = useState("");
+  const [lang,        setLang]       = useState("auto");
+  const [result,      setResult]     = useState(null);
+  const [loading,     setLoading]    = useState(false);
+  const [error,       setError]      = useState(null);
+  const [resolved,    setResolved]   = useState(new Set());
+  const [fixingIdx,   setFixingIdx]  = useState(null);
+  const [fixError,    setFixError]   = useState(null);
+  const [activeLine,  setActiveLine] = useState(null);
+  const [codeHistory, setCodeHistory] = useState([]);
 
   function jumpTo(lineNum) {
     setActiveLine(lineNum);
     setTimeout(() => setActiveLine(null), 2000);
+  }
+
+  // Ctrl+Z / Cmd+Z — undo Fix Now changes
+  function handleCodeKeyDown(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === "z" && codeHistory.length > 0) {
+      e.preventDefault();
+      const prev = codeHistory[codeHistory.length - 1];
+      setCode(prev);
+      setCodeHistory(h => h.slice(0, -1));
+      setResult(null);
+      setResolved(new Set());
+      setFixError(null);
+    }
   }
 
   async function inspect() {
@@ -477,10 +489,11 @@ function CodeInspectorTab({ project }) {
   }
 
   async function applyFix(idx, iss) {
+    const snapshot = code; // save for undo
+    setCodeHistory(h => [...h, snapshot]);
     setFixingIdx(idx); setFixError(null);
     try {
       const token = await getToken();
-      // Pass description as the fallback suggestion if suggestion is missing
       const data  = await apiFetch("/api/apply-fix", {
         method: "POST",
         body: JSON.stringify({
@@ -493,6 +506,7 @@ function CodeInspectorTab({ project }) {
       setCode(data.patched_code);
       setResolved(prev => new Set([...prev, idx]));
     } catch (e) {
+      setCodeHistory(h => h.slice(0, -1)); // rollback history on error
       setFixError(`Fix failed for L${iss.line}: ${e.message}`);
     } finally { setFixingIdx(null); }
   }
@@ -514,9 +528,10 @@ function CodeInspectorTab({ project }) {
 
       <CodeEditorPane
         value={code}
-        onChange={e => { setCode(e.target.value); if (result) { setResult(null); setResolved(new Set()); } }}
+        onChange={e => { setCode(e.target.value); setCodeHistory([]); if (result) { setResult(null); setResolved(new Set()); } }}
         placeholder={"Paste your code here...\n\nThe inspector will check for:\n  • Bugs and logic errors\n  • Security vulnerabilities\n  • Performance bottlenecks\n  • Deprecated patterns\n\nSupports JS, TS, Python, Go, Java, PHP, Ruby, Rust, and more."}
         activeLine={activeLine}
+        onKeyDown={handleCodeKeyDown}
       />
 
       <div className={styles.analyzeRow}>
