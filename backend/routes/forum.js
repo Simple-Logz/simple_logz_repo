@@ -58,14 +58,14 @@ router.get("/threads/:id", optionalAuth, async (req, res) => {
 
 // POST /api/forum/threads
 router.post("/threads", forumLimiter, requireAuth, async (req, res) => {
-  const { title, body, category } = req.body;
+  const { title, body, category, file_url } = req.body;
   if (!title?.trim() || !body?.trim()) {
     return res.status(400).json({ error: "Title and body are required." });
   }
 
   const { data, error } = await supabase
     .from("forum_threads")
-    .insert({ user_id: req.user.id, title: title.trim(), body: body.trim(), category: category || "general" })
+    .insert({ user_id: req.user.id, title: title.trim(), body: body.trim(), category: category || "general", file_url: file_url || null })
     .select()
     .single();
 
