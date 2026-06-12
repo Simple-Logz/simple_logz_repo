@@ -82,6 +82,12 @@ export default function FeedbackPopup() {
   if (!visible) return null;
 
   return (
+    <>
+    {/* Tap-outside-to-dismiss backdrop */}
+    <div
+      onClick={dismiss}
+      style={{ position:"fixed", inset:0, zIndex:848 }}
+    />
     <div style={{
       position: "fixed", bottom: 90, right: 24, zIndex: 850,
       width: 300,
@@ -178,5 +184,6 @@ export default function FeedbackPopup() {
         </>
       )}
     </div>
+    </>
   );
 }

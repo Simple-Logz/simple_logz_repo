@@ -37,11 +37,15 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    function handleClick(e) {
+    function handleOutside(e) {
       if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false);
     }
-    document.addEventListener("mousedown", handleClick);
-    return () => document.removeEventListener("mousedown", handleClick);
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
   }, []);
 
   async function handleSignOut() {
