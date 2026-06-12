@@ -400,16 +400,19 @@ function scoreColor(s) {
 
 function CodeInspectorTab({ project }) {
   const { getToken } = useAuth();
-  const [code,     setCode]     = useState("");
-  const [lang,     setLang]     = useState("auto");
-  const [result,   setResult]   = useState(null);
-  const [loading,  setLoading]  = useState(false);
-  const [error,    setError]    = useState(null);
+  const [code,       setCode]       = useState("");
+  const [lang,       setLang]       = useState("auto");
+  const [result,     setResult]     = useState(null);
+  const [loading,    setLoading]    = useState(false);
+  const [error,      setError]      = useState(null);
+  const [resolved,   setResolved]   = useState(new Set()); // indices of fixed issues
+  const [fixingIdx,  setFixingIdx]  = useState(null);      // index currently being fixed
+  const [fixError,   setFixError]   = useState(null);
   const lineCount = code.split("\n").length;
 
   async function inspect() {
     if (!code.trim()) return;
-    setLoading(true); setError(null); setResult(null);
+    setLoading(true); setError(null); setResult(null); setResolved(new Set()); setFixError(null);
     try {
       const token = await getToken();
       const data  = await apiFetch("/api/code-inspect", {
@@ -419,6 +422,24 @@ function CodeInspectorTab({ project }) {
     } catch (e) { setError(e.message || "Inspection failed. Please retry."); }
     finally { setLoading(false); }
   }
+
+  async function applyFix(idx, iss) {
+    setFixingIdx(idx); setFixError(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/apply-fix", {
+        method: "POST",
+        body: JSON.stringify({ code, line: iss.line, description: iss.description, suggestion: iss.suggestion }),
+      }, token);
+      setCode(data.patched_code);
+      setResolved(prev => new Set([...prev, idx]));
+    } catch (e) {
+      setFixError(`Fix failed for L${iss.line}: ${e.message}`);
+    } finally { setFixingIdx(null); }
+  }
+
+  const visibleIssues = result?.issues?.filter((_, i) => !resolved.has(i)) ?? [];
+  const allFixed = result && result.issues?.length > 0 && visibleIssues.length === 0;
 
   return (
     <div className={styles.tabContent}>
@@ -436,7 +457,7 @@ function CodeInspectorTab({ project }) {
         <textarea
           className={styles.logTextarea}
           value={code}
-          onChange={e => setCode(e.target.value)}
+          onChange={e => { setCode(e.target.value); if (result) { setResult(null); setResolved(new Set()); } }}
           placeholder={"Paste your code here...\n\nThe inspector will check for:\n  • Bugs and logic errors\n  • Security vulnerabilities\n  • Performance bottlenecks\n  • Deprecated patterns\n\nSupports JS, TS, Python, Go, Java, PHP, Ruby, Rust, and more."}
           spellCheck={false}
         />
@@ -452,10 +473,11 @@ function CodeInspectorTab({ project }) {
         >
           {loading ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/> Inspecting…</> : <><IconCode/> Inspect Code</>}
         </button>
-        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setCode(""); }}>Clear</button>}
+        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setCode(""); setResolved(new Set()); }}>Clear</button>}
       </div>
 
-      {error && <div className={styles.aiError}>{error}</div>}
+      {error    && <div className={styles.aiError}>{error}</div>}
+      {fixError && <div className={styles.aiError}>{fixError}</div>}
 
       {result && (
         <div className={styles.analysisResult}>
@@ -467,46 +489,78 @@ function CodeInspectorTab({ project }) {
             </div>
             <div className={styles.scoreDetails}>
               <div className={styles.scoreVerdict}>{result.verdict}</div>
-              <div className={styles.scoreLang}>{result.language} · {result.total_lines} lines · {result.issues_found} issue{result.issues_found !== 1 ? "s" : ""}</div>
+              <div className={styles.scoreLang}>{result.language} · {result.total_lines} lines · {visibleIssues.length} issue{visibleIssues.length !== 1 ? "s" : ""} remaining</div>
               {result.summary && <p className={styles.scoreSummary}>{result.summary}</p>}
             </div>
           </div>
 
+          {/* All fixed celebration */}
+          {allFixed && (
+            <div className={styles.allFixedCard}>
+              <span style={{fontSize:28}}>✅</span>
+              <div>
+                <div className={styles.allFixedTitle}>All issues resolved!</div>
+                <div className={styles.allFixedSub}>Your code is clean. The fixes have been applied to the editor above — copy it out when ready.</div>
+              </div>
+            </div>
+          )}
+
           {/* Issues */}
-          {result.issues?.length > 0 && (
+          {visibleIssues.length > 0 && (
             <div className={styles.flaggedSection}>
-              <div className={styles.secLabel} style={{marginBottom:10}}>Issues Found</div>
+              <div className={styles.secLabel} style={{marginBottom:10}}>
+                Issues Found
+                {resolved.size > 0 && <span style={{marginLeft:8,fontSize:11,color:"var(--green)",fontWeight:500}}>· {resolved.size} fixed</span>}
+              </div>
               <div className={styles.flaggedTable}>
-                {result.issues.map((iss, i) => (
-                  <div key={i} className={styles.flaggedRow}>
-                    <div className={styles.flaggedMeta}>
-                      <span className={styles.flaggedLineNum}>L{iss.line}</span>
-                      <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
-                      <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
+                {result.issues.map((iss, i) => {
+                  if (resolved.has(i)) return null;
+                  const isFixing = fixingIdx === i;
+                  return (
+                    <div key={i} className={styles.flaggedRow}>
+                      <div className={styles.flaggedMeta}>
+                        <span className={styles.flaggedLineNum}>L{iss.line}</span>
+                        <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
+                        <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
+                        {iss.suggestion && (
+                          <button
+                            className={styles.runFixBtn}
+                            onClick={() => applyFix(i, iss)}
+                            disabled={fixingIdx !== null}
+                            title="Apply this fix automatically"
+                          >
+                            {isFixing
+                              ? <><span className="spinner" style={{width:10,height:10,borderWidth:2}}/> Fixing…</>
+                              : <>▶ Run Fix</>}
+                          </button>
+                        )}
+                      </div>
+                      <div className={styles.flaggedDesc}>{iss.description}</div>
+                      {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
                     </div>
-                    <div className={styles.flaggedDesc}>{iss.description}</div>
-                    {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}
 
           {/* Strengths + improvements */}
-          <div className={styles.strengthsGrid}>
-            {result.strengths?.length > 0 && (
-              <div className={styles.strengthsCard}>
-                <div className={styles.secLabel} style={{marginBottom:8,color:"var(--green)"}}>Strengths</div>
-                {result.strengths.map((s, i) => <div key={i} className={styles.strengthItem}><IconCheck/> {s}</div>)}
-              </div>
-            )}
-            {result.improvements?.length > 0 && (
-              <div className={styles.strengthsCard}>
-                <div className={styles.secLabel} style={{marginBottom:8,color:"var(--yellow)"}}>Improvements</div>
-                {result.improvements.map((s, i) => <div key={i} className={styles.strengthItem} style={{color:"var(--t2)"}}><IconAnalyze/> {s}</div>)}
-              </div>
-            )}
-          </div>
+          {!allFixed && (
+            <div className={styles.strengthsGrid}>
+              {result.strengths?.length > 0 && (
+                <div className={styles.strengthsCard}>
+                  <div className={styles.secLabel} style={{marginBottom:8,color:"var(--green)"}}>Strengths</div>
+                  {result.strengths.map((s, i) => <div key={i} className={styles.strengthItem}><IconCheck/> {s}</div>)}
+                </div>
+              )}
+              {result.improvements?.length > 0 && (
+                <div className={styles.strengthsCard}>
+                  <div className={styles.secLabel} style={{marginBottom:8,color:"var(--yellow)"}}>Improvements</div>
+                  {result.improvements.map((s, i) => <div key={i} className={styles.strengthItem} style={{color:"var(--t2)"}}><IconAnalyze/> {s}</div>)}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
     </div>

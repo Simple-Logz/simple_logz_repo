@@ -196,6 +196,26 @@
 .recItem { display:flex; align-items:baseline; gap:10px; font-size:13px; color:var(--t2); line-height:1.6; padding:8px 12px; background:var(--bg2); border-radius:8px; border:1px solid var(--border) }
 .recNum { font-size:11px; font-weight:700; color:#6c5ce7; background:rgba(108,92,231,0.12); border-radius:99px; width:20px; height:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1 }
 
+/* ── Run Fix button ──────────────────────────────────────────── */
+.runFixBtn {
+  margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+  padding:3px 11px; border-radius:6px; font-size:11px; font-weight:700;
+  background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.35);
+  color:#a29bfe; cursor:pointer; transition:background .15s, color .15s;
+  white-space:nowrap; flex-shrink:0;
+}
+.runFixBtn:hover:not(:disabled) { background:rgba(108,92,231,0.28); color:#fff }
+.runFixBtn:disabled { opacity:.5; cursor:not-allowed }
+
+/* ── All-fixed card ──────────────────────────────────────────── */
+.allFixedCard {
+  display:flex; align-items:center; gap:16px; padding:18px 20px;
+  background:rgba(52,211,153,0.07); border:1px solid rgba(52,211,153,0.25);
+  border-radius:14px;
+}
+.allFixedTitle { font-size:15px; font-weight:700; color:var(--green); margin-bottom:4px }
+.allFixedSub { font-size:13px; color:var(--t2); line-height:1.5 }
+
 /* ── Code Inspector score ────────────────────────────────────── */
 .scoreRow { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap }
 .scoreCircle { width:80px; height:80px; border-radius:50%; border:3px solid; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0 }
