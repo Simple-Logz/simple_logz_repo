@@ -78,10 +78,11 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
         to="/"
         onClick={onClose}
         style={{
-          display:"flex", alignItems:"center", gap:9, margin:"0 10px 8px",
-          padding:"9px 12px", borderRadius:8, background:"rgba(108,92,231,0.15)",
-          border:"0.5px solid rgba(108,92,231,0.3)", color:"#a89bf5",
+          display:"flex", alignItems:"center", gap:9, margin:"0 10px 16px",
+          padding:"9px 12px", borderRadius:8,
+          border:"1px solid var(--border)", color:"var(--t2)",
           fontSize:13, fontWeight:500, textDecoration:"none",
+          background:"transparent",
         }}
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -104,7 +105,7 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
                 display:"flex", alignItems:"center", gap:10,
                 padding:"8px 14px", margin:"0 6px 2px", borderRadius:6,
                 textDecoration:"none", fontSize:13, transition:"all .15s",
-                color: active ? "var(--t1)" : "var(--t3)",
+                color: active ? "var(--t1)" : "var(--t2)",
                 background: active ? "var(--bg3)" : "transparent",
                 fontWeight: active ? 500 : 400,
               }}

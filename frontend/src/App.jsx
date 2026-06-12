@@ -23,7 +23,10 @@ function ProtectedRoute({ children }) {
 }
 
 function AppShell() {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    document.documentElement.setAttribute("data-theme", "light");
+    return "light";
+  });
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
