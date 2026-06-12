@@ -235,7 +235,7 @@ export default function Sidebar({ onThemeToggle, theme }) {
       <aside className="sl-sidebar" style={{
         width:220, minWidth:220, background:"var(--bg2)", borderRight:"0.5px solid var(--border)",
         display:"flex", flexDirection:"column", minHeight:"100vh",
-        position:"sticky", top:0, height:"100vh", overflowY:"auto",
+        position:"fixed", top:0, left:0, height:"100vh", overflowY:"auto", zIndex:100,
       }}>
         <SidebarInner onThemeToggle={onThemeToggle} theme={theme}/>
       </aside>
@@ -252,26 +252,4 @@ export default function Sidebar({ onThemeToggle, theme }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <>
-          {/* invisible tap-to-close layer */}
-          <div
-            style={{ position:"fixed", inset:0, zIndex:150 }}
-            onClick={() => setMobileOpen(false)}
-          />
-          {/* sidebar panel - no shaded backdrop */}
-          <div
-            style={{
-              position:"fixed", top:0, left:0, height:"100%", width:200,
-              background:"rgba(22,27,37,0.55)", backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)", zIndex:151,
-              display:"flex", flexDirection:"column", overflowY:"auto",
-              boxShadow:"4px 0 20px rgba(0,0,0,0.2)",
-              animation:"slideInLeft .2s ease",
-            }}
-            onClick={e => e.stopPropagation()}
-          >
-            <SidebarInner onThemeToggle={onThemeToggle} theme={theme} onClose={() => setMobileOpen(false)}/>
-          </div>
-        </>
-      )}
-    </>
-  );
-}
+          {/* invisible tap-to-close la

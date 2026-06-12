@@ -35,9 +35,9 @@ function AppShell() {
   }
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh", alignItems:"flex-start" }}>
+    <>
       <Sidebar onThemeToggle={toggleTheme} theme={theme}/>
-      <div className="app-content" style={{ flex:1, display:"flex", flexDirection:"column", minHeight:"100vh", maxWidth:"100vw" }}>
+      <div className="app-content">
         <Routes>
           <Route path="/"              element={<Landing/>}/>
           <Route path="/login"         element={<Login/>}/>
@@ -57,10 +57,10 @@ function AppShell() {
         </Routes>
       </div>
 
-      {/* Global overlays — always visible */}
+      {/* Global overlays */}
       <ChatWidget/>
       <FeedbackPopup/>
-    </div>
+    </>
   );
 }
 
