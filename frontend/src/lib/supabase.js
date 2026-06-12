@@ -10,16 +10,21 @@ if (!supabaseUrl || !supabaseAnon) {
 export const supabase = createClient(supabaseUrl, supabaseAnon);
 
 /**
- * Upload an image file to Supabase Storage and return its public URL.
- * @param {"avatars"|"project-avatars"} bucket - bucket name
- * @param {string} path - storage path, e.g. "user-id/avatar.png"
- * @param {File} file - the File object from an <input type="file">
+ * Upload a file to Supabase Storage and return its public URL.
+ * @param {string} bucket  - Storage bucket name (e.g. "avatars", "project-avatars", "forum-files")
+ * @param {string} path    - Path inside the bucket (e.g. "user-id/avatar.jpg")
+ * @param {File}   file    - The File object to upload
  */
 export async function uploadToStorage(bucket, path, file) {
   const { data, error } = await supabase.storage
     .from(bucket)
     .upload(path, file, { upsert: true, contentType: file.type });
-  if (error) throw new Error(error.message);
-  const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(data.path);
+
+  if (error) throw new Error("Upload failed: " + error.message);
+
+  const { data: { publicUrl } } = supabase.storage
+    .from(bucket)
+    .getPublicUrl(data.path);
+
   return publicUrl;
 }

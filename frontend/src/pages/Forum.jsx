@@ -116,10 +116,11 @@ function FileAttachment({ url }) {
 }
 
 // Icons
-function IconFile() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>; }
-function IconMsg()  { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
-function IconEye()  { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>; }
-function IconX()    { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>; }
+function IconFile()  { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>; }
+function IconMsg()   { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>; }
+function IconEye()   { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>; }
+function IconX()     { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>; }
+function IconTrash() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>; }
 function IconPaperclip() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>; }
 
 export default function Forum() {
@@ -138,6 +139,9 @@ export default function Forum() {
   const [view,         setView]         = useState("list");
   const [activeThread, setActiveThread] = useState(null);
   const [threadLoading,setThreadLoading]= useState(false);
+
+  // Delete state
+  const [deletingId, setDeletingId] = useState(null);
 
   // Comment state
   const [comment,  setComment]  = useState("");
@@ -265,6 +269,24 @@ export default function Forum() {
     }
   }
 
+  // ── Delete thread ─────────────────────────────────────────────
+  async function deleteThread(threadId, e) {
+    if (e) e.stopPropagation();
+    if (!window.confirm("Delete this post? This cannot be undone.")) return;
+    setDeletingId(threadId);
+    try {
+      const token = await getToken();
+      await api.deleteThread(threadId, token);
+      setThreads(prev => prev.filter(t => t.id !== threadId));
+      if (view === "thread") goList();
+      showToast("Post deleted", "success");
+    } catch (err) {
+      showToast(err.message || "Could not delete post", "error");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function goList() {
     setView("list");
     setActiveThread(null);
@@ -289,7 +311,24 @@ export default function Forum() {
                 <div style={{display:"flex",gap:14,alignItems:"flex-start"}}>
                   <AvatarCircle name={activeThread.profiles?.name} src={activeThread.profiles?.avatar} size={42}/>
                   <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:22,fontWeight:700,marginBottom:10,lineHeight:1.3}}>{activeThread.title}</div>
+                    <div style={{display:"flex",alignItems:"flex-start",gap:10,marginBottom:10}}>
+                      <div style={{fontSize:22,fontWeight:700,lineHeight:1.3,flex:1}}>{activeThread.title}</div>
+                      {isLoggedIn && user?.id === activeThread.profiles?.id && (
+                        <button
+                          onClick={(e) => deleteThread(activeThread.id, e)}
+                          disabled={deletingId === activeThread.id}
+                          title="Delete post"
+                          style={{
+                            display:"flex",alignItems:"center",gap:5,padding:"6px 10px",
+                            borderRadius:7,border:"1px solid rgba(248,113,113,.25)",
+                            background:"rgba(248,113,113,.08)",color:"var(--red)",
+                            cursor:"pointer",fontSize:12,fontWeight:500,flexShrink:0,marginTop:2,
+                          }}
+                        >
+                          <IconTrash/> {deletingId === activeThread.id ? "Deleting…" : "Delete"}
+                        </button>
+                      )}
+                    </div>
                     <div style={{display:"flex",alignItems:"center",gap:10,flexWrap:"wrap",fontSize:13,color:"var(--t3)",marginBottom:16}}>
                       <span style={{fontWeight:600,color:"var(--t2)"}}>{activeThread.profiles?.name}</span>
                       <span>·</span>
@@ -555,6 +594,22 @@ export default function Forum() {
                       <span style={{display:"flex",alignItems:"center",gap:4}}>
                         <IconEye/>{t.views || 0}
                       </span>
+                      {isLoggedIn && user?.id === t.profiles?.id && (
+                        <button
+                          onClick={(e) => deleteThread(t.id, e)}
+                          disabled={deletingId === t.id}
+                          title="Delete post"
+                          style={{
+                            display:"flex",alignItems:"center",padding:"4px 6px",
+                            borderRadius:6,border:"none",background:"transparent",
+                            color:"var(--t3)",cursor:"pointer",
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color="var(--red)"}
+                          onMouseLeave={e => e.currentTarget.style.color="var(--t3)"}
+                        >
+                          <IconTrash/>
+                        </button>
+                      )}
                     </div>
                   </div>
                 ))}

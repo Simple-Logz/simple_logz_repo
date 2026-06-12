@@ -20,6 +20,7 @@ export const api = {
   getThreads:      (params)         => request(`/api/forum/threads?${new URLSearchParams(params)}`),
   getThread:       (id)             => request(`/api/forum/threads/${id}`),
   createThread:    (body, token)    => request("/api/forum/threads",             { method: "POST", body: JSON.stringify(body) }, token),
+  deleteThread:    (id, token)      => request(`/api/forum/threads/${id}`,        { method: "DELETE" }, token),
   createComment:   (id, body, tok)  => request(`/api/forum/threads/${id}/comments`, { method: "POST", body: JSON.stringify(body) }, tok),
   createCheckout:  (token)          => request("/api/stripe/create-checkout",   { method: "POST" }, token),
   openPortal:      (token)          => request("/api/stripe/portal",             { method: "POST" }, token),

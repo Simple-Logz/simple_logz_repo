@@ -88,7 +88,29 @@ router.post("/threads/:id/comments", forumLimiter, requireAuth, async (req, res)
   res.status(201).json({ comment: data });
 });
 
-// POST /api/forum/threads/:id/like
+// DELETE /api/forum/threads/:id  (author only)
+router.delete("/threads/:id", requireAuth, async (req, res) => {
+  const { id } = req.params;
+
+  // Verify ownership before deleting
+  const { data: thread, error: fetchErr } = await supabase
+    .from("forum_threads")
+    .select("user_id")
+    .eq("id", id)
+    .single();
+
+  if (fetchErr || !thread) return res.status(404).json({ error: "Thread not found" });
+  if (thread.user_id !== req.user.id) return res.status(403).json({ error: "Not your post" });
+
+  // Delete comments first, then thread
+  await supabase.from("forum_comments").delete().eq("thread_id", id);
+  const { error } = await supabase.from("forum_threads").delete().eq("id", id);
+  if (error) return res.status(500).json({ error: error.message });
+
+  res.json({ success: true });
+});
+
+// POST /api/forum/comments/:id/like
 router.post("/comments/:id/like", requireAuth, async (req, res) => {
   await supabase.rpc("increment_comment_likes", { comment_id: req.params.id });
   res.json({ success: true });
