@@ -5,6 +5,16 @@ import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
 import styles from "./Projects.module.css";
 
+// Gradient palette for cards
+const GRADIENTS = [
+  { strip:"linear-gradient(90deg,#6c5ce7,#a29bfe)", avatar:"linear-gradient(135deg,#6c5ce7,#a29bfe)", accent:"rgba(108,92,231,0.5)" },
+  { strip:"linear-gradient(90deg,#0984e3,#74b9ff)", avatar:"linear-gradient(135deg,#0984e3,#74b9ff)", accent:"rgba(9,132,227,0.5)" },
+  { strip:"linear-gradient(90deg,#00b894,#55efc4)", avatar:"linear-gradient(135deg,#00b894,#55efc4)", accent:"rgba(0,184,148,0.5)" },
+  { strip:"linear-gradient(90deg,#e84393,#fd79a8)", avatar:"linear-gradient(135deg,#e84393,#fd79a8)", accent:"rgba(232,67,147,0.5)" },
+  { strip:"linear-gradient(90deg,#e17055,#fab1a0)", avatar:"linear-gradient(135deg,#e17055,#fab1a0)", accent:"rgba(225,112,85,0.5)" },
+  { strip:"linear-gradient(90deg,#fdcb6e,#ffeaa7)", avatar:"linear-gradient(135deg,#fdcb6e,#e17055)", accent:"rgba(253,203,110,0.5)" },
+];
+
 const STACK_OPTIONS = [
   "Node.js","Python","React","Next.js","Docker","Kubernetes",
   "AWS","GCP","Azure","Postgres","MySQL","MongoDB","Redis",
@@ -219,15 +229,6 @@ export default function Projects() {
     return new Date(date).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
   }
 
-  const COLORS = [
-    "linear-gradient(135deg,#4f8ef7,#7c6af7)",
-    "linear-gradient(135deg,#06b6d4,#4f8ef7)",
-    "linear-gradient(135deg,#8b5cf6,#ec4899)",
-    "linear-gradient(135deg,#10b981,#06b6d4)",
-    "linear-gradient(135deg,#f59e0b,#ef4444)",
-    "linear-gradient(135deg,#6366f1,#8b5cf6)",
-  ];
-
   return (
     <div className={styles.page}>
       <div className="container">
@@ -263,77 +264,58 @@ export default function Projects() {
           </div>
         ) : (
           <div className={styles.grid}>
-            {projects.map((p, idx) => (
-              <div key={p.id} className={styles.card}>
-                {/* Card top */}
-                <div className={styles.cardTop}>
-                  <div
-                    className={styles.cardAvatar}
-                    style={{background: COLORS[idx % COLORS.length]}}
-                  >
-                    {getInitial(p.name)}
-                  </div>
-                  <div className={styles.cardMeta}>
-                    <div className={styles.cardName}>{p.name}</div>
-                    {p.description && (
-                      <div className={styles.cardDesc}>{p.description}</div>
+            {projects.map((p, idx) => {
+              const palette = GRADIENTS[idx % GRADIENTS.length];
+              return (
+                <Link
+                  key={p.id}
+                  to={`/projects/${p.id}`}
+                  className={styles.card}
+                  style={{ "--cardAccentColor": palette.accent }}
+                >
+                  {/* Coloured top strip */}
+                  <div className={styles.cardStrip} style={{ background: palette.strip }}/>
+
+                  <div className={styles.cardBody}>
+                    {/* Avatar + name */}
+                    <div className={styles.cardTop}>
+                      <div className={styles.cardAvatar} style={{ background: palette.avatar }}>
+                        {getInitial(p.name)}
+                      </div>
+                      <div>
+                        <div className={styles.cardName}>{p.name}</div>
+                        {p.description && <div className={styles.cardDesc}>{p.description}</div>}
+                      </div>
+                    </div>
+
+                    {/* Stack tags */}
+                    {p.stack?.length > 0 && (
+                      <div className={styles.cardStack}>
+                        {p.stack.slice(0, 4).map(s => (
+                          <span key={s} className={styles.stackTag}>{s}</span>
+                        ))}
+                        {p.stack.length > 4 && (
+                          <span className={styles.stackTag}>+{p.stack.length - 4}</span>
+                        )}
+                      </div>
                     )}
-                  </div>
-                </div>
 
-                {/* Stack tags */}
-                {p.stack?.length > 0 && (
-                  <div className={styles.cardStack}>
-                    {p.stack.slice(0, 4).map(s => (
-                      <span key={s} className={styles.stackTag}>{s}</span>
-                    ))}
-                    {p.stack.length > 4 && (
-                      <span className={styles.stackTag}>+{p.stack.length - 4}</span>
-                    )}
+                    {/* Footer */}
+                    <div className={styles.cardFooter}>
+                      <span className={styles.cardDate}>{formatDate(p.created_at)}</span>
+                      <span className={styles.cardEnter}>Open workspace →</span>
+                    </div>
                   </div>
-                )}
+                </Link>
+              );
+            })}
 
-                {/* Stats */}
-                <div className={styles.cardStats}>
-                  <div className={styles.cardStat}>
-                    <IconActivity/>
-                    <span><strong>{p.analyses?.[0]?.count || 0}</strong> analyses</span>
-                  </div>
-                  <div className={styles.cardStat}>
-                    <IconCalendar/>
-                    <span>{formatDate(p.created_at)}</span>
-                  </div>
-                </div>
-
-                {/* Actions */}
-                <div className={styles.cardActions}>
-                  <Link to={`/?project=${p.id}`} className={`btn btn-primary btn-sm ${styles.analyzeBtn}`}>
-                    <IconAnalyze/> Analyze
-                  </Link>
-                  <button
-                    className={`btn btn-ghost btn-sm ${styles.iconAction}`}
-                    onClick={() => { setEditProject(p); setShowModal(true); }}
-                    title="Edit project"
-                  >
-                    <IconEdit/>
-                  </button>
-                  <button
-                    className={`btn btn-ghost btn-sm ${styles.iconAction} ${styles.danger}`}
-                    onClick={() => deleteProject(p.id, p.name)}
-                    title="Delete project"
-                  >
-                    <IconTrash/>
-                  </button>
-                </div>
-              </div>
-            ))}
-
-            {/* Add new card */}
+            {/* New project card */}
             <button className={styles.newCard} onClick={() => { setEditProject(null); setShowModal(true); }}>
               <div className={styles.newCardInner}>
                 <div className={styles.newCardIcon}><IconPlus/></div>
                 <div className={styles.newCardLabel}>New project</div>
-                <div className={styles.newCardSub}>Add another application workspace</div>
+                <div className={styles.newCardSub}>Add another workspace</div>
               </div>
             </button>
           </div>

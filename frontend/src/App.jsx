@@ -8,6 +8,7 @@ import FeedbackPopup from "./components/FeedbackPopup.jsx";
 import Landing       from "./pages/Landing.jsx";
 import About         from "./pages/About.jsx";
 import Projects      from "./pages/Projects.jsx";
+import ProjectDetail from "./pages/ProjectDetail.jsx";
 import Support       from "./pages/Support.jsx";
 import Login         from "./pages/Login.jsx";
 import Signup        from "./pages/Signup.jsx";
@@ -44,6 +45,7 @@ function AppShell() {
           <Route path="/auth/callback" element={<AuthCallback/>}/>
           <Route path="/about"         element={<About/>}/>
           <Route path="/projects"      element={<Projects/>}/>
+          <Route path="/projects/:id"  element={<ProtectedRoute><ProjectDetail/></ProtectedRoute>}/>
           <Route path="/support"       element={<Support/>}/>
           <Route path="/analyzer"      element={<Navigate to="/" replace/>}/>
           <Route path="/pricing"       element={<Pricing/>}/>

@@ -197,7 +197,7 @@ function TerminalTab() {
 }
 
 // ── Settings Tab ──────────────────────────────────────────────
-function SettingsTab({ project, onUpdated }) {
+function SettingsTab({ project, onUpdated, onDeleted }) {
   const { getToken } = useAuth();
   const { showToast } = useToast();
   const [name,       setName]       = useState(project.name);
@@ -292,7 +292,22 @@ function SettingsTab({ project, onUpdated }) {
         <div className={`${styles.settingsCard} ${styles.dangerCard}`}>
           <div className={styles.settingsCardTitle} style={{color:"var(--red)"}}>Danger Zone</div>
           <p className={styles.settingsCardDesc}>Deleting a project permanently removes all incidents, runbooks, and settings. This cannot be undone.</p>
-          <button className="btn btn-danger btn-sm" style={{marginTop:12}}>Delete this project</button>
+          <button
+            className="btn btn-danger btn-sm"
+            style={{marginTop:12}}
+            onClick={async () => {
+              if (!window.confirm(`Delete "${project.name}"? This cannot be undone.`)) return;
+              const token = await getToken();
+              await fetch(`${API_BASE}/api/projects/${project.id}`, {
+                method:"DELETE",
+                headers:{ Authorization:`Bearer ${token}` },
+              });
+              showToast("Project deleted","success");
+              onDeleted();
+            }}
+          >
+            Delete this project
+          </button>
         </div>
 
       </div>
@@ -400,7 +415,7 @@ export default function ProjectDetail() {
         {tab === "incidents" && <IncidentsTab analyses={analyses} projectId={project.id}/>}
         {tab === "runbooks"  && <RunbooksTab  project={project}/>}
         {tab === "terminal"  && <TerminalTab/>}
-        {tab === "settings"  && <SettingsTab  project={project} onUpdated={p => setProject(p)}/>}
+        {tab === "settings"  && <SettingsTab  project={project} onUpdated={p => setProject(p)} onDeleted={() => navigate("/projects")}/>}
 
       </div>
     </div>
