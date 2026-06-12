@@ -113,10 +113,10 @@ textarea.form-input{resize:vertical;line-height:1.7}
   /* Tighter container on phones */
   .container { padding: 0 14px !important; }
 
-  /* Nothing wider than the screen */
-  * { max-width: 100vw; }
+  /* Prevent wide media / code from causing horizontal overflow */
   img, video, iframe, table { max-width: 100% !important; }
-  textarea, pre, code { max-width: 100% !important; word-break: break-all !important; overflow-x: hidden !important; }
+  pre, code { overflow-x: auto !important; }
+  textarea  { max-width: 100% !important; }
 }
 
 /* ── Responsive ──────────────────────────────────────────── */

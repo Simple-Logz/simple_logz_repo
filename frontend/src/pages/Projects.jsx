@@ -175,7 +175,7 @@ export function ProjectModal({ onClose, onCreated, existing = null }) {
 
 // ── Projects page ─────────────────────────────────────────────
 export default function Projects() {
-  const { getToken, isLoggedIn, profile } = useAuth();
+  const { getToken, isLoggedIn, profile, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
   const isDeveloper = profile?.plan === "developer";
@@ -185,9 +185,10 @@ export default function Projects() {
   const [editProject, setEditProject] = useState(null);
 
   useEffect(() => {
+    if (authLoading) return; // wait for Supabase to restore session
     if (!isLoggedIn) { navigate("/login"); return; }
     loadProjects();
-  }, [isLoggedIn]);
+  }, [isLoggedIn, authLoading]);
 
   async function loadProjects() {
     setLoading(true);
