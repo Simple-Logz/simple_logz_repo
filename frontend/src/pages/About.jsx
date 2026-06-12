@@ -48,10 +48,10 @@ export default function About() {
         <div className="container">
           <div className={styles.heroInner}>
             <div className={styles.eyebrow}>Our mission</div>
-            <h1 className={styles.heroTitle}>
-              Debugging should take<br/>
-              <span className={styles.accent}>minutes, not hours.</span>
-            </h1>
+            <div className={styles.heroTitle}>
+              Debugging should take minutes,<br/>
+              <span className={styles.accent}>not hours.</span>
+            </div>
             <p className={styles.heroSub}>
               SimpleLogz is an AI-powered incident response workspace that reads your error logs, explains what went wrong in plain English, and walks you through fixing it — step by step.
             </p>
