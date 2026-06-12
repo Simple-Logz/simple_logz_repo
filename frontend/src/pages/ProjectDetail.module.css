@@ -232,9 +232,23 @@
 .recItem { display:flex; align-items:baseline; gap:10px; font-size:13px; color:var(--t2); line-height:1.6; padding:8px 12px; background:var(--bg2); border-radius:8px; border:1px solid var(--border) }
 .recNum { font-size:11px; font-weight:700; color:#6c5ce7; background:rgba(108,92,231,0.12); border-radius:99px; width:20px; height:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1 }
 
-/* ── Run Fix button ──────────────────────────────────────────── */
+/* ── Fix Now layout ──────────────────────────────────────────── */
+.flaggedRowInner { display:flex; align-items:center; gap:14px }
+.flaggedContent  { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px }
+
+.fixNowBtn {
+  flex-shrink:0; display:flex; align-items:center; gap:6px;
+  padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700;
+  background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.4);
+  color:#a29bfe; cursor:pointer; white-space:nowrap;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.fixNowBtn:hover:not(:disabled) { background:#6c5ce7; border-color:#6c5ce7; color:#fff }
+.fixNowBtn:disabled { opacity:.5; cursor:not-allowed }
+
+/* ── Run Fix button (legacy, keep for safety) ────────────────── */
 .runFixBtn {
-  margin-left:auto; display:inline-flex; align-items:center; gap:5px;
+  display:inline-flex; align-items:center; gap:5px;
   padding:3px 11px; border-radius:6px; font-size:11px; font-weight:700;
   background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.35);
   color:#a29bfe; cursor:pointer; transition:background .15s, color .15s;

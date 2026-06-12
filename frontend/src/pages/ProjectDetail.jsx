@@ -573,25 +573,28 @@ function CodeInspectorTab({ project }) {
                   const isFixing = fixingIdx === i;
                   return (
                     <div key={i} className={styles.flaggedRow}>
-                      <div className={styles.flaggedMeta}>
-                        <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(iss.line)} title="Jump to this line">
-                          ↑ L{iss.line}
-                        </button>
-                        <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
-                        <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
+                      <div className={styles.flaggedRowInner}>
+                        <div className={styles.flaggedContent}>
+                          <div className={styles.flaggedMeta}>
+                            <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(iss.line)} title="Jump to this line">
+                              ↑ L{iss.line}
+                            </button>
+                            <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
+                            <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
+                          </div>
+                          <div className={styles.flaggedDesc}>{iss.description}</div>
+                          {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
+                        </div>
                         <button
-                          className={styles.runFixBtn}
+                          className={styles.fixNowBtn}
                           onClick={() => applyFix(i, iss)}
                           disabled={fixingIdx !== null}
-                          title="Apply this fix automatically"
                         >
                           {isFixing
-                            ? <><span className="spinner" style={{width:10,height:10,borderWidth:2}}/> Fixing…</>
+                            ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Fixing…</>
                             : <>⚡ Fix Now</>}
                         </button>
                       </div>
-                      <div className={styles.flaggedDesc}>{iss.description}</div>
-                      {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
                     </div>
                   );
                 })}
