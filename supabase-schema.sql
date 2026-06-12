@@ -110,6 +110,26 @@ create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
 
+-- ── Projects ─────────────────────────────────────────────────
+create table if not exists projects (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid references profiles(id) on delete cascade not null,
+  name        text not null,
+  description text,
+  stack       text[] default '{}',
+  created_at  timestamptz default now(),
+  updated_at  timestamptz default now()
+);
+
+alter table projects enable row level security;
+create policy "Users see own projects"    on projects for select using (auth.uid() = user_id);
+create policy "Users insert own projects" on projects for insert with check (auth.uid() = user_id);
+create policy "Users update own projects" on projects for update using (auth.uid() = user_id);
+create policy "Users delete own projects" on projects for delete using (auth.uid() = user_id);
+
+-- Add project_id to analyses so they can be linked to a project
+alter table analyses add column if not exists project_id uuid references projects(id) on delete set null;
+
 -- ── Indexes ───────────────────────────────────────────────────
 create index if not exists idx_analyses_user_id    on analyses(user_id);
 create index if not exists idx_analyses_created_at on analyses(created_at desc);

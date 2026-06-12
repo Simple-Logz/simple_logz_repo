@@ -18,6 +18,7 @@ import stripeRouter    from "./routes/stripe.js";
 import forumRouter     from "./routes/forum.js";
 import userRouter      from "./routes/user.js";
 import projectsRouter  from "./routes/projects.js";
+import chatRouter      from "./routes/chat.js";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -56,6 +57,7 @@ app.use("/api/stripe",   stripeRouter);
 app.use("/api/forum",    forumRouter);
 app.use("/api/user",     userRouter);
 app.use("/api/projects", projectsRouter);
+app.use("/api/chat",    chatRouter);
 
 // ── Health check ─────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {
