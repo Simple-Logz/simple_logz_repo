@@ -70,7 +70,7 @@ function OverviewTab({ project, analyses }) {
       {/* Stack */}
       {project.stack?.length > 0 && (
         <div className={styles.section}>
-          <div className={styles.sectionTitle}>Tech Stack</div>
+          <div className={styles.secLabel}>Tech Stack</div>
           <div className={styles.stackRow}>
             {project.stack.map(s => <span key={s} className={styles.stackTag}>{s}</span>)}
           </div>
@@ -79,7 +79,7 @@ function OverviewTab({ project, analyses }) {
 
       {/* Recent incidents */}
       <div className={styles.section}>
-        <div className={styles.sectionTitle}>Recent Incidents</div>
+        <div className={styles.secLabel}>Recent Incidents</div>
         {analyses.length === 0 ? (
           <div className={styles.emptySection}>
             <p>No incidents yet. Run your first analysis to start building your incident history.</p>
@@ -123,7 +123,7 @@ function IncidentsTab({ analyses, projectId }) {
   return (
     <div className={styles.tabContent}>
       <div className={styles.sectionHeader}>
-        <div className={styles.sectionTitle}>Incident History</div>
+        <div className={styles.secLabel}>Incident History</div>
         <Link to={`/?project=${projectId}`} className="btn btn-primary btn-sm">
           <IconAnalyze/> New analysis
         </Link>
@@ -159,7 +159,7 @@ function IncidentsTab({ analyses, projectId }) {
 function RunbooksTab({ project }) {
   return (
     <div className={styles.tabContent}>
-      <div className={styles.sectionTitle}>AI Runbooks</div>
+      <div className={styles.secLabel}>AI Runbooks</div>
       <div className={styles.comingSoon}>
         <div className={styles.comingSoonIcon}><IconBook/></div>
         <div className={styles.comingSoonTitle}>Runbooks — Coming Soon</div>
@@ -181,7 +181,7 @@ function RunbooksTab({ project }) {
 function TerminalTab() {
   return (
     <div className={styles.tabContent}>
-      <div className={styles.sectionTitle}>Project Terminal</div>
+      <div className={styles.secLabel}>Project Terminal</div>
       <div className={styles.comingSoon}>
         <div className={styles.comingSoonIcon}><IconTerminal/></div>
         <div className={styles.comingSoonTitle}>Terminal — Coming Soon</div>
@@ -382,9 +382,9 @@ export default function ProjectDetail() {
             <div className={styles.projectAvatar} style={{background: avatarBg}}>
               {project.name.charAt(0).toUpperCase()}
             </div>
-            <div>
-              <h1 className={styles.projectName}>{project.name}</h1>
-              {project.description && <p className={styles.projectDesc}>{project.description}</p>}
+            <div className={styles.projectMeta}>
+              <div className={styles.projectName}>{project.name}</div>
+              {project.description && <div className={styles.projectDesc}>{project.description}</div>}
             </div>
           </div>
           <div className={styles.headerRight}>

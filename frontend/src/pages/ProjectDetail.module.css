@@ -1,91 +1,170 @@
 /* ── Page ────────────────────────────────────────────────────── */
-.page { flex:1; padding:32px 0 60px }
+.page { flex:1; padding:28px 0 60px }
 
 /* ── Header ──────────────────────────────────────────────────── */
-.header { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; gap:16px; flex-wrap:wrap }
-.headerLeft { display:flex; align-items:center; gap:14px; flex-wrap:wrap }
-.headerRight { display:flex; align-items:center; gap:10px }
-.backBtn { display:flex; align-items:center; gap:6px; padding:7px 12px; border-radius:8px; background:var(--bg3); border:1px solid var(--border); color:var(--t2); font-size:13px; cursor:pointer; transition:all .15s }
+.header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:24px; gap:12px;
+}
+.headerLeft { display:flex; align-items:center; gap:12px; min-width:0; flex:1 }
+.headerRight { display:flex; align-items:center; gap:8px; flex-shrink:0 }
+
+.backBtn {
+  display:flex; align-items:center; gap:5px;
+  padding:6px 11px; border-radius:8px;
+  background:var(--bg3); border:1px solid var(--border);
+  color:var(--t2); font-size:12px; cursor:pointer;
+  transition:all .15s; white-space:nowrap; flex-shrink:0;
+}
 .backBtn:hover { border-color:var(--accent); color:var(--accent) }
-.projectAvatar { width:44px; height:44px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:20px; font-weight:700; color:#fff; flex-shrink:0 }
-.projectName { font-size:20px; font-weight:700; letter-spacing:-.3px; color:var(--t1) }
-.projectDesc { font-size:13px; color:var(--t2); margin-top:3px }
-.envBadge { padding:4px 12px; border-radius:99px; background:var(--bg3); border:1px solid var(--border); font-size:12px; color:var(--t2); text-transform:capitalize }
+
+.projectAvatar {
+  width:40px; height:40px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; font-weight:700; color:#fff; flex-shrink:0;
+}
+.projectMeta { min-width:0; flex:1 }
+.projectName {
+  font-size:17px; font-weight:700; letter-spacing:-.2px;
+  color:var(--t1); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.projectDesc { font-size:12px; color:var(--t2); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.envBadge { padding:3px 10px; border-radius:99px; background:var(--bg3); border:1px solid var(--border); font-size:11px; color:var(--t2); text-transform:capitalize; flex-shrink:0 }
 
 /* ── Tabs ────────────────────────────────────────────────────── */
-.tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:28px; overflow-x:auto }
-.tab { display:flex; align-items:center; gap:7px; padding:10px 16px; font-size:13px; color:var(--t2); background:none; border:none; cursor:pointer; border-bottom:2px solid transparent; margin-bottom:-1px; white-space:nowrap; transition:color .15s }
+.tabs {
+  display:flex; gap:0; border-bottom:1px solid var(--border);
+  margin-bottom:24px; overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+  scrollbar-width:none;
+}
+.tabs::-webkit-scrollbar { display:none }
+.tab {
+  display:flex; align-items:center; gap:6px;
+  padding:9px 14px; font-size:12px; color:var(--t2);
+  background:none; border:none; cursor:pointer;
+  border-bottom:2px solid transparent; margin-bottom:-1px;
+  white-space:nowrap; transition:color .15s; flex-shrink:0;
+}
 .tab:hover { color:var(--t1) }
 .tabActive { color:var(--t1); font-weight:600; border-bottom-color:#6c5ce7 }
 
 /* ── Tab content ─────────────────────────────────────────────── */
-.tabContent { display:flex; flex-direction:column; gap:24px; animation:fadeIn .2s ease }
+.tabContent { display:flex; flex-direction:column; gap:20px; animation:fadeIn .2s ease }
 
 /* ── Health card ─────────────────────────────────────────────── */
-.healthCard { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:24px; display:flex; align-items:center; justify-content:space-between; gap:24px; flex-wrap:wrap }
-.healthLeft { display:flex; flex-direction:column; gap:6px }
-.healthLabel { font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--t3) }
-.healthScore { font-size:52px; font-weight:800; letter-spacing:-2px; line-height:1 }
-.healthMax { font-size:22px; font-weight:400; color:var(--t3); margin-left:2px }
-.healthDesc { font-size:13px; color:var(--t2); max-width:280px }
-.healthStats { display:flex; gap:20px; flex-wrap:wrap }
-.healthStat { display:flex; flex-direction:column; align-items:center; gap:4px; font-size:13px; color:var(--t2) }
-.healthStat span:first-child { font-size:24px; font-weight:700; line-height:1 }
+.healthCard {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:16px; padding:22px;
+  display:flex; align-items:center; justify-content:space-between;
+  gap:20px; flex-wrap:wrap;
+}
+.healthLeft { display:flex; flex-direction:column; gap:5px }
+.healthLabel { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:var(--t3) }
+.healthScore { font-size:48px; font-weight:800; letter-spacing:-2px; line-height:1 }
+.healthMax { font-size:20px; font-weight:400; color:var(--t3); margin-left:2px }
+.healthDesc { font-size:13px; color:var(--t2); max-width:260px }
+.healthStats { display:flex; gap:18px; flex-wrap:wrap }
+.healthStat { display:flex; flex-direction:column; align-items:center; gap:4px; font-size:12px; color:var(--t2) }
+.healthStat span:first-child { font-size:22px; font-weight:700; line-height:1 }
 
 /* ── Sections ────────────────────────────────────────────────── */
-.section { display:flex; flex-direction:column; gap:12px }
+.section { display:flex; flex-direction:column; gap:10px }
 .sectionHeader { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px }
-.sectionTitle { font-size:14px; font-weight:600; color:var(--t1); text-transform:uppercase; letter-spacing:.06em }
-.emptySection { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:32px; text-align:center; color:var(--t2); font-size:14px }
+/* Use secLabel instead of sectionTitle to avoid global CSS override from index.html */
+.secLabel {
+  font-size:11px; font-weight:700; color:var(--t3);
+  text-transform:uppercase; letter-spacing:.1em;
+}
+/* Keep sectionTitle as alias in case it's referenced elsewhere */
+.sectionTitle { font-size:11px!important; font-weight:700!important; color:var(--t3)!important; text-transform:uppercase; letter-spacing:.1em }
+.emptySection {
+  background:var(--bg2); border:1px solid var(--border);
+  border-radius:12px; padding:28px; text-align:center;
+  color:var(--t2); font-size:14px; line-height:1.6;
+}
 
 /* ── Stack ───────────────────────────────────────────────────── */
 .stackRow { display:flex; flex-wrap:wrap; gap:6px }
-.stackTag { background:var(--bg3); border:1px solid var(--border2); border-radius:6px; padding:4px 10px; font-size:12px; color:var(--t2); font-family:var(--mono) }
+.stackTag {
+  background:var(--bg3); border:1px solid var(--border2);
+  border-radius:5px; padding:3px 9px;
+  font-size:11px; color:var(--t2); font-family:var(--mono);
+}
 
 /* ── Incident list (overview) ────────────────────────────────── */
 .incidentList { background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden }
-.incidentRow { display:flex; align-items:center; gap:12px; padding:12px 16px; border-bottom:1px solid var(--border); font-size:13px }
+.incidentRow {
+  display:flex; align-items:center; gap:10px;
+  padding:11px 14px; border-bottom:1px solid var(--border); font-size:13px;
+}
 .incidentRow:last-child { border-bottom:none }
-.incidentSev { font-size:11px; font-weight:700; width:64px; flex-shrink:0; font-family:var(--mono) }
+.incidentSev { font-size:10px; font-weight:700; width:56px; flex-shrink:0; font-family:var(--mono) }
 .incidentTitle { flex:1; color:var(--t1); font-weight:500; overflow:hidden; text-overflow:ellipsis; white-space:nowrap }
-.incidentSource { font-size:12px; color:var(--t3); font-family:var(--mono); flex-shrink:0 }
-.incidentDate { font-size:12px; color:var(--t3); flex-shrink:0 }
+.incidentSource { font-size:11px; color:var(--t3); font-family:var(--mono); flex-shrink:0 }
+.incidentDate { font-size:11px; color:var(--t3); flex-shrink:0 }
 
 /* ── Incident cards (full tab) ───────────────────────────────── */
 .incidentFull { display:flex; flex-direction:column; gap:10px }
-.incidentCard { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:16px 18px }
-.incidentCardTop { display:flex; align-items:center; gap:10px; margin-bottom:8px; flex-wrap:wrap }
-.incidentSevBadge { padding:3px 10px; border-radius:6px; font-size:11px; font-weight:700; font-family:var(--mono) }
-.incidentCardTitle { flex:1; font-size:14px; font-weight:600; color:var(--t1) }
-.incidentCardDate { font-size:12px; color:var(--t3) }
-.incidentCardMeta { display:flex; align-items:center; gap:12px; flex-wrap:wrap }
-.incidentSnippet { font-size:12px; color:var(--t3); font-family:var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:400px }
+.incidentCard { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 16px }
+.incidentCardTop { display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap }
+.incidentSevBadge { padding:2px 9px; border-radius:5px; font-size:10px; font-weight:700; font-family:var(--mono) }
+.incidentCardTitle { flex:1; font-size:13px; font-weight:600; color:var(--t1) }
+.incidentCardDate { font-size:11px; color:var(--t3) }
+.incidentCardMeta { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.incidentSnippet { font-size:11px; color:var(--t3); font-family:var(--mono); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:300px }
 
 /* ── AI Insight ──────────────────────────────────────────────── */
-.aiInsight { background:rgba(108,92,231,0.06); border:1px solid rgba(108,92,231,0.2); border-radius:12px; padding:18px 20px }
-.aiInsightLabel { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#6c5ce7; margin-bottom:8px; font-weight:600 }
-.aiInsightText { font-size:14px; color:var(--t2); line-height:1.7 }
+.aiInsight { background:rgba(108,92,231,0.06); border:1px solid rgba(108,92,231,0.2); border-radius:12px; padding:16px 18px }
+.aiInsightLabel { font-size:11px; text-transform:uppercase; letter-spacing:.08em; color:#6c5ce7; margin-bottom:6px; font-weight:700 }
+.aiInsightText { font-size:13px; color:var(--t2); line-height:1.7 }
 
 /* ── Coming soon ─────────────────────────────────────────────── */
-.comingSoon { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:40px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px }
-.comingSoonIcon { width:52px; height:52px; border-radius:14px; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--t3) }
-.comingSoonTitle { font-size:18px; font-weight:700; color:var(--t1) }
-.comingSoonDesc { font-size:14px; color:var(--t2); line-height:1.7; max-width:440px }
-.comingSoonPill { display:inline-block; padding:4px 12px; border-radius:99px; background:rgba(108,92,231,.1); border:1px solid rgba(108,92,231,.2); font-size:12px; color:#6c5ce7; font-weight:500 }
+.comingSoon { background:var(--bg2); border:1px solid var(--border); border-radius:16px; padding:36px 24px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:12px }
+.comingSoonIcon { width:48px; height:48px; border-radius:13px; background:var(--bg3); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--t3) }
+.comingSoonTitle { font-size:16px; font-weight:700; color:var(--t1) }
+.comingSoonDesc { font-size:13px; color:var(--t2); line-height:1.7; max-width:400px }
+.comingSoonPill { display:inline-block; padding:3px 11px; border-radius:99px; background:rgba(108,92,231,.1); border:1px solid rgba(108,92,231,.2); font-size:11px; color:#6c5ce7; font-weight:500 }
 .comingSoonFeatures { display:flex; flex-direction:column; gap:8px; text-align:left; margin-top:4px }
 .comingSoonFeature { display:flex; align-items:center; gap:8px; font-size:13px; color:var(--t2) }
 
 /* ── Settings ────────────────────────────────────────────────── */
-.settingsGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:18px }
-.settingsCard { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:22px; display:flex; flex-direction:column; gap:12px }
-.settingsCardTitle { font-size:14px; font-weight:700; color:var(--t1); display:flex; align-items:center; gap:8px }
-.settingsCardDesc { font-size:13px; color:var(--t2); line-height:1.6 }
+.settingsGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:16px }
+.settingsCard { background:var(--bg2); border:1px solid var(--border); border-radius:13px; padding:20px; display:flex; flex-direction:column; gap:11px }
+.settingsCardTitle { font-size:13px; font-weight:700; color:var(--t1); display:flex; align-items:center; gap:7px }
+.settingsCardDesc { font-size:12px; color:var(--t2); line-height:1.6 }
 .dangerCard { border-color:rgba(248,113,113,.2) }
 .saveRow { display:flex; justify-content:flex-end; margin-top:8px }
 
 /* ── API key ─────────────────────────────────────────────────── */
-.apiKeyBox { display:flex; align-items:center; gap:8px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:10px 14px }
-.apiKeyText { flex:1; font-size:12px; font-family:var(--mono); color:var(--t2); word-break:break-all }
-.copyBtn { display:flex; align-items:center; gap:5px; padding:5px 10px; border-radius:6px; background:var(--bg2); border:1px solid var(--border); font-size:12px; color:var(--t2); cursor:pointer; flex-shrink:0; transition:all .15s }
+.apiKeyBox { display:flex; align-items:center; gap:8px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:9px 12px }
+.apiKeyText { flex:1; font-size:11px; font-family:var(--mono); color:var(--t2); word-break:break-all }
+.copyBtn { display:flex; align-items:center; gap:5px; padding:4px 9px; border-radius:6px; background:var(--bg2); border:1px solid var(--border); font-size:11px; color:var(--t2); cursor:pointer; flex-shrink:0; transition:all .15s }
 .copyBtn:hover { border-color:var(--accent); color:var(--accent) }
 .apiKeyHint { font-size:11px; color:var(--t3) }
+
+/* ── Mobile ──────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .page { padding:12px 0 48px }
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .headerLeft { width: 100%; gap: 10px }
+  .headerRight { width: 100% }
+  .headerRight a, .headerRight button { flex:1; justify-content:center }
+
+  .projectAvatar { width:36px; height:36px; border-radius:9px; font-size:16px }
+  .projectName { font-size:15px }
+
+  .tabs { margin-bottom:16px }
+  .tab { padding:8px 11px; font-size:11px; gap:5px }
+
+  .healthCard { padding:16px; gap:14px }
+  .healthScore { font-size:38px }
+
+  .settingsGrid { grid-template-columns:1fr }
+}
