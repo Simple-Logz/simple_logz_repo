@@ -235,12 +235,6 @@ export default function Sidebar({ onThemeToggle, theme }) {
       <button
         className="sl-hamburger"
         onClick={() => setMobileOpen(true)}
-        style={{
-          position:"fixed", top:14, left:14, zIndex:200,
-          background:"var(--bg2)", border:"1px solid var(--border)", borderRadius:8,
-          padding:8, cursor:"pointer", color:"var(--t1)", display:"none",
-          alignItems:"center", justifyContent:"center",
-        }}
         aria-label="Open menu"
       >
         <IconMenu/>
