@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div className={styles.page}>
       <div className={styles.card}>
-        <Link to="/" className={styles.brand}><div className={styles.logo}>SL</div> SimpleLogz</Link>
+        <Link to="/" className={styles.brand}><img src="/simplelogz-logo-dark.png" alt="SimpleLogz" style={{height:36,width:"auto"}}/></Link>
         <h1 className={styles.title}>Welcome back</h1>
         <p className={styles.sub}>Sign in to your account</p>
 
