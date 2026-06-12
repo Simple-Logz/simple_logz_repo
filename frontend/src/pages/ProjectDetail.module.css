@@ -145,26 +145,52 @@
 
 /* ── Mobile ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
-  .page { padding:12px 0 48px }
+  .page { padding:8px 0 48px }
 
   .header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 10px;
-    margin-bottom: 16px;
+    gap: 6px;
+    margin-bottom: 14px;
   }
-  .headerLeft { width: 100%; gap: 10px }
-  .headerRight { width: 100% }
-  .headerRight a, .headerRight button { flex:1; justify-content:center }
 
+  /* headerLeft wraps: backBtn takes a full row (shifted past hamburger),
+     then avatar + projectMeta sit side-by-side on the next row */
+  .headerLeft {
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+  }
+
+  /* Back button: full width so it wraps alone, indented past the hamburger */
+  .backBtn {
+    order: -1;
+    width: 100%;
+    padding-left: 48px;
+    box-sizing: border-box;
+  }
+
+  /* Avatar + meta follow on the next wrapped row */
   .projectAvatar { width:36px; height:36px; border-radius:9px; font-size:16px }
   .projectName { font-size:15px }
 
-  .tabs { margin-bottom:16px }
-  .tab { padding:8px 11px; font-size:11px; gap:5px }
+  /* Right side: natural width buttons, left-aligned */
+  .headerRight {
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .headerRight a, .headerRight button {
+    font-size: 12px;
+    padding: 7px 13px;
+  }
 
-  .healthCard { padding:16px; gap:14px }
-  .healthScore { font-size:38px }
+  .tabs { margin-bottom:16px; flex-wrap:nowrap }
+  .tab { padding:8px 10px; font-size:11px; gap:4px }
+
+  .healthCard { padding:14px; gap:12px }
+  .healthScore { font-size:36px }
 
   .settingsGrid { grid-template-columns:1fr }
 }
