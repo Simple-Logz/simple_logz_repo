@@ -19,11 +19,11 @@ function IconUser()     { return <svg width="15" height="15" viewBox="0 0 24 24"
 function IconMenu()     { return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>; }
 
 const NAV_LINKS = [
-  { to: "/",         label: "Analyzer",  Icon: IconAnalyzer },
-  { to: "/terminal", label: "Terminal",  Icon: IconTerminal },
-  { to: "/forum",    label: "Community", Icon: IconForum    },
-  { to: "/pricing",  label: "Pricing",   Icon: IconPricing  },
-  { to: "/about",    label: "About",     Icon: IconAbout    },
+  { to: "/",          label: "Analyzer",  Icon: IconAnalyzer },
+  { to: "/projects",  label: "Projects",  Icon: IconFolder   },
+  { to: "/forum",     label: "Community", Icon: IconForum    },
+  { to: "/pricing",   label: "Pricing",   Icon: IconPricing  },
+  { to: "/about",     label: "About",     Icon: IconAbout    },
 ];
 
 function SidebarInner({ onThemeToggle, theme, onClose }) {

@@ -253,199 +253,230 @@ export default function Landing() {
 
   const sevColor = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)" };
 
+
   return (
-    <div className={styles.page}>
+    <div style={{ display:"flex", flexDirection:"column", alignItems:"center", padding:"60px 24px 80px", minHeight:"100vh" }}>
 
-      {/* ── Brand heading ──────────────────────────────────── */}
-      <div style={{ textAlign:"center", padding:"40px 0 8px" }}>
-        <h1 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:700, letterSpacing:"-1.5px", color:"var(--t1)" }}>
-          Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
-        </h1>
-        <p style={{ color:"var(--t2)", fontSize:15, marginTop:10 }}>
-          AI-powered log analysis. Understand any error in seconds.
-        </p>
-      </div>
+      {/* Brand */}
+      <h1 style={{ fontSize:"clamp(32px,5vw,52px)", fontWeight:700, letterSpacing:"-2px", color:"var(--t1)", marginBottom:8 }}>
+        Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
+      </h1>
+      <p style={{ color:"var(--t2)", fontSize:15, marginBottom:32 }}>
+        Paste any error log. Get an instant AI diagnosis.
+      </p>
 
-      {/* ── Live Analyzer ──────────────────────────────────── */}
-      <div className={styles.analyzerWrap}>
-        <div className="container">
-          {!isPro && isLoggedIn && (
-            <div className={styles.usagePill}>
-              Free plan · <Link to="/pricing" style={{color:"var(--accent)"}}>Upgrade for unlimited →</Link>
-            </div>
-          )}
-          {!isLoggedIn && (
-            <div className={styles.usagePill}>
-              2 free analyses daily · <Link to="/signup" style={{color:"var(--accent)"}}>Sign up for unlimited →</Link>
-            </div>
-          )}
-
-          <div className={styles.analyzerFrame}>
-            <div className={styles.layout}>
-              {/* Input panel */}
-              <div className={styles.panel}>
-                <div className={styles.panelHeader}>
-                  <span className={styles.panelLabel}>INPUT LOG</span>
-                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                    <select className={`form-input ${styles.select}`} value={source} onChange={e=>setSource(e.target.value)}>
-                      <option value="auto">Auto-detect</option>
-                      <option value="kubernetes">Kubernetes</option>
-                      <option value="docker">Docker</option>
-                      <option value="aws">AWS</option>
-                      <option value="nginx">Nginx</option>
-                      <option value="postgres">Postgres</option>
-                      <option value="nodejs">Node.js</option>
-                      <option value="python">Python</option>
-                      <option value="linux">Linux/Syslog</option>
-                    </select>
-                    <button className="btn btn-ghost btn-sm" onClick={()=>fileRef.current?.click()}>↑ File</button>
-                    <input ref={fileRef} type="file" accept=".log,.txt,.json" style={{display:"none"}} onChange={handleFile}/>
-                  </div>
-                </div>
-                <textarea
-                  className={styles.textarea}
-                  value={log}
-                  onChange={e=>setLog(e.target.value)}
-                  onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();runAnalysis();}}}
-                  placeholder={"Paste your error log here…\n\nCtrl+Enter to analyze"}
-                  spellCheck={false}
-                  disabled={status==="analyzing"}
-                />
-                <div className={styles.panelFooter}>
-                  <div className={styles.examples}>
-                    <span className={styles.examplesLabel}>Try:</span>
-                    {Object.keys(EXAMPLES).map(k => (
-                      <button key={k} className={styles.chip} onClick={()=>loadExample(k)}>{k}</button>
-                    ))}
-                  </div>
-                  <div style={{display:"flex",gap:8}}>
-                    {log && <button className="btn btn-ghost btn-sm" onClick={()=>{setLog("");setResult(null);setStatus("idle");}}>Clear</button>}
-                    <button className="btn btn-primary" onClick={runAnalysis} disabled={!canAnalyze}>
-                      {status==="analyzing" ? <><span className="spinner"/>Analyzing…</> : "→ Analyze"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              {/* Result panel */}
-              <div className={styles.panel}>
-                <div className={styles.panelHeader}>
-                  <span className={styles.panelLabel}>RESULT</span>
-                  {result && isPro && (
-                    <button className="btn btn-ghost btn-sm" onClick={exportReport}>↓ Export</button>
-                  )}
-                  {result && !isPro && (
-                    <Link to="/pricing" className="btn btn-outline btn-sm">↓ Export (Developer)</Link>
-                  )}
-                </div>
-
-                {status === "idle" && (
-                  <div className={styles.empty}>
-                    <div style={{fontSize:32}}>📋</div>
-                    <div>Paste a log and click Analyze</div>
-                    <div style={{fontSize:12,color:"var(--t3)"}}>Ctrl+Enter to analyze quickly</div>
-                  </div>
-                )}
-
-                {status === "analyzing" && (
-                  <div className={styles.analyzing}>
-                    <span className="spinner" style={{width:28,height:28,borderWidth:3}}/>
-                    <div>Analyzing…</div>
-                    <div className={styles.scanBar}><div className={styles.scanFill}/></div>
-                    <div style={{fontSize:12,color:"var(--t3)"}}>Reading error patterns · Building fix plan</div>
-                  </div>
-                )}
-
-                {(status === "done" || status === "error") && result && (
-                  <div style={{display:"flex",flexDirection:"column",flex:1}}>
-                    <div className={styles.metrics}>
-                      <div className={styles.metric}>
-                        <div className={styles.metricLabel}>Severity</div>
-                        <div className={styles.metricValue} style={{color:sevColor[result.severity]||"var(--t1)"}}>{result.severity}</div>
-                      </div>
-                      <div className={styles.metric}>
-                        <div className={styles.metricLabel}>Source</div>
-                        <div className={styles.metricValue}>{result.source_detected}</div>
-                      </div>
-                      <div className={styles.metric}>
-                        <div className={styles.metricLabel}>Root Cause</div>
-                        <div className={styles.metricValue}>{result.root_cause_category}</div>
-                      </div>
-                      <div className={styles.metric}>
-                        <div className={styles.metricLabel}>Fix Time</div>
-                        <div className={styles.metricValue}>{result.estimated_fix_time}</div>
-                      </div>
-                    </div>
-
-                    <div className={styles.tabs}>
-                      {TABS.map((t, i) => (
-                        <button key={t} className={`${styles.tab} ${activeTab===i?styles.tabActive:""}`} onClick={()=>setActiveTab(i)}>{t}</button>
-                      ))}
-                    </div>
-
-                    <div className={styles.tabBody}>
-                      {activeTab === 0 && (
-                        <div>
-                          <p className={styles.plainEnglish}>{result.plain_english}</p>
-                          <div style={{marginTop:14,display:"flex",gap:8,flexWrap:"wrap"}}>
-                            <span className="badge badge-blue">{result.root_cause_category}</span>
-                            <span className="badge badge-gray">Confidence: {result.confidence}</span>
-                          </div>
-                        </div>
-                      )}
-
-                      {activeTab === 1 && (
-                        <div>
-                          <div className={styles.stepsIntro}>
-                            Follow these steps to resolve the issue. Click <strong>"Ask about this step"</strong> under any step to chat with AI for clarification.
-                          </div>
-                          <div className={styles.stepsList}>
-                            {(result.resolution_steps||[]).map(s => (
-                              <StepChat key={s.step} step={s} result={result} log={log} />
-                            ))}
-                          </div>
-                          {!isPro && (
-                            <div className={styles.planGate}>
-                              <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
-                              <div style={{fontSize:13,color:"var(--t2)",marginBottom:14}}>Upgrade for complete step-by-step commands, per-step AI chat, and downloadable reports.</div>
-                              <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $10/mo</Link>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
-                      {activeTab === 2 && (
-                        <div>
-                          <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.8,marginBottom:16}}>{result.technical_context}</p>
-                          {(result.related_errors||[]).length > 0 && (
-                            <>
-                              <div className={styles.sectionLabel}>Related errors</div>
-                              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
-                                {result.related_errors.map((e,i)=><li key={i} style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--t2)",paddingLeft:14,position:"relative"}}>→ {e}</li>)}
-                              </ul>
-                            </>
-                          )}
-                        </div>
-                      )}
-
-                      {activeTab === 3 && (
-                        <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:12}}>
-                          {(result.prevention||[]).map((p,i)=>(
-                            <li key={i} style={{display:"flex",gap:10,fontSize:14}}>
-                              <span style={{color:"var(--green)",fontWeight:700,flexShrink:0}}>✓</span>{p}
-                            </li>
-                          ))}
-                        </ul>
-                      )}
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+      {/* Search box */}
+      <div style={{ width:"100%", maxWidth:720 }}>
+        <div style={{
+          background:"var(--bg2)", border:"1px solid var(--border)",
+          borderRadius:16, overflow:"hidden",
+          boxShadow:"0 2px 16px rgba(0,0,0,0.12)",
+        }}>
+          <textarea
+            value={log}
+            onChange={e=>setLog(e.target.value)}
+            onKeyDown={e=>{if((e.ctrlKey||e.metaKey)&&e.key==="Enter"){e.preventDefault();runAnalysis();}}}
+            placeholder="Paste your error log here…"
+            spellCheck={false}
+            disabled={status==="analyzing"}
+            style={{
+              width:"100%", minHeight:140, padding:"20px 20px 12px",
+              background:"transparent", border:"none", outline:"none",
+              color:"var(--t1)", fontSize:14, fontFamily:"var(--mono)",
+              lineHeight:1.7, resize:"none",
+            }}
+          />
+          <div style={{
+            display:"flex", alignItems:"center", gap:8,
+            padding:"10px 14px", borderTop:"1px solid var(--border)",
+          }}>
+            <select
+              value={source} onChange={e=>setSource(e.target.value)}
+              style={{
+                background:"var(--bg3)", border:"1px solid var(--border)",
+                borderRadius:8, padding:"5px 10px", color:"var(--t2)",
+                fontSize:12, outline:"none",
+              }}
+            >
+              <option value="auto">Auto-detect</option>
+              <option value="kubernetes">Kubernetes</option>
+              <option value="docker">Docker</option>
+              <option value="aws">AWS</option>
+              <option value="nginx">Nginx</option>
+              <option value="postgres">Postgres</option>
+              <option value="nodejs">Node.js</option>
+              <option value="python">Python</option>
+              <option value="linux">Linux/Syslog</option>
+            </select>
+            <button
+              onClick={()=>fileRef.current?.click()}
+              style={{ background:"none", border:"1px solid var(--border)", borderRadius:8, padding:"5px 10px", color:"var(--t2)", fontSize:12, cursor:"pointer" }}
+            >
+              ↑ File
+            </button>
+            <input ref={fileRef} type="file" accept=".log,.txt,.json" style={{display:"none"}} onChange={handleFile}/>
+            <div style={{ flex:1 }}/>
+            {log && (
+              <button
+                onClick={()=>{setLog("");setResult(null);setStatus("idle");}}
+                style={{ background:"none", border:"none", color:"var(--t3)", fontSize:12, cursor:"pointer", padding:"5px 8px" }}
+              >
+                Clear
+              </button>
+            )}
+            <button
+              onClick={runAnalysis}
+              disabled={!canAnalyze}
+              style={{
+                background:"#6c5ce7", color:"#fff", border:"none",
+                borderRadius:8, padding:"7px 18px", fontSize:13,
+                fontWeight:600, cursor: canAnalyze ? "pointer" : "not-allowed",
+                opacity: canAnalyze ? 1 : 0.45,
+              }}
+            >
+              {status==="analyzing" ? "Analyzing…" : "→ Analyze"}
+            </button>
           </div>
         </div>
+
+        {/* Example chips */}
+        <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:12, flexWrap:"wrap" }}>
+          <span style={{ fontSize:12, color:"var(--t3)" }}>Try:</span>
+          {Object.keys(EXAMPLES).map(k => (
+            <button
+              key={k}
+              onClick={()=>loadExample(k)}
+              style={{
+                background:"var(--bg2)", border:"1px solid var(--border)",
+                borderRadius:99, padding:"4px 12px", fontSize:12,
+                color:"var(--t2)", cursor:"pointer",
+              }}
+            >
+              {k}
+            </button>
+          ))}
+        </div>
+
+        {/* Usage note */}
+        {!isLoggedIn && (
+          <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:12 }}>
+            2 free analyses daily · <Link to="/signup" style={{color:"#6c5ce7"}}>Sign up for unlimited →</Link>
+          </p>
+        )}
+        {!isPro && isLoggedIn && (
+          <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:12 }}>
+            Free plan · <Link to="/pricing" style={{color:"#6c5ce7"}}>Upgrade for unlimited →</Link>
+          </p>
+        )}
       </div>
 
+      {/* Analyzing state */}
+      {status === "analyzing" && (
+        <div style={{ marginTop:48, display:"flex", flexDirection:"column", alignItems:"center", gap:12, color:"var(--t2)" }}>
+          <span className="spinner" style={{width:28,height:28,borderWidth:3}}/>
+          <div style={{fontSize:14}}>Analyzing your log…</div>
+          <div style={{fontSize:12,color:"var(--t3)"}}>Reading error patterns · Building fix plan</div>
+        </div>
+      )}
+
+      {/* Results */}
+      {(status === "done" || status === "error") && result && (
+        <div style={{ width:"100%", maxWidth:720, marginTop:32 }}>
+
+          {/* Metrics row */}
+          <div style={{ display:"flex", gap:12, marginBottom:20, flexWrap:"wrap", alignItems:"center" }}>
+            {[
+              { label:"Severity",   value:result.severity,            color:sevColor[result.severity] },
+              { label:"Source",     value:result.source_detected },
+              { label:"Root Cause", value:result.root_cause_category },
+              { label:"Fix Time",   value:result.estimated_fix_time  },
+            ].map(m => (
+              <div key={m.label} style={{
+                flex:1, minWidth:120, background:"var(--bg2)",
+                border:"1px solid var(--border)", borderRadius:12, padding:"12px 16px",
+              }}>
+                <div style={{fontSize:11,color:"var(--t3)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:4}}>{m.label}</div>
+                <div style={{fontSize:14,fontWeight:600,color:m.color||"var(--t1)"}}>{m.value}</div>
+              </div>
+            ))}
+            {isPro
+              ? <button className="btn btn-ghost btn-sm" onClick={exportReport}>↓ Export</button>
+              : <Link to="/pricing" className="btn btn-outline btn-sm">↓ Export (Pro)</Link>
+            }
+          </div>
+
+          {/* Tabs */}
+          <div style={{ display:"flex", gap:4, borderBottom:"1px solid var(--border)", marginBottom:16 }}>
+            {TABS.map((t, i) => (
+              <button
+                key={t}
+                onClick={()=>setActiveTab(i)}
+                style={{
+                  background:"none", border:"none", cursor:"pointer",
+                  padding:"8px 16px", fontSize:13,
+                  fontWeight: activeTab===i ? 600 : 400,
+                  color: activeTab===i ? "var(--t1)" : "var(--t2)",
+                  borderBottom: activeTab===i ? "2px solid #6c5ce7" : "2px solid transparent",
+                  marginBottom:-1,
+                }}
+              >{t}</button>
+            ))}
+          </div>
+
+          {/* Tab body */}
+          <div style={{ background:"var(--bg2)", border:"1px solid var(--border)", borderRadius:12, padding:24 }}>
+            {activeTab === 0 && (
+              <div>
+                <p style={{fontSize:15,lineHeight:1.8,color:"var(--t1)",marginBottom:16}}>{result.plain_english}</p>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                  <span className="badge badge-blue">{result.root_cause_category}</span>
+                  <span className="badge badge-gray">Confidence: {result.confidence}</span>
+                </div>
+              </div>
+            )}
+            {activeTab === 1 && (
+              <div>
+                <div style={{fontSize:13,color:"var(--t2)",marginBottom:16}}>
+                  Follow these steps. Click <strong>"Ask about this step"</strong> to chat with AI.
+                </div>
+                <div className={styles.stepsList}>
+                  {(result.resolution_steps||[]).map(s => (
+                    <StepChat key={s.step} step={s} result={result} log={log} />
+                  ))}
+                </div>
+                {!isPro && (
+                  <div className={styles.planGate}>
+                    <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
+                    <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $12/mo</Link>
+                  </div>
+                )}
+              </div>
+            )}
+            {activeTab === 2 && (
+              <div>
+                <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.8,marginBottom:16}}>{result.technical_context}</p>
+                {(result.related_errors||[]).length > 0 && (
+                  <>
+                    <div style={{fontSize:11,color:"var(--t3)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Related errors</div>
+                    <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:6}}>
+                      {result.related_errors.map((e,i)=><li key={i} style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--t2)",paddingLeft:14}}>→ {e}</li>)}
+                    </ul>
+                  </>
+                )}
+              </div>
+            )}
+            {activeTab === 3 && (
+              <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:12}}>
+                {(result.prevention||[]).map((p,i)=>(
+                  <li key={i} style={{display:"flex",gap:10,fontSize:14}}>
+                    <span style={{color:"var(--green)",fontWeight:700,flexShrink:0}}>✓</span>{p}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
