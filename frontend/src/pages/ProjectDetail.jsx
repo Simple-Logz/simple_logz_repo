@@ -21,6 +21,15 @@ function IconSettings() { return <svg width="16" height="16" viewBox="0 0 24 24"
 function IconActivity() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>; }
 function IconBook() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>; }
 function IconTerminal() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>; }
+function IconCode()     { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>; }
+function IconZap()      { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>; }
+function IconTrend()    { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>; }
+function IconShield()   { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>; }
+function IconBug()      { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="13" r="4"/><path d="M12 9v-3"/><path d="M4.93 10.93l1.41 1.41"/><path d="M2 17h3"/><path d="M19 17h3"/><path d="M17.66 12.34l1.41-1.41"/><path d="M15 9a3 3 0 0 0-6 0"/></svg>; }
+function IconSpeed()    { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>; }
+function IconClipboard(){ return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>; }
+function IconTrash()    { return <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>; }
+function IconBrain()    { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96-.46 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96-.46 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>; }
 function IconHome() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>; }
 function IconGithub() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>; }
 function IconKey() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>; }
@@ -31,22 +40,48 @@ function IconCheck() { return <svg width="14" height="14" viewBox="0 0 24 24" fi
 function IconSave() { return <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>; }
 
 const TABS = [
-  { id: "overview",  label: "Overview",  icon: <IconHome/> },
-  { id: "incidents", label: "Incidents", icon: <IconActivity/> },
-  { id: "runbooks",  label: "Runbooks",  icon: <IconBook/> },
-  { id: "terminal",  label: "Terminal",  icon: <IconTerminal/> },
-  { id: "settings",  label: "Settings",  icon: <IconSettings/> },
+  { id: "overview",       label: "Overview",       icon: <IconHome/> },
+  { id: "incidents",      label: "Incidents",      icon: <IconActivity/> },
+  { id: "log-analyzer",   label: "Log Analyzer",   icon: <IconZap/> },
+  { id: "code-inspector", label: "Code Inspector", icon: <IconCode/> },
+  { id: "runbooks",       label: "Runbooks",       icon: <IconBook/> },
+  { id: "settings",       label: "Settings",       icon: <IconSettings/> },
 ];
 
 const SEV_COLOR = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)" };
 
 // ── Overview Tab ──────────────────────────────────────────────
+const TREND_COLOR = { improving:"var(--green)", worsening:"var(--red)", stable:"var(--yellow)" };
+const TREND_LABEL = { improving:"↑ Improving", worsening:"↓ Worsening", stable:"→ Stable" };
+
 function OverviewTab({ project, analyses }) {
-  const critical = analyses.filter(a => a.severity === "CRITICAL").length;
-  const high     = analyses.filter(a => a.severity === "HIGH").length;
-  const total    = analyses.length;
-  const score    = total === 0 ? 100 : Math.max(0, Math.round(100 - (critical * 15) - (high * 5) - ((total - critical - high) * 1)));
+  const { getToken } = useAuth();
+  const critical   = analyses.filter(a => a.severity === "CRITICAL").length;
+  const high       = analyses.filter(a => a.severity === "HIGH").length;
+  const total      = analyses.length;
+  const score      = total === 0 ? 100 : Math.max(0, Math.round(100 - (critical * 15) - (high * 5) - ((total - critical - high) * 1)));
   const scoreColor = score >= 80 ? "var(--green)" : score >= 60 ? "var(--yellow)" : "var(--red)";
+
+  const [intel,        setIntel]        = useState(null);
+  const [intelLoading, setIntelLoading] = useState(false);
+  const [intelError,   setIntelError]   = useState(null);
+
+  async function generateIntel() {
+    setIntelLoading(true); setIntelError(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/pattern-intel", {
+        method: "POST",
+        body: JSON.stringify({
+          analyses:    analyses.map(a => ({ severity: a.severity, title: a.title, source: a.source, created_at: a.created_at })),
+          projectName: project.name,
+          stack:       project.stack,
+        }),
+      }, token);
+      setIntel(data.result);
+    } catch (e) { setIntelError(e.message || "Analysis failed. Please retry."); }
+    finally { setIntelLoading(false); }
+  }
 
   return (
     <div className={styles.tabContent}>
@@ -101,19 +136,95 @@ function OverviewTab({ project, analyses }) {
         )}
       </div>
 
-      {/* AI Insight */}
-      {analyses.length >= 3 && (
-        <div className={styles.aiInsight}>
-          <div className={styles.aiInsightLabel}>AI Insight</div>
-          <p className={styles.aiInsightText}>
-            {critical > 0
-              ? `This project has had ${critical} critical incident${critical > 1 ? "s" : ""}. Consider reviewing your infrastructure for recurring failure patterns.`
-              : total > 5
-              ? `This project has accumulated ${total} incidents. Review the incident timeline to identify patterns before they become outages.`
-              : "Not enough data yet to generate AI insights. Run more analyses to unlock pattern detection."}
-          </p>
+      {/* Pattern Intelligence */}
+      <div className={styles.section}>
+        <div className={styles.intelHeader}>
+          <div>
+            <div className={styles.secLabel}>Pattern Intelligence</div>
+            <p className={styles.aiToolDesc} style={{marginTop:4}}>
+              {total < 2 ? "Run 2+ analyses to unlock AI pattern detection." : "AI scans your incident history to surface patterns, predict failures, and recommend fixes."}
+            </p>
+          </div>
+          {total >= 2 && !intel && (
+            <button
+              className="btn btn-outline btn-sm"
+              onClick={generateIntel}
+              disabled={intelLoading}
+              style={{gap:7,flexShrink:0}}
+            >
+              {intelLoading ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Analyzing…</> : <><IconBrain/> Generate Report</>}
+            </button>
+          )}
+          {intel && (
+            <button className="btn btn-ghost btn-sm" onClick={() => setIntel(null)} style={{flexShrink:0}}>Reset</button>
+          )}
         </div>
-      )}
+
+        {intelError && <div className={styles.aiError}>{intelError}</div>}
+
+        {intel && (
+          <div className={styles.intelResult}>
+            {/* Trend + hotspot */}
+            <div className={styles.intelTopRow}>
+              <div className={styles.intelCard}>
+                <div className={styles.secLabel} style={{marginBottom:8}}>Trend</div>
+                <div className={styles.trendBadge} style={{color: TREND_COLOR[intel.trend], borderColor: TREND_COLOR[intel.trend] + "44", background: TREND_COLOR[intel.trend] + "11"}}>
+                  {TREND_LABEL[intel.trend] || intel.trend}
+                </div>
+                {intel.trend_explanation && <p className={styles.intelCardDesc}>{intel.trend_explanation}</p>}
+              </div>
+              <div className={styles.intelCard}>
+                <div className={styles.secLabel} style={{marginBottom:8}}>Hotspot</div>
+                <div className={styles.hotspotLabel}>{intel.hotspot}</div>
+                {intel.mttr_estimate && <p className={styles.intelCardDesc}>Est. MTTR: {intel.mttr_estimate}</p>}
+              </div>
+            </div>
+
+            {intel.summary && <p className={styles.intelSummary}>{intel.summary}</p>}
+
+            {/* Patterns */}
+            {intel.patterns?.length > 0 && (
+              <div style={{marginBottom:16}}>
+                <div className={styles.secLabel} style={{marginBottom:10}}>Detected Patterns</div>
+                <div className={styles.patternGrid}>
+                  {intel.patterns.map((p, i) => (
+                    <div key={i} className={styles.patternCard}>
+                      <div className={styles.patternCardTop}>
+                        <span className={styles.patternName}>{p.name}</span>
+                        <span className={styles.patternCount}>{p.count}×</span>
+                        <span className={styles.flaggedSev} style={{color: SEV_DOT[p.risk]}}>{p.risk}</span>
+                      </div>
+                      <p className={styles.patternDesc}>{p.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Predictions */}
+            {intel.predictions?.length > 0 && (
+              <div style={{marginBottom:16}}>
+                <div className={styles.secLabel} style={{marginBottom:8}}>Proactive Warnings</div>
+                {intel.predictions.map((p, i) => (
+                  <div key={i} className={styles.predictionAlert}>
+                    <span style={{color:"var(--yellow)",fontWeight:700,marginRight:8}}>⚠</span>{p}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Recommendations */}
+            {intel.recommendations?.length > 0 && (
+              <div>
+                <div className={styles.secLabel} style={{marginBottom:8}}>Recommendations</div>
+                {intel.recommendations.map((r, i) => (
+                  <div key={i} className={styles.recItem}><span className={styles.recNum}>{i + 1}</span>{r}</div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 }
@@ -155,43 +266,434 @@ function IncidentsTab({ analyses, projectId }) {
   );
 }
 
-// ── Runbooks Tab ──────────────────────────────────────────────
-function RunbooksTab({ project }) {
+// ── Log Analyzer Tab ──────────────────────────────────────────
+const PLATFORMS = ["auto","Node.js","Python","Docker","Kubernetes","Nginx","Postgres","AWS","Linux","Java","Go","PHP","Ruby"];
+const SEV_DOT = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)", INFO:"var(--t3)", CLEAN:"var(--green)" };
+
+function LogAnalyzerTab({ project }) {
+  const { getToken } = useAuth();
+  const [log,      setLog]      = useState("");
+  const [platform, setPlatform] = useState("auto");
+  const [result,   setResult]   = useState(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(null);
+  const lineCount = log.split("\n").length;
+
+  async function analyze() {
+    if (!log.trim()) return;
+    setLoading(true); setError(null); setResult(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/log-analyze", {
+        method: "POST", body: JSON.stringify({ log, platform }),
+      }, token);
+      setResult(data.result);
+    } catch (e) { setError(e.message || "Analysis failed. Please retry."); }
+    finally { setLoading(false); }
+  }
+
   return (
     <div className={styles.tabContent}>
-      <div className={styles.secLabel}>AI Runbooks</div>
-      <div className={styles.comingSoon}>
-        <div className={styles.comingSoonIcon}><IconBook/></div>
-        <div className={styles.comingSoonTitle}>Runbooks — Coming Soon</div>
-        <p className={styles.comingSoonDesc}>
-          After analyzing an incident, click "Generate Runbook" to create a step-by-step operations playbook. Every runbook is saved here permanently so your team never solves the same problem twice.
-        </p>
-        <div className={styles.comingSoonFeatures}>
-          <div className={styles.comingSoonFeature}><IconCheck/> Auto-generated from incident analysis</div>
-          <div className={styles.comingSoonFeature}><IconCheck/> Saved to this project permanently</div>
-          <div className={styles.comingSoonFeature}><IconCheck/> Includes CLI commands and verification steps</div>
-          <div className={styles.comingSoonFeature}><IconCheck/> Searchable across all projects</div>
+      <div className={styles.aiToolHeader}>
+        <div>
+          <div className={styles.secLabel}>Log Analyzer</div>
+          <p className={styles.aiToolDesc}>Paste any log output — AI identifies every error with exact line numbers, root cause, and a specific fix.</p>
         </div>
+        <select className={styles.platformSelect} value={platform} onChange={e => setPlatform(e.target.value)}>
+          {PLATFORMS.map(p => <option key={p} value={p}>{p === "auto" ? "Auto-detect platform" : p}</option>)}
+        </select>
       </div>
+
+      <div className={styles.logInputWrap}>
+        <textarea
+          className={styles.logTextarea}
+          value={log}
+          onChange={e => setLog(e.target.value)}
+          placeholder={"Paste your logs here...\n\nExamples:\n  • Docker container logs\n  • Node.js stack traces\n  • Kubernetes events\n  • Nginx / Postgres errors\n  • Python tracebacks\n  • AWS CloudWatch output"}
+          spellCheck={false}
+        />
+        <div className={styles.lineCounter}>{lineCount} line{lineCount !== 1 ? "s" : ""}</div>
+      </div>
+
+      <div className={styles.analyzeRow}>
+        <button
+          className="btn btn-primary"
+          onClick={analyze}
+          disabled={loading || !log.trim()}
+          style={{gap:8}}
+        >
+          {loading ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/> Analyzing…</> : <><IconZap/> Analyze Logs</>}
+        </button>
+        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setLog(""); }}>Clear</button>}
+      </div>
+
+      {error && <div className={styles.aiError}>{error}</div>}
+
+      {result && (
+        <div className={styles.analysisResult}>
+          {/* Summary bar */}
+          <div className={styles.resultSummaryBar}>
+            <div className={styles.resultSevBadge} style={{background: SEV_DOT[result.overall_severity] + "22", color: SEV_DOT[result.overall_severity]}}>
+              {result.overall_severity}
+            </div>
+            <div className={styles.resultPlatformTag}>{result.platform}</div>
+            <div className={styles.resultIssueCount}>
+              {result.issues_found > 0 ? `${result.issues_found} issue${result.issues_found !== 1 ? "s" : ""} found` : "✓ Clean — no issues"}
+            </div>
+          </div>
+
+          {result.summary && <p className={styles.resultSummaryText}>{result.summary}</p>}
+          {result.root_cause && (
+            <div className={styles.rootCauseCard}>
+              <span className={styles.rootCauseLabel}>Root cause</span>
+              <span className={styles.rootCauseText}>{result.root_cause}</span>
+            </div>
+          )}
+
+          {/* Flagged lines */}
+          {result.flagged_lines?.length > 0 && (
+            <div className={styles.flaggedSection}>
+              <div className={styles.secLabel} style={{marginBottom:10}}>Flagged Lines</div>
+              <div className={styles.flaggedTable}>
+                {result.flagged_lines.map((fl, i) => (
+                  <div key={i} className={styles.flaggedRow}>
+                    <div className={styles.flaggedMeta}>
+                      <span className={styles.flaggedLineNum}>L{fl.line_number}</span>
+                      <span className={styles.flaggedSev} style={{color: SEV_DOT[fl.severity]}}>{fl.severity}</span>
+                      <span className={styles.flaggedType}>{fl.issue_type}</span>
+                    </div>
+                    <code className={styles.flaggedContent}>{fl.content?.slice(0, 110)}{fl.content?.length > 110 ? "…" : ""}</code>
+                    <div className={styles.flaggedDesc}>{fl.description}</div>
+                    {fl.fix && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {fl.fix}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Recommendations */}
+          {result.recommendations?.length > 0 && (
+            <div className={styles.recsSection}>
+              <div className={styles.secLabel} style={{marginBottom:10}}>Recommendations</div>
+              {result.recommendations.map((r, i) => (
+                <div key={i} className={styles.recItem}><span className={styles.recNum}>{i + 1}</span>{r}</div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-// ── Terminal Tab ──────────────────────────────────────────────
-function TerminalTab() {
+// ── Code Inspector Tab ─────────────────────────────────────────
+const LANGUAGES = ["auto","JavaScript","TypeScript","Python","Go","Java","PHP","Ruby","Rust","C++","C#","Swift","Kotlin","SQL","Bash","YAML"];
+const ISSUE_ICON = { Bug: <IconBug/>, Security: <IconShield/>, Performance: <IconSpeed/>, Style: null, Deprecated: null, Logic: <IconBug/> };
+const ISSUE_COLOR = { Bug:"var(--red)", Security:"#f97316", Performance:"var(--yellow)", Style:"var(--t3)", Deprecated:"var(--t3)", Logic:"var(--red)" };
+
+function scoreColor(s) {
+  if (s >= 85) return "var(--green)";
+  if (s >= 65) return "var(--yellow)";
+  if (s >= 40) return "var(--accent)";
+  return "var(--red)";
+}
+
+function CodeInspectorTab({ project }) {
+  const { getToken } = useAuth();
+  const [code,     setCode]     = useState("");
+  const [lang,     setLang]     = useState("auto");
+  const [result,   setResult]   = useState(null);
+  const [loading,  setLoading]  = useState(false);
+  const [error,    setError]    = useState(null);
+  const lineCount = code.split("\n").length;
+
+  async function inspect() {
+    if (!code.trim()) return;
+    setLoading(true); setError(null); setResult(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/code-inspect", {
+        method: "POST", body: JSON.stringify({ code, language: lang }),
+      }, token);
+      setResult(data.result);
+    } catch (e) { setError(e.message || "Inspection failed. Please retry."); }
+    finally { setLoading(false); }
+  }
+
   return (
     <div className={styles.tabContent}>
-      <div className={styles.secLabel}>Project Terminal</div>
-      <div className={styles.comingSoon}>
-        <div className={styles.comingSoonIcon}><IconTerminal/></div>
-        <div className={styles.comingSoonTitle}>Terminal — Coming Soon</div>
-        <p className={styles.comingSoonDesc}>
-          Run diagnostic commands directly in your browser — kubectl, docker, curl, ping, netstat — scoped to this project's environment. No SSH session required.
-        </p>
-        <Link to="/terminal" className="btn btn-outline btn-sm" style={{marginTop:16,display:"inline-flex"}}>
-          Use global terminal for now →
-        </Link>
+      <div className={styles.aiToolHeader}>
+        <div>
+          <div className={styles.secLabel}>Code Inspector</div>
+          <p className={styles.aiToolDesc}>Paste code for a pre-commit review — AI flags bugs, security holes, and performance issues with exact line numbers.</p>
+        </div>
+        <select className={styles.platformSelect} value={lang} onChange={e => setLang(e.target.value)}>
+          {LANGUAGES.map(l => <option key={l} value={l}>{l === "auto" ? "Auto-detect language" : l}</option>)}
+        </select>
       </div>
+
+      <div className={styles.logInputWrap}>
+        <textarea
+          className={styles.logTextarea}
+          value={code}
+          onChange={e => setCode(e.target.value)}
+          placeholder={"Paste your code here...\n\nThe inspector will check for:\n  • Bugs and logic errors\n  • Security vulnerabilities\n  • Performance bottlenecks\n  • Deprecated patterns\n\nSupports JS, TS, Python, Go, Java, PHP, Ruby, Rust, and more."}
+          spellCheck={false}
+        />
+        <div className={styles.lineCounter}>{lineCount} line{lineCount !== 1 ? "s" : ""}</div>
+      </div>
+
+      <div className={styles.analyzeRow}>
+        <button
+          className="btn btn-primary"
+          onClick={inspect}
+          disabled={loading || !code.trim()}
+          style={{gap:8}}
+        >
+          {loading ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/> Inspecting…</> : <><IconCode/> Inspect Code</>}
+        </button>
+        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setCode(""); }}>Clear</button>}
+      </div>
+
+      {error && <div className={styles.aiError}>{error}</div>}
+
+      {result && (
+        <div className={styles.analysisResult}>
+          {/* Score + verdict */}
+          <div className={styles.scoreRow}>
+            <div className={styles.scoreCircle} style={{borderColor: scoreColor(result.score), color: scoreColor(result.score)}}>
+              <span className={styles.scoreNum}>{result.score}</span>
+              <span className={styles.scoreDenom}>/100</span>
+            </div>
+            <div className={styles.scoreDetails}>
+              <div className={styles.scoreVerdict}>{result.verdict}</div>
+              <div className={styles.scoreLang}>{result.language} · {result.total_lines} lines · {result.issues_found} issue{result.issues_found !== 1 ? "s" : ""}</div>
+              {result.summary && <p className={styles.scoreSummary}>{result.summary}</p>}
+            </div>
+          </div>
+
+          {/* Issues */}
+          {result.issues?.length > 0 && (
+            <div className={styles.flaggedSection}>
+              <div className={styles.secLabel} style={{marginBottom:10}}>Issues Found</div>
+              <div className={styles.flaggedTable}>
+                {result.issues.map((iss, i) => (
+                  <div key={i} className={styles.flaggedRow}>
+                    <div className={styles.flaggedMeta}>
+                      <span className={styles.flaggedLineNum}>L{iss.line}</span>
+                      <span className={styles.flaggedSev} style={{color: SEV_DOT[iss.severity]}}>{iss.severity}</span>
+                      <span className={styles.flaggedType} style={{color: ISSUE_COLOR[iss.type] || "var(--t2)"}}>{iss.type}</span>
+                    </div>
+                    <div className={styles.flaggedDesc}>{iss.description}</div>
+                    {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Strengths + improvements */}
+          <div className={styles.strengthsGrid}>
+            {result.strengths?.length > 0 && (
+              <div className={styles.strengthsCard}>
+                <div className={styles.secLabel} style={{marginBottom:8,color:"var(--green)"}}>Strengths</div>
+                {result.strengths.map((s, i) => <div key={i} className={styles.strengthItem}><IconCheck/> {s}</div>)}
+              </div>
+            )}
+            {result.improvements?.length > 0 && (
+              <div className={styles.strengthsCard}>
+                <div className={styles.secLabel} style={{marginBottom:8,color:"var(--yellow)"}}>Improvements</div>
+                {result.improvements.map((s, i) => <div key={i} className={styles.strengthItem} style={{color:"var(--t2)"}}><IconAnalyze/> {s}</div>)}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── Runbook Studio Tab ─────────────────────────────────────────
+function RunbooksTab({ project, analyses }) {
+  const { getToken } = useAuth();
+  const storageKey   = `slz_runbooks_${project.id}`;
+  const [runbooks,    setRunbooks]    = useState(() => {
+    try { return JSON.parse(localStorage.getItem(storageKey) || "[]"); } catch { return []; }
+  });
+  const [selected,    setSelected]    = useState(null);
+  const [generating,  setGenerating]  = useState(false);
+  const [error,       setError]       = useState(null);
+  const [copied,      setCopied]      = useState(false);
+
+  function save(list) {
+    setRunbooks(list);
+    localStorage.setItem(storageKey, JSON.stringify(list));
+  }
+
+  async function generate() {
+    if (analyses.length === 0) return;
+    setGenerating(true); setError(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/generate-runbook", {
+        method: "POST",
+        body: JSON.stringify({
+          projectName: project.name,
+          stack:       project.stack,
+          incidents:   analyses.slice(0, 6).map(a => ({ severity: a.severity, title: a.title, source: a.source })),
+        }),
+      }, token);
+      const newList = [{ ...data.runbook, id: Date.now(), created: new Date().toISOString() }, ...runbooks];
+      save(newList);
+      setSelected(newList[0]);
+    } catch (e) { setError(e.message || "Generation failed. Please retry."); }
+    finally { setGenerating(false); }
+  }
+
+  function deleteRunbook(id) {
+    const next = runbooks.filter(r => r.id !== id);
+    save(next);
+    if (selected?.id === id) setSelected(next[0] || null);
+  }
+
+  function copyMarkdown(rb) {
+    const md = [
+      `# ${rb.title}`,
+      `\n${rb.description}`,
+      `\n**Severity:** ${rb.severity}  |  **Est. resolution:** ${rb.estimated_resolution_time}`,
+      `\n## Triggers\n${rb.triggers?.map(t => `- ${t}`).join("\n")}`,
+      `\n## Steps\n${rb.steps?.map(s => `### Step ${s.step}: ${s.title}\n${s.action}${s.command ? `\n\`\`\`\n${s.command}\n\`\`\`` : ""}\n**Verify:** ${s.verification}`).join("\n\n")}`,
+      `\n## Escalation\n${rb.escalation}`,
+      `\n## Prevention\n${rb.prevention?.map(p => `- ${p}`).join("\n")}`,
+    ].join("\n");
+    navigator.clipboard.writeText(md);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1500);
+  }
+
+  const SEV_C = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)" };
+
+  return (
+    <div className={styles.tabContent}>
+      <div className={styles.aiToolHeader}>
+        <div>
+          <div className={styles.secLabel}>Runbook Studio</div>
+          <p className={styles.aiToolDesc}>AI generates production-ready runbooks from your incident history. Saved locally to this project.</p>
+        </div>
+        <button
+          className="btn btn-primary btn-sm"
+          onClick={generate}
+          disabled={generating || analyses.length === 0}
+          style={{gap:7,flexShrink:0}}
+        >
+          {generating ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Generating…</> : <><IconBook/> Generate Runbook</>}
+        </button>
+      </div>
+
+      {analyses.length === 0 && (
+        <div className={styles.emptySection}>
+          <p>No incidents yet. Run at least one log analysis first — the AI uses your incident history to generate relevant runbooks.</p>
+          <Link to={`/?project=${project.id}`} className="btn btn-primary btn-sm" style={{marginTop:12,display:"inline-flex"}}>
+            <IconAnalyze/> Analyze a log
+          </Link>
+        </div>
+      )}
+
+      {error && <div className={styles.aiError}>{error}</div>}
+
+      {runbooks.length === 0 && analyses.length > 0 && !generating && (
+        <div className={styles.emptySection}>
+          <p>No runbooks yet. Click "Generate Runbook" above — the AI will create a step-by-step playbook based on your {analyses.length} incident{analyses.length !== 1 ? "s" : ""}.</p>
+        </div>
+      )}
+
+      {runbooks.length > 0 && (
+        <div className={styles.runbookLayout}>
+          {/* List */}
+          <div className={styles.runbookList}>
+            {runbooks.map(rb => (
+              <div
+                key={rb.id}
+                className={`${styles.runbookListItem} ${selected?.id === rb.id ? styles.runbookListItemActive : ""}`}
+                onClick={() => setSelected(rb)}
+              >
+                <div className={styles.runbookListTitle}>{rb.title}</div>
+                <div className={styles.runbookListMeta}>
+                  <span style={{color: SEV_C[rb.severity]}}>{rb.severity}</span>
+                  <span>{rb.estimated_resolution_time}</span>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Detail */}
+          {selected && (
+            <div className={styles.runbookDetail}>
+              <div className={styles.runbookDetailHeader}>
+                <div>
+                  <div className={styles.runbookTitle}>{selected.title}</div>
+                  <div className={styles.runbookMeta}>
+                    <span className={styles.resultSevBadge} style={{background: (SEV_C[selected.severity]||"var(--t3)") + "22", color: SEV_C[selected.severity]||"var(--t3)"}}>{selected.severity}</span>
+                    <span className={styles.runbookMetaItem}>⏱ {selected.estimated_resolution_time}</span>
+                  </div>
+                </div>
+                <div style={{display:"flex",gap:8,flexShrink:0}}>
+                  <button className="btn btn-outline btn-sm" style={{gap:6}} onClick={() => copyMarkdown(selected)}>
+                    <IconClipboard/> {copied ? "Copied!" : "Copy MD"}
+                  </button>
+                  <button className="btn btn-danger btn-sm" style={{gap:6}} onClick={() => deleteRunbook(selected.id)}>
+                    <IconTrash/>
+                  </button>
+                </div>
+              </div>
+
+              {selected.description && <p className={styles.runbookDesc}>{selected.description}</p>}
+
+              {selected.triggers?.length > 0 && (
+                <div className={styles.runbookSection}>
+                  <div className={styles.secLabel} style={{marginBottom:8}}>Triggers</div>
+                  {selected.triggers.map((t, i) => <div key={i} className={styles.recItem}><span className={styles.recNum}>!</span>{t}</div>)}
+                </div>
+              )}
+
+              <div className={styles.runbookSection}>
+                <div className={styles.secLabel} style={{marginBottom:10}}>Resolution Steps</div>
+                {selected.steps?.map(s => (
+                  <div key={s.step} className={styles.runbookStep}>
+                    <div className={styles.runbookStepNum}>{s.step}</div>
+                    <div className={styles.runbookStepBody}>
+                      <div className={styles.runbookStepTitle}>{s.title}</div>
+                      <div className={styles.runbookStepAction}>{s.action}</div>
+                      {s.command && <code className={styles.runbookCommand}>{s.command}</code>}
+                      {s.verification && <div className={styles.runbookVerify}><span style={{color:"var(--green)",fontWeight:600}}>✓ Verify:</span> {s.verification}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {selected.escalation && (
+                <div className={styles.runbookSection}>
+                  <div className={styles.secLabel} style={{marginBottom:8}}>Escalation</div>
+                  <div className={styles.escalationCard}>{selected.escalation}</div>
+                </div>
+              )}
+
+              {selected.prevention?.length > 0 && (
+                <div className={styles.runbookSection}>
+                  <div className={styles.secLabel} style={{marginBottom:8}}>Prevention</div>
+                  {selected.prevention.map((p, i) => <div key={i} className={styles.recItem}><span className={styles.recNum}>{i + 1}</span>{p}</div>)}
+                </div>
+              )}
+
+              {selected.tags?.length > 0 && (
+                <div className={styles.tagRow}>
+                  {selected.tags.map(t => <span key={t} className={styles.stackTag}>{t}</span>)}
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -411,11 +913,12 @@ export default function ProjectDetail() {
         </div>
 
         {/* ── Tab content ──────────────────────────── */}
-        {tab === "overview"  && <OverviewTab  project={project} analyses={analyses}/>}
-        {tab === "incidents" && <IncidentsTab analyses={analyses} projectId={project.id}/>}
-        {tab === "runbooks"  && <RunbooksTab  project={project}/>}
-        {tab === "terminal"  && <TerminalTab/>}
-        {tab === "settings"  && <SettingsTab  project={project} onUpdated={p => setProject(p)} onDeleted={() => navigate("/projects")}/>}
+        {tab === "overview"        && <OverviewTab      project={project} analyses={analyses}/>}
+        {tab === "incidents"       && <IncidentsTab     analyses={analyses} projectId={project.id}/>}
+        {tab === "log-analyzer"    && <LogAnalyzerTab   project={project}/>}
+        {tab === "code-inspector"  && <CodeInspectorTab project={project}/>}
+        {tab === "runbooks"        && <RunbooksTab      project={project} analyses={analyses}/>}
+        {tab === "settings"        && <SettingsTab      project={project} onUpdated={p => setProject(p)} onDeleted={() => navigate("/projects")}/>}
 
       </div>
     </div>

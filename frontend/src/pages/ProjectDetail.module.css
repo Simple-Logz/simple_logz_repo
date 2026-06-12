@@ -143,6 +143,116 @@
 .copyBtn:hover { border-color:var(--accent); color:var(--accent) }
 .apiKeyHint { font-size:11px; color:var(--t3) }
 
+/* ── AI Tool shared ──────────────────────────────────────────── */
+.aiToolHeader { display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:16px; flex-wrap:wrap }
+.aiToolDesc { font-size:13px; color:var(--t2); margin-top:4px; line-height:1.6 }
+.platformSelect { background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:7px 10px; font-size:12px; color:var(--t2); cursor:pointer; flex-shrink:0 }
+.platformSelect:focus { outline:none; border-color:var(--accent) }
+
+/* ── Log / Code input area ───────────────────────────────────── */
+.logInputWrap { position:relative; margin-bottom:12px }
+.logTextarea {
+  width:100%; min-height:220px; background:var(--bg3); border:1px solid var(--border);
+  border-radius:12px; padding:14px 16px; font-size:13px; font-family:var(--mono);
+  color:var(--t1); resize:vertical; line-height:1.6; box-sizing:border-box;
+  transition:border-color .15s;
+}
+.logTextarea:focus { outline:none; border-color:var(--accent) }
+.logTextarea::placeholder { color:var(--t3) }
+.lineCounter { position:absolute; bottom:12px; right:14px; font-size:11px; color:var(--t3); font-family:var(--mono); pointer-events:none }
+
+/* ── Analyze / Inspect button row ────────────────────────────── */
+.analyzeRow { display:flex; gap:10px; align-items:center; margin-bottom:20px; flex-wrap:wrap }
+.aiError { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--red); margin-bottom:16px }
+
+/* ── Result container ────────────────────────────────────────── */
+.analysisResult { display:flex; flex-direction:column; gap:16px }
+
+/* ── Summary bar ─────────────────────────────────────────────── */
+.resultSummaryBar { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.resultSevBadge { padding:3px 11px; border-radius:99px; font-size:11px; font-weight:700; letter-spacing:.04em }
+.resultPlatformTag { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:3px 10px; font-size:11px; color:var(--t2); font-family:var(--mono) }
+.resultIssueCount { font-size:13px; color:var(--t2); font-weight:500 }
+.resultSummaryText { font-size:13px; color:var(--t2); line-height:1.7; margin:0 }
+.rootCauseCard { background:rgba(108,92,231,0.06); border:1px solid rgba(108,92,231,0.18); border-radius:10px; padding:11px 14px; display:flex; gap:10px; align-items:baseline; flex-wrap:wrap }
+.rootCauseLabel { font-size:11px; font-weight:700; color:#6c5ce7; text-transform:uppercase; letter-spacing:.06em; flex-shrink:0 }
+.rootCauseText { font-size:13px; color:var(--t2); line-height:1.6 }
+
+/* ── Flagged lines table ─────────────────────────────────────── */
+.flaggedSection { display:flex; flex-direction:column; gap:0 }
+.flaggedTable { display:flex; flex-direction:column; gap:2px }
+.flaggedRow { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:11px 14px; display:flex; flex-direction:column; gap:6px }
+.flaggedMeta { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.flaggedLineNum { font-family:var(--mono); font-size:11px; font-weight:700; color:var(--t3); background:var(--bg3); padding:2px 7px; border-radius:5px; flex-shrink:0 }
+.flaggedSev { font-size:10px; font-weight:700; letter-spacing:.05em; flex-shrink:0 }
+.flaggedType { font-size:11px; color:var(--t2); background:var(--bg3); border:1px solid var(--border); padding:2px 8px; border-radius:5px }
+.flaggedContent { font-family:var(--mono); font-size:12px; color:var(--t1); background:var(--bg3); border-radius:6px; padding:5px 9px; white-space:pre-wrap; word-break:break-all; line-height:1.5 }
+.flaggedDesc { font-size:13px; color:var(--t2); line-height:1.5 }
+.flaggedFix { font-size:12px; color:var(--t2); line-height:1.5 }
+.fixLabel { color:#6c5ce7; font-weight:600; margin-right:4px }
+
+/* ── Recommendations ─────────────────────────────────────────── */
+.recsSection { display:flex; flex-direction:column; gap:6px }
+.recItem { display:flex; align-items:baseline; gap:10px; font-size:13px; color:var(--t2); line-height:1.6; padding:8px 12px; background:var(--bg2); border-radius:8px; border:1px solid var(--border) }
+.recNum { font-size:11px; font-weight:700; color:#6c5ce7; background:rgba(108,92,231,0.12); border-radius:99px; width:20px; height:20px; display:flex; align-items:center; justify-content:center; flex-shrink:0; line-height:1 }
+
+/* ── Code Inspector score ────────────────────────────────────── */
+.scoreRow { display:flex; align-items:flex-start; gap:20px; flex-wrap:wrap }
+.scoreCircle { width:80px; height:80px; border-radius:50%; border:3px solid; display:flex; flex-direction:column; align-items:center; justify-content:center; flex-shrink:0 }
+.scoreNum { font-size:26px; font-weight:700; line-height:1 }
+.scoreDenom { font-size:11px; color:var(--t3) }
+.scoreDetails { flex:1; min-width:0 }
+.scoreVerdict { font-size:16px; font-weight:700; color:var(--t1); margin-bottom:4px }
+.scoreLang { font-size:12px; color:var(--t3); font-family:var(--mono); margin-bottom:8px }
+.scoreSummary { font-size:13px; color:var(--t2); line-height:1.7; margin:0 }
+.strengthsGrid { display:grid; grid-template-columns:1fr 1fr; gap:12px }
+.strengthsCard { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 16px; display:flex; flex-direction:column; gap:8px }
+.strengthItem { display:flex; align-items:flex-start; gap:8px; font-size:13px; color:var(--t2); line-height:1.5 }
+
+/* ── Runbook Studio ──────────────────────────────────────────── */
+.runbookLayout { display:grid; grid-template-columns:220px 1fr; gap:16px; align-items:start }
+.runbookList { display:flex; flex-direction:column; gap:4px; background:var(--bg2); border:1px solid var(--border); border-radius:12px; overflow:hidden; position:sticky; top:80px }
+.runbookListItem { padding:12px 14px; cursor:pointer; border-bottom:1px solid var(--border); transition:background .15s }
+.runbookListItem:last-child { border-bottom:none }
+.runbookListItem:hover { background:var(--bg3) }
+.runbookListItemActive { background:rgba(108,92,231,0.08)!important; border-left:3px solid #6c5ce7 }
+.runbookListTitle { font-size:13px; font-weight:600; color:var(--t1); margin-bottom:4px; line-height:1.4 }
+.runbookListMeta { display:flex; gap:8px; font-size:11px; color:var(--t3) }
+.runbookDetail { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:20px; display:flex; flex-direction:column; gap:16px }
+.runbookDetailHeader { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap }
+.runbookTitle { font-size:17px; font-weight:700; color:var(--t1); letter-spacing:-.2px; margin-bottom:6px }
+.runbookMeta { display:flex; align-items:center; gap:10px; flex-wrap:wrap }
+.runbookMetaItem { font-size:12px; color:var(--t3) }
+.runbookDesc { font-size:13px; color:var(--t2); line-height:1.7; margin:0 }
+.runbookSection { display:flex; flex-direction:column; gap:10px }
+.runbookStep { display:flex; gap:14px; align-items:flex-start }
+.runbookStepNum { width:28px; height:28px; border-radius:50%; background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.3); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; color:#6c5ce7; flex-shrink:0; margin-top:2px }
+.runbookStepBody { flex:1; min-width:0; display:flex; flex-direction:column; gap:5px; padding-bottom:14px; border-bottom:1px solid var(--border) }
+.runbookStep:last-child .runbookStepBody { border-bottom:none; padding-bottom:0 }
+.runbookStepTitle { font-size:14px; font-weight:600; color:var(--t1) }
+.runbookStepAction { font-size:13px; color:var(--t2); line-height:1.6 }
+.runbookCommand { display:block; font-family:var(--mono); font-size:12px; background:var(--bg3); border:1px solid var(--border); border-radius:8px; padding:9px 12px; color:var(--t1); white-space:pre-wrap; word-break:break-all; margin-top:2px }
+.runbookVerify { font-size:12px; color:var(--t2); line-height:1.5 }
+.escalationCard { background:rgba(248,113,113,0.06); border:1px solid rgba(248,113,113,0.18); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--t2); line-height:1.6 }
+.tagRow { display:flex; flex-wrap:wrap; gap:6px }
+
+/* ── Pattern Intelligence ────────────────────────────────────── */
+.intelHeader { display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; margin-bottom:14px }
+.intelResult { display:flex; flex-direction:column; gap:16px }
+.intelTopRow { display:grid; grid-template-columns:1fr 1fr; gap:12px }
+.intelCard { background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:14px 16px }
+.intelCardDesc { font-size:12px; color:var(--t3); margin-top:6px; line-height:1.5 }
+.trendBadge { display:inline-block; padding:5px 14px; border-radius:99px; border:1px solid; font-size:13px; font-weight:700 }
+.hotspotLabel { font-size:15px; font-weight:700; color:var(--t1) }
+.intelSummary { font-size:13px; color:var(--t2); line-height:1.7; margin:0; padding:12px 14px; background:var(--bg3); border-radius:10px; border:1px solid var(--border) }
+.patternGrid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:10px }
+.patternCard { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 16px }
+.patternCardTop { display:flex; align-items:center; gap:8px; margin-bottom:6px; flex-wrap:wrap }
+.patternName { font-size:13px; font-weight:600; color:var(--t1); flex:1 }
+.patternCount { font-size:12px; font-weight:700; color:var(--accent); background:rgba(79,142,247,0.1); border-radius:99px; padding:1px 8px }
+.patternDesc { font-size:12px; color:var(--t2); line-height:1.6; margin:0 }
+.predictionAlert { background:rgba(253,186,116,0.07); border:1px solid rgba(253,186,116,0.2); border-radius:10px; padding:11px 14px; font-size:13px; color:var(--t2); line-height:1.6; margin-bottom:8px }
+
 /* ── Mobile ──────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .page { padding:8px 0 48px }

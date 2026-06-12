@@ -18,7 +18,11 @@ import stripeRouter    from "./routes/stripe.js";
 import forumRouter     from "./routes/forum.js";
 import userRouter      from "./routes/user.js";
 import projectsRouter  from "./routes/projects.js";
-import chatRouter      from "./routes/chat.js";
+import chatRouter          from "./routes/chat.js";
+import logAnalyzeRouter    from "./routes/logAnalyze.js";
+import codeInspectRouter   from "./routes/codeInspect.js";
+import patternIntelRouter  from "./routes/patternIntel.js";
+import generateRunbookRouter from "./routes/generateRunbook.js";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -56,7 +60,11 @@ app.use("/api/auth",     authRouter);
 app.use("/api/stripe",   stripeRouter);
 app.use("/api/forum",    forumRouter);
 app.use("/api/user",     userRouter);
-app.use("/api/projects", projectsRouter);
+app.use("/api/projects",          projectsRouter);
+app.use("/api/log-analyze",       logAnalyzeRouter);
+app.use("/api/code-inspect",      codeInspectRouter);
+app.use("/api/pattern-intel",     patternIntelRouter);
+app.use("/api/generate-runbook",  generateRunbookRouter);
 app.use("/api/chat",    chatRouter);
 
 // ── Health check ─────────────────────────────────────────────
