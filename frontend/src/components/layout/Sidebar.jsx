@@ -58,19 +58,11 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
       <Link
         to="/"
         onClick={onClose}
-        style={{ display:"flex", alignItems:"center", gap:10, padding:"20px 18px 24px", textDecoration:"none" }}
+        style={{ display:"flex", alignItems:"center", gap:8, padding:"22px 18px 20px", textDecoration:"none" }}
       >
-        <div style={{
-          width:28, height:28, background:"#6c5ce7", borderRadius:7, flexShrink:0,
-          display:"flex", alignItems:"center", justifyContent:"center",
-        }}>
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="white" strokeWidth="1.5" strokeLinecap="round">
-            <line x1="2" y1="4" x2="12" y2="4"/>
-            <line x1="2" y1="7" x2="9"  y2="7"/>
-            <line x1="2" y1="10" x2="10" y2="10"/>
-          </svg>
-        </div>
-        <span style={{ color:"var(--t1)", fontSize:14, fontWeight:700, letterSpacing:"0.02em" }}>SimpleLogz</span>
+        <span style={{ color:"var(--t1)", fontSize:15, fontWeight:700, letterSpacing:"-0.3px" }}>
+          Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
+        </span>
       </Link>
 
       {/* New analysis button */}
@@ -78,14 +70,12 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
         to="/"
         onClick={onClose}
         style={{
-          display:"flex", alignItems:"center", gap:9, margin:"0 10px 16px",
-          padding:"9px 12px", borderRadius:8,
-          border:"1px solid var(--border)", color:"var(--t2)",
-          fontSize:13, fontWeight:500, textDecoration:"none",
-          background:"transparent",
+          display:"flex", alignItems:"center", gap:8, margin:"0 12px 20px",
+          padding:"8px 12px", borderRadius:8, background:"var(--bg3)",
+          color:"var(--t2)", fontSize:13, fontWeight:500, textDecoration:"none",
         }}
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
           <line x1="12" y1="5" x2="12" y2="19"/>
           <line x1="5"  y1="12" x2="19" y2="12"/>
         </svg>
@@ -103,11 +93,11 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
               onClick={onClose}
               style={{
                 display:"flex", alignItems:"center", gap:10,
-                padding:"8px 14px", margin:"0 6px 2px", borderRadius:6,
-                textDecoration:"none", fontSize:13, transition:"all .15s",
+                padding:"8px 18px", marginBottom:2,
+                textDecoration:"none", fontSize:13, transition:"color .15s",
                 color: active ? "var(--t1)" : "var(--t2)",
-                background: active ? "var(--bg3)" : "transparent",
-                fontWeight: active ? 500 : 400,
+                fontWeight: active ? 600 : 400,
+                borderLeft: active ? "2px solid #6c5ce7" : "2px solid transparent",
               }}
             >
               <Icon/> {label}
@@ -259,13 +249,14 @@ export default function Sidebar({ onThemeToggle, theme }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.6)", zIndex:150, display:"flex" }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:150, display:"flex" }}
           onClick={() => setMobileOpen(false)}
         >
           <div
             style={{
-              width:260, background:"var(--bg2)", height:"100%",
+              width:"min(280px, 80vw)", background:"var(--bg2)", height:"100%",
               display:"flex", flexDirection:"column", overflowY:"auto",
+              boxShadow:"4px 0 24px rgba(0,0,0,0.3)",
             }}
             onClick={e => e.stopPropagation()}
           >
