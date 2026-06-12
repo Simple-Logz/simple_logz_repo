@@ -234,8 +234,8 @@ export default function Sidebar({ onThemeToggle, theme }) {
       {/* Mobile hamburger */}
       <button
         className="sl-hamburger"
-        onClick={() => setMobileOpen(true)}
-        aria-label="Open menu"
+        onClick={() => setMobileOpen(o => !o)}
+        aria-label="Toggle menu"
       >
         <IconMenu/>
       </button>
@@ -252,7 +252,7 @@ export default function Sidebar({ onThemeToggle, theme }) {
           <div
             style={{
               position:"fixed", top:0, left:0, height:"100%", width:200,
-              background:"rgba(22,27,37,0.75)", backdropFilter:"blur(14px)", WebkitBackdropFilter:"blur(14px)", zIndex:151,
+              background:"rgba(22,27,37,0.55)", backdropFilter:"blur(16px)", WebkitBackdropFilter:"blur(16px)", zIndex:151,
               display:"flex", flexDirection:"column", overflowY:"auto",
               boxShadow:"4px 0 20px rgba(0,0,0,0.2)",
               animation:"slideInLeft .2s ease",
