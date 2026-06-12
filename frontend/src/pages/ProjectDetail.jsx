@@ -267,67 +267,79 @@ function IncidentsTab({ analyses, projectId }) {
 }
 
 // ── Shared Code Editor with line numbers ──────────────────────
-const LINE_H = 20.8; // 13px font × 1.6 line-height
+const LINE_H   = 21;    // px per line  (13px font × ~1.6)
+const GUTTER_W = 56;    // px gutter width
 
 function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKeyDown }) {
-  const textaRef = useRef(null);
-  const gutterRef = useRef(null);
-  const count = Math.max((value || "").split("\n").length, 1);
+  const textaRef  = useRef(null);
+  const numbersRef = useRef(null);
+  const lines = (value || "").split("\n");
+  const count = Math.max(lines.length, 1);
 
-  function syncScroll() {
-    if (gutterRef.current && textaRef.current)
-      gutterRef.current.scrollTop = textaRef.current.scrollTop;
+  // Keep gutter in sync when textarea scrolls
+  function onScroll() {
+    if (numbersRef.current && textaRef.current)
+      numbersRef.current.style.top = `-${textaRef.current.scrollTop}px`;
   }
 
+  // Jump to a specific line
   useEffect(() => {
     if (activeLine != null && textaRef.current) {
-      textaRef.current.scrollTop = Math.max(0, 14 + (activeLine - 1) * LINE_H - 60);
-      syncScroll();
+      textaRef.current.scrollTop = Math.max(0, (activeLine - 1) * LINE_H - 60);
+      onScroll();
     }
   }, [activeLine]);
 
-  // All inline styles — nothing can override or conflict
   return (
     <div style={{
-      display:"flex", border:"1px solid #2a3650", borderRadius:12,
-      overflow:"hidden", marginBottom:12, minHeight:220,
-      background:"#1c2333",
+      position:"relative", border:"1px solid #2a3650",
+      borderRadius:12, overflow:"hidden",
+      marginBottom:12, minHeight:220,
+      background:"#1b2235",
     }}>
-      {/* Line number gutter */}
-      <div ref={gutterRef} style={{
-        width:52, flexShrink:0, background:"#11161f",
-        borderRight:"1px solid #2a3650",
-        padding:"14px 0", overflow:"hidden",
-        userSelect:"none", fontFamily:"monospace",
-        fontSize:12, textAlign:"right",
+      {/* ── Gutter panel (absolute, left side) ── */}
+      <div style={{
+        position:"absolute", top:0, left:0, bottom:0,
+        width:GUTTER_W, background:"#111722",
+        borderRight:"2px solid #2a3650",
+        overflow:"hidden",
+        pointerEvents:"none", userSelect:"none",
       }}>
-        {Array.from({ length: count }, (_, i) => (
-          <div key={i} style={{
-            height: LINE_H, lineHeight:`${LINE_H}px`,
-            paddingRight:10,
-            color: activeLine === i + 1 ? "#a29bfe" : "#8899bb",
-            background: activeLine === i + 1 ? "rgba(108,92,231,0.2)" : "transparent",
-            fontWeight: activeLine === i + 1 ? 700 : 400,
-          }}>
-            {i + 1}
-          </div>
-        ))}
+        {/* Scrolling number list — shifted by textarea.scrollTop */}
+        <div ref={numbersRef} style={{ position:"relative", top:0, paddingTop:14 }}>
+          {Array.from({ length: count }, (_, i) => (
+            <div key={i} style={{
+              height:LINE_H, lineHeight:`${LINE_H}px`,
+              textAlign:"right", paddingRight:10,
+              fontSize:12, fontFamily:"monospace",
+              color: activeLine === i + 1 ? "#a29bfe" : "#7a90b8",
+              background: activeLine === i + 1 ? "rgba(108,92,231,0.2)" : "transparent",
+              fontWeight: activeLine === i + 1 ? 700 : 400,
+            }}>
+              {i + 1}
+            </div>
+          ))}
+        </div>
       </div>
-      {/* Code textarea */}
-      <textarea ref={textaRef} style={{
-        flex:1, minWidth:0, background:"transparent",
-        border:"none", outline:"none",
-        padding:"14px 12px", fontSize:13,
-        fontFamily:"monospace",
-        color:"#f0f4ff", lineHeight:`${LINE_H}px`,
-        resize:"none", minHeight:220, boxSizing:"border-box",
-      }}
-        value={value}
+
+      {/* ── Code textarea (left-padded so text clears the gutter) ── */}
+      <textarea
+        ref={textaRef}
+        onScroll={onScroll}
         onChange={onChange}
-        onScroll={syncScroll}
         onKeyDown={onKeyDown}
+        value={value}
         placeholder={placeholder}
         spellCheck={false}
+        style={{
+          display:"block", width:"100%", boxSizing:"border-box",
+          paddingTop:14, paddingBottom:14,
+          paddingLeft: GUTTER_W + 12, paddingRight:14,
+          minHeight:220, background:"transparent",
+          border:"none", outline:"none", resize:"none",
+          fontSize:13, fontFamily:"monospace",
+          color:"#f0f4ff", lineHeight:`${LINE_H}px`,
+        }}
       />
     </div>
   );
@@ -609,8 +621,9 @@ function CodeInspectorTab({ project }) {
                   const isFixing = fixingIdx === i;
                   return (
                     <div key={i} className={styles.flaggedRow}>
-                      <div className={styles.flaggedRowInner}>
-                        <div className={styles.flaggedBody}>
+                      {/* inline style guarantees flex layout regardless of CSS module issues */}
+                      <div className={styles.flaggedRowInner} style={{display:"flex",alignItems:"center",gap:14}}>
+                        <div className={styles.flaggedBody} style={{flex:1,minWidth:0}}>
                           <div className={styles.flaggedMeta}>
                             <button className={styles.flaggedLineNumBtn} onClick={() => jumpTo(iss.line)} title="Jump to this line">
                               ↑ L{iss.line}
@@ -621,10 +634,20 @@ function CodeInspectorTab({ project }) {
                           <div className={styles.flaggedDesc}>{iss.description}</div>
                           {iss.suggestion && <div className={styles.flaggedFix}><span className={styles.fixLabel}>Fix →</span> {iss.suggestion}</div>}
                         </div>
+                        {/* solid inline style — cannot be hidden by CSS modules */}
                         <button
-                          className={styles.fixNowBtn}
                           onClick={() => applyFix(i, iss)}
                           disabled={fixingIdx !== null}
+                          style={{
+                            flexShrink:0, whiteSpace:"nowrap",
+                            background: isFixing ? "#5a4bd1" : "#6c5ce7",
+                            color:"#fff", border:"none",
+                            borderRadius:8, padding:"9px 20px",
+                            fontSize:13, fontWeight:700, cursor:"pointer",
+                            opacity: fixingIdx !== null && !isFixing ? 0.5 : 1,
+                            display:"flex", alignItems:"center", gap:6,
+                            boxShadow:"0 2px 8px rgba(108,92,231,0.4)",
+                          }}
                         >
                           {isFixing
                             ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Fixing…</>
