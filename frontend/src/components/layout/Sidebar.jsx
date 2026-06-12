@@ -71,8 +71,8 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
         onClick={onClose}
         style={{
           display:"flex", alignItems:"center", gap:8, margin:"0 12px 20px",
-          padding:"8px 12px", borderRadius:8, background:"var(--bg3)",
-          color:"var(--t2)", fontSize:13, fontWeight:500, textDecoration:"none",
+          padding:"8px 12px", color:"var(--t2)", fontSize:13,
+          fontWeight:500, textDecoration:"none",
         }}
       >
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -243,14 +243,15 @@ export default function Sidebar({ onThemeToggle, theme }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <div
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.5)", zIndex:150, display:"flex" }}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", zIndex:150, display:"flex", alignItems:"flex-start" }}
           onClick={() => setMobileOpen(false)}
         >
           <div
             style={{
-              width:"min(280px, 80vw)", background:"var(--bg2)", height:"100%",
+              width:200, background:"var(--bg2)", height:"100%",
               display:"flex", flexDirection:"column", overflowY:"auto",
-              boxShadow:"4px 0 24px rgba(0,0,0,0.3)",
+              boxShadow:"4px 0 20px rgba(0,0,0,0.25)",
+              animation:"slideInLeft .2s ease",
             }}
             onClick={e => e.stopPropagation()}
           >
