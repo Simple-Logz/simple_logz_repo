@@ -82,6 +82,21 @@ textarea.form-input{resize:vertical;line-height:1.7}
 .toggle input:checked+.toggle-slider{background:var(--accent)}
 .toggle input:checked+.toggle-slider::after{transform:translateX(20px)}
 
+/* ── Sidebar responsive ──────────────────────────────────── */
+.sl-sidebar { display: flex; flex-direction: column; }
+.sl-hamburger {
+  display: none;
+  position: fixed; top: 14px; left: 14px; z-index: 200;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px; cursor: pointer;
+  color: var(--t1); align-items: center; justify-content: center;
+}
+@media (max-width: 768px) {
+  .sl-sidebar { display: none !important; }
+  .sl-hamburger { display: flex !important; }
+  #root > div > div:last-child { padding-top: 56px; }
+}
+
 /* ── Responsive ──────────────────────────────────────────── */
 @media(max-width:600px){.container{padding:0 16px}}
 
