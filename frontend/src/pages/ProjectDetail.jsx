@@ -267,28 +267,25 @@ function IncidentsTab({ analyses, projectId }) {
 }
 
 // ── Shared Code Editor with line numbers ──────────────────────
-function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKeyDown }) {
-  const textaRef = useRef(null);
-  const gutterRef = useRef(null);
-  const lineH = 20.8; // 13px font-size × 1.6 line-height
-  const count = Math.max((value || "").split("\n").length, 1);
+const LINE_H = 20.8; // 13px × 1.6 line-height
 
-  function syncGutter() {
-    if (gutterRef.current && textaRef.current)
-      gutterRef.current.scrollTop = textaRef.current.scrollTop;
-  }
+function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKeyDown }) {
+  const wrapRef = useRef(null);
+  const count   = Math.max((value || "").split("\n").length, 1);
+  // Grow the editor to fit all content so the wrapper (not the textarea) scrolls
+  const editorH = Math.max(220, count * LINE_H + 28);
 
   useEffect(() => {
-    if (activeLine != null && textaRef.current) {
-      const offset = 14 + (activeLine - 1) * lineH;
-      textaRef.current.scrollTop = Math.max(0, offset - 60);
-      syncGutter();
+    if (activeLine != null && wrapRef.current) {
+      const offset = 14 + (activeLine - 1) * LINE_H;
+      wrapRef.current.scrollTop = Math.max(0, offset - 60);
     }
   }, [activeLine]);
 
   return (
-    <div className={styles.editorWrap}>
-      <div className={styles.editorGutter} ref={gutterRef} aria-hidden="true">
+    <div className={styles.editorWrap} ref={wrapRef}>
+      {/* Gutter — flows with the wrapper scroll, no JS needed */}
+      <div className={styles.editorGutter} style={{ minHeight: editorH }}>
         {Array.from({ length: count }, (_, i) => (
           <div
             key={i}
@@ -299,14 +296,13 @@ function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKey
         ))}
       </div>
       <textarea
-        ref={textaRef}
         className={styles.editorTextarea}
         value={value}
         onChange={onChange}
-        onScroll={syncGutter}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         spellCheck={false}
+        style={{ height: editorH }}
       />
     </div>
   );
