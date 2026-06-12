@@ -242,12 +242,13 @@
 
 .fixNowBtn {
   flex-shrink:0; display:flex; align-items:center; gap:6px;
-  padding:8px 16px; border-radius:8px; font-size:12px; font-weight:700;
-  background:rgba(108,92,231,0.15); border:1px solid rgba(108,92,231,0.4);
-  color:#a29bfe; cursor:pointer; white-space:nowrap;
-  transition:background .15s, color .15s, border-color .15s;
+  padding:8px 18px; border-radius:8px; font-size:13px; font-weight:700;
+  background:#6c5ce7; border:none;
+  color:#fff; cursor:pointer; white-space:nowrap;
+  transition:background .15s, opacity .15s;
+  box-shadow:0 2px 8px rgba(108,92,231,0.35);
 }
-.fixNowBtn:hover:not(:disabled) { background:#6c5ce7; border-color:#6c5ce7; color:#fff }
+.fixNowBtn:hover:not(:disabled) { background:#5a4bd1 }
 .fixNowBtn:disabled { opacity:.5; cursor:not-allowed }
 
 /* ── Run Fix button (legacy, keep for safety) ────────────────── */

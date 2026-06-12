@@ -267,42 +267,67 @@ function IncidentsTab({ analyses, projectId }) {
 }
 
 // ── Shared Code Editor with line numbers ──────────────────────
-const LINE_H = 20.8; // 13px × 1.6 line-height
+const LINE_H = 20.8; // 13px font × 1.6 line-height
 
 function CodeEditorPane({ value, onChange, placeholder, activeLine = null, onKeyDown }) {
-  const wrapRef = useRef(null);
-  const count   = Math.max((value || "").split("\n").length, 1);
-  // Grow the editor to fit all content so the wrapper (not the textarea) scrolls
-  const editorH = Math.max(220, count * LINE_H + 28);
+  const textaRef = useRef(null);
+  const gutterRef = useRef(null);
+  const count = Math.max((value || "").split("\n").length, 1);
+
+  function syncScroll() {
+    if (gutterRef.current && textaRef.current)
+      gutterRef.current.scrollTop = textaRef.current.scrollTop;
+  }
 
   useEffect(() => {
-    if (activeLine != null && wrapRef.current) {
-      const offset = 14 + (activeLine - 1) * LINE_H;
-      wrapRef.current.scrollTop = Math.max(0, offset - 60);
+    if (activeLine != null && textaRef.current) {
+      textaRef.current.scrollTop = Math.max(0, 14 + (activeLine - 1) * LINE_H - 60);
+      syncScroll();
     }
   }, [activeLine]);
 
+  // All inline styles — nothing can override or conflict
   return (
-    <div className={styles.editorWrap} ref={wrapRef}>
-      {/* Gutter — flows with the wrapper scroll, no JS needed */}
-      <div className={styles.editorGutter} style={{ minHeight: editorH }}>
+    <div style={{
+      display:"flex", border:"1px solid #2a3650", borderRadius:12,
+      overflow:"hidden", marginBottom:12, minHeight:220,
+      background:"#1c2333",
+    }}>
+      {/* Line number gutter */}
+      <div ref={gutterRef} style={{
+        width:52, flexShrink:0, background:"#11161f",
+        borderRight:"1px solid #2a3650",
+        padding:"14px 0", overflow:"hidden",
+        userSelect:"none", fontFamily:"monospace",
+        fontSize:12, textAlign:"right",
+      }}>
         {Array.from({ length: count }, (_, i) => (
-          <div
-            key={i}
-            className={styles.editorLineNum + (activeLine === i + 1 ? " " + styles.editorLineNumActive : "")}
-          >
+          <div key={i} style={{
+            height: LINE_H, lineHeight:`${LINE_H}px`,
+            paddingRight:10,
+            color: activeLine === i + 1 ? "#a29bfe" : "#8899bb",
+            background: activeLine === i + 1 ? "rgba(108,92,231,0.2)" : "transparent",
+            fontWeight: activeLine === i + 1 ? 700 : 400,
+          }}>
             {i + 1}
           </div>
         ))}
       </div>
-      <textarea
-        className={styles.editorTextarea}
+      {/* Code textarea */}
+      <textarea ref={textaRef} style={{
+        flex:1, minWidth:0, background:"transparent",
+        border:"none", outline:"none",
+        padding:"14px 12px", fontSize:13,
+        fontFamily:"monospace",
+        color:"#f0f4ff", lineHeight:`${LINE_H}px`,
+        resize:"none", minHeight:220, boxSizing:"border-box",
+      }}
         value={value}
         onChange={onChange}
+        onScroll={syncScroll}
         onKeyDown={onKeyDown}
         placeholder={placeholder}
         spellCheck={false}
-        style={{ height: editorH }}
       />
     </div>
   );
