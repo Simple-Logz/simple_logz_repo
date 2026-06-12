@@ -35,7 +35,7 @@ function AppShell() {
   }
 
   return (
-    <div style={{ display:"flex", minHeight:"100vh" }}>
+    <div style={{ display:"flex", minHeight:"100vh", alignItems:"flex-start" }}>
       <Sidebar onThemeToggle={toggleTheme} theme={theme}/>
       <div className="app-content" style={{ flex:1, display:"flex", flexDirection:"column", minHeight:"100vh", maxWidth:"100vw" }}>
         <Routes>

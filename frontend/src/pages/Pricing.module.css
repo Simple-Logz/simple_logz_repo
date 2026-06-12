@@ -1,4 +1,4 @@
-.page{padding:16px 0 40px;flex:1}
+.page{padding:16px 0 40px}
 .header{text-align:center;margin-bottom:16px}
 .title{font-size:20px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px;color:var(--t1)}
 .sub{font-size:12px;color:var(--t2);max-width:480px;margin:0 auto;line-height:1.55}
@@ -24,5 +24,4 @@
 .faqQ{font-weight:600;margin-bottom:6px}
 .faqA{font-size:14px;color:var(--t2);line-height:1.65}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:500;display:flex;align-items:center;justify-content:center;padding:24px}
-.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:460px;width:100%;position:relative;box-shadow:var(--shadow)}
-.modalClose{position:absolute;top:16px;right:20px;font-size:18px;color:var(--t3);cursor:pointer}
+.modal{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:32px;max-width:

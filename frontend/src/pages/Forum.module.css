@@ -1,4 +1,4 @@
-.page{flex:1;padding-bottom:48px}
+.page{padding-bottom:48px}
 .layout{display:grid;grid-template-columns:210px 1fr;gap:20px;padding:28px 0}
 .sidebar{display:flex;flex-direction:column;gap:4px}
 .sideLabel{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1px;color:var(--t3);padding:8px 12px 4px}

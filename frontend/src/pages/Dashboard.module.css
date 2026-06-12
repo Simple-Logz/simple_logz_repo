@@ -1,4 +1,4 @@
-.page{flex:1;padding:28px 0 48px}
+.page{padding:28px 0 48px}
 .welcome{margin-bottom:24px}
 .welcome h1{font-size:26px;font-weight:700;letter-spacing:-.3px}
 .welcome p{font-size:14px;color:var(--t2);margin-top:4px}
@@ -13,7 +13,7 @@
 .table tr:hover td{background:var(--bg3)}
 .table tr:last-child td{border-bottom:none}
 /* Settings */
-.settingsPage{flex:1;padding:28px 0 48px}
+.settingsPage{padding:28px 0 48px}
 .settingsHeader{margin-bottom:24px}
 .settingsHeader h1{font-size:26px;font-weight:700;letter-spacing:-.3px}
 .settingsHeader p{font-size:14px;color:var(--t2);margin-top:4px}
