@@ -997,30 +997,34 @@ function SettingsTab({ project, onUpdated, onDeleted }) {
 // ── Main ProjectDetail page ───────────────────────────────────
 export default function ProjectDetail() {
   const { id } = useParams();
-  const { getToken, isLoggedIn } = useAuth();
+  const { getToken, isLoggedIn, loading: authLoading } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
 
-  const [project,  setProject]  = useState(null);
-  const [analyses, setAnalyses] = useState([]);
-  const [loading,  setLoading]  = useState(true);
-  const [tab,      setTab]      = useState("overview");
+  const [project,    setProject]    = useState(null);
+  const [analyses,   setAnalyses]   = useState([]);
+  const [loading,    setLoading]    = useState(true);
+  const [loadError,  setLoadError]  = useState(false);
+  const [tab,        setTab]        = useState("overview");
 
   useEffect(() => {
+    if (authLoading) return;
     if (!isLoggedIn) { navigate("/login"); return; }
     load();
-  }, [id, isLoggedIn]);
+  }, [id, isLoggedIn, authLoading]);
 
   async function load() {
     setLoading(true);
+    setLoadError(false);
     try {
       const token = await getToken();
       const data  = await apiFetch(`/api/projects/${id}`, {}, token);
       setProject(data.project);
       setAnalyses(data.analyses || []);
     } catch (err) {
-      showToast("Could not load project", "error");
-      navigate("/projects");
+      // Don't navigate away — show inline error so user stays on this URL
+      setLoadError(true);
+      showToast("Could not load project — tap Retry", "error");
     } finally {
       setLoading(false);
     }
@@ -1029,6 +1033,14 @@ export default function ProjectDetail() {
   if (loading) return (
     <div style={{display:"flex",alignItems:"center",justifyContent:"center",minHeight:"60vh"}}>
       <span className="spinner" style={{width:32,height:32,borderWidth:3}}/>
+    </div>
+  );
+
+  if (loadError) return (
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",minHeight:"60vh",gap:16,color:"var(--t2)"}}>
+      <div style={{fontSize:15}}>Could not load project.</div>
+      <button className="btn btn-primary btn-sm" onClick={load}>Retry</button>
+      <button className="btn btn-ghost btn-sm" onClick={() => navigate("/projects")}>← Back to Projects</button>
     </div>
   );
 
