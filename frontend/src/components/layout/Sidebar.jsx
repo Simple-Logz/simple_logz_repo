@@ -242,22 +242,26 @@ export default function Sidebar({ onThemeToggle, theme }) {
 
       {/* Mobile overlay */}
       {mobileOpen && (
-        <div
-          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.45)", zIndex:150, display:"flex", alignItems:"flex-start" }}
-          onClick={() => setMobileOpen(false)}
-        >
+        <>
+          {/* invisible tap-to-close layer */}
+          <div
+            style={{ position:"fixed", inset:0, zIndex:150 }}
+            onClick={() => setMobileOpen(false)}
+          />
+          {/* sidebar panel - no shaded backdrop */}
           <div
             style={{
-              width:200, background:"var(--bg2)", height:"100%",
+              position:"fixed", top:0, left:0, height:"100%", width:200,
+              background:"var(--bg2)", zIndex:151,
               display:"flex", flexDirection:"column", overflowY:"auto",
-              boxShadow:"4px 0 20px rgba(0,0,0,0.25)",
+              boxShadow:"4px 0 20px rgba(0,0,0,0.2)",
               animation:"slideInLeft .2s ease",
             }}
             onClick={e => e.stopPropagation()}
           >
             <SidebarInner onThemeToggle={onThemeToggle} theme={theme} onClose={() => setMobileOpen(false)}/>
           </div>
-        </div>
+        </>
       )}
     </>
   );
