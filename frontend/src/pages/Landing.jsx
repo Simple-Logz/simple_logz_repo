@@ -256,22 +256,15 @@ export default function Landing() {
   return (
     <div className={styles.page}>
 
-      {/* ── Hero ───────────────────────────────────────────── */}
-      <section className={styles.hero}>
-        <div className="container">
-          <div className={styles.heroInner}>
-            <div className={styles.eyebrow}>AI Log Intelligence Platform</div>
-            <h1 className={styles.title}>
-              Understand any error.<br/>
-              <span className={styles.gradient}>Fix it in seconds.</span>
-            </h1>
-            <p className={styles.sub}>
-              Paste any error log — Kubernetes, Docker, AWS, Nginx, Postgres, Node.js.
-              Get a plain English diagnosis and a step-by-step resolution instantly.
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* ── Brand heading ──────────────────────────────────── */}
+      <div style={{ textAlign:"center", padding:"40px 0 8px" }}>
+        <h1 style={{ fontSize:"clamp(28px,4vw,42px)", fontWeight:700, letterSpacing:"-1.5px", color:"var(--t1)" }}>
+          Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
+        </h1>
+        <p style={{ color:"var(--t2)", fontSize:15, marginTop:10 }}>
+          AI-powered log analysis. Understand any error in seconds.
+        </p>
+      </div>
 
       {/* ── Live Analyzer ──────────────────────────────────── */}
       <div className={styles.analyzerWrap}>
