@@ -252,4 +252,24 @@ export default function Sidebar({ onThemeToggle, theme }) {
       {/* Mobile overlay */}
       {mobileOpen && (
         <>
-          {/* invisible tap-to-close la
+          {/* Tap-to-close backdrop */}
+          <div
+            onClick={() => setMobileOpen(false)}
+            style={{
+              position:"fixed", inset:0, background:"rgba(0,0,0,.45)", zIndex:110,
+            }}
+          />
+          {/* Mobile sidebar drawer */}
+          <aside style={{
+            position:"fixed", top:0, left:0, width:260, height:"100vh",
+            background:"var(--bg2)", borderRight:"1px solid var(--border)",
+            display:"flex", flexDirection:"column", overflowY:"auto", zIndex:120,
+            animation:"slideInLeft .2s ease",
+          }}>
+            <SidebarInner onThemeToggle={onThemeToggle} theme={theme} onClose={() => setMobileOpen(false)}/>
+          </aside>
+        </>
+      )}
+    </>
+  );
+}
