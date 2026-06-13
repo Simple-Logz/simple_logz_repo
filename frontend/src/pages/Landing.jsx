@@ -218,7 +218,7 @@ function CursorDemo() {
   }, [si]);
 
   return (
-    <div style={{ width:"100%", maxWidth:600, margin:"64px auto 0" }}>
+    <div style={{ width:"100%", maxWidth:600, margin:"120px auto 0" }}>
       {/* Label */}
       <div style={{ textAlign:"center", marginBottom:18 }}>
         <span style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"var(--t3)" }}>
