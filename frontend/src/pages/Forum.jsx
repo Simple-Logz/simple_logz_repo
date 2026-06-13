@@ -86,11 +86,28 @@ function BodyText({ text }) {
   );
 }
 
+// Render image or generic file attachment
 function FileAttachment({ url }) {
   if (!url) return null;
   let fileName = url.split("/").pop().split("?")[0];
-  // Decode %20 etc.
   try { fileName = decodeURIComponent(fileName); } catch {}
+
+  const isImage = /\.(png|jpe?g|gif|webp|svg)$/i.test(fileName);
+
+  if (isImage) {
+    return (
+      <div style={{marginTop:12}}>
+        <img
+          src={url}
+          alt="attachment"
+          style={{
+            maxWidth:"100%", maxHeight:400, borderRadius:10,
+            border:"1px solid var(--border)", display:"block",
+          }}
+        />
+      </div>
+    );
+  }
 
   return (
     <a
@@ -122,6 +139,7 @@ function IconEye()   { return <svg width="13" height="13" viewBox="0 0 24 24" fi
 function IconX()     { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>; }
 function IconTrash() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>; }
 function IconPaperclip() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>; }
+function IconImage() { return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>; }
 
 export default function Forum() {
   const { isLoggedIn, getToken, user, profile } = useAuth();
@@ -147,8 +165,11 @@ export default function Forum() {
   const [myReactions, setMyReactions] = useState({});
 
   // Comment state
-  const [comment,  setComment]  = useState("");
-  const [commenting, setCommenting] = useState(false);
+  const [comment,      setComment]      = useState("");
+  const [commenting,   setCommenting]   = useState(false);
+  const [commentFile,  setCommentFile]  = useState(null);
+  const [commentPreview, setCommentPreview] = useState(null);
+  const commentFileRef = useRef(null);
 
   // New post state
   const [newTitle,    setNewTitle]    = useState("");
@@ -158,7 +179,6 @@ export default function Forum() {
   const [newFilePreview, setNewFilePreview] = useState(null);
   const [posting,     setPosting]     = useState(false);
   const fileInputRef  = useRef(null);
-  const commentFileRef = useRef(null);
 
   // ── Load threads ─────────────────────────────────────────────
   useEffect(() => {
@@ -206,16 +226,27 @@ export default function Forum() {
 
   // ── Submit comment ────────────────────────────────────────────
   async function submitComment() {
-    if (!comment.trim()) return;
+    if (!comment.trim() && !commentFile) return;
     setCommenting(true);
     try {
       const token = await getToken();
-      const { comment: newComment } = await api.createComment(activeThread.id, { body: comment }, token);
+      let fileUrl = null;
+      if (commentFile && user?.id) {
+        const safeName = commentFile.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+        const uploadPath = `${user.id}/${Date.now()}-${safeName}`;
+        fileUrl = await uploadToStorage("forum-files", uploadPath, commentFile);
+      }
+      const { comment: newComment } = await api.createComment(
+        activeThread.id, { body: comment, file_url: fileUrl }, token
+      );
       setActiveThread(prev => ({
         ...prev,
         forum_comments: [...(prev.forum_comments || []), newComment],
       }));
       setComment("");
+      setCommentFile(null);
+      setCommentPreview(null);
+      if (commentFileRef.current) commentFileRef.current.value = "";
       showToast("Reply posted", "success");
     } catch (err) {
       showToast(err.message || "Could not post reply", "error");
@@ -230,13 +261,30 @@ export default function Forum() {
     if (!file) return;
     if (file.size > 20 * 1024 * 1024) { showToast("File must be under 20MB", "error"); return; }
     setNewFile(file);
-    setNewFilePreview(file.name);
+    const isImg = file.type.startsWith("image/");
+    setNewFilePreview(isImg ? URL.createObjectURL(file) : file.name);
   }
 
   function removeFile() {
     setNewFile(null);
     setNewFilePreview(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  // ── File pick for comment image ───────────────────────────────
+  function handleCommentFileSelect(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { showToast("Only images are supported in replies", "error"); return; }
+    if (file.size > 10 * 1024 * 1024) { showToast("Image must be under 10MB", "error"); return; }
+    setCommentFile(file);
+    setCommentPreview(URL.createObjectURL(file));
+  }
+
+  function removeCommentFile() {
+    setCommentFile(null);
+    setCommentPreview(null);
+    if (commentFileRef.current) commentFileRef.current.value = "";
   }
 
   // ── Submit new thread ─────────────────────────────────────────
@@ -324,9 +372,10 @@ export default function Forum() {
     setView("list");
     setActiveThread(null);
     setComment("");
+    setCommentFile(null);
+    setCommentPreview(null);
   }
 
-  // ── THREAD
   // ── THREAD DETAIL VIEW ────────────────────────────────────────
   if (view === "thread") {
     return (
@@ -398,6 +447,7 @@ export default function Forum() {
                     <span style={{fontSize:12,color:"var(--t3)"}}>{timeAgo(c.created_at)}</span>
                   </div>
                   <BodyText text={c.body}/>
+                  {c.file_url && <FileAttachment url={c.file_url}/>}
                   {/* Reactions row */}
                   <div style={{display:"flex",gap:6,marginTop:12,flexWrap:"wrap",alignItems:"center"}}>
                     {[
@@ -453,14 +503,52 @@ export default function Forum() {
                       placeholder="Share your experience, solution, or question…"
                       style={{resize:"vertical"}}
                     />
-                    <button
-                      className="btn btn-primary"
-                      style={{marginTop:10}}
-                      onClick={submitComment}
-                      disabled={commenting || !comment.trim()}
-                    >
-                      {commenting ? <><span className="spinner"/>Posting…</> : "Post reply"}
-                    </button>
+                    {/* Image preview */}
+                    {commentPreview && (
+                      <div style={{marginTop:8,position:"relative",display:"inline-block"}}>
+                        <img
+                          src={commentPreview}
+                          alt="preview"
+                          style={{maxHeight:140,maxWidth:"100%",borderRadius:8,border:"1px solid var(--border)",display:"block"}}
+                        />
+                        <button
+                          onClick={removeCommentFile}
+                          style={{
+                            position:"absolute",top:4,right:4,
+                            background:"rgba(0,0,0,.6)",border:"none",borderRadius:"50%",
+                            width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",
+                            cursor:"pointer",color:"#fff",padding:0,
+                          }}
+                        >
+                          <IconX/>
+                        </button>
+                      </div>
+                    )}
+                    <div style={{display:"flex",gap:8,marginTop:10,alignItems:"center"}}>
+                      <button
+                        type="button"
+                        className="btn btn-outline btn-sm"
+                        onClick={() => commentFileRef.current?.click()}
+                        style={{display:"flex",alignItems:"center",gap:6}}
+                        title="Attach image (PNG, JPEG, GIF, WebP)"
+                      >
+                        <IconImage/> Image
+                      </button>
+                      <button
+                        className="btn btn-primary"
+                        onClick={submitComment}
+                        disabled={commenting || (!comment.trim() && !commentFile)}
+                      >
+                        {commenting ? <><span className="spinner"/>Posting…</> : "Post reply"}
+                      </button>
+                    </div>
+                    <input
+                      ref={commentFileRef}
+                      type="file"
+                      accept="image/png,image/jpeg,image/gif,image/webp"
+                      style={{display:"none"}}
+                      onChange={handleCommentFileSelect}
+                    />
                   </>
                 )}
               </div>
@@ -473,6 +561,7 @@ export default function Forum() {
 
   // ── NEW POST VIEW ─────────────────────────────────────────────
   if (view === "new") {
+    const newIsImage = newFile && newFile.type.startsWith("image/");
     return (
       <div className={styles.page}>
         <div className="container" style={{paddingTop:24,paddingBottom:60,maxWidth:740}}>
@@ -514,24 +603,46 @@ export default function Forum() {
               />
             </div>
 
-            {/* File attachment */}
+            {/* File / image attachment */}
             <div className="form-group">
               <label className="form-label">Attachment <span style={{color:"var(--t3)",fontWeight:400}}>(optional, up to 20MB)</span></label>
               {newFilePreview ? (
-                <div style={{
-                  display:"flex",alignItems:"center",gap:10,padding:"10px 14px",
-                  borderRadius:8,background:"var(--bg3)",border:"1px solid var(--border)",fontSize:13,
-                }}>
-                  <IconFile/>
-                  <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{newFilePreview}</span>
-                  <button
-                    type="button"
-                    onClick={removeFile}
-                    style={{background:"none",border:"none",cursor:"pointer",color:"var(--t3)",padding:2,display:"flex"}}
-                  >
-                    <IconX/>
-                  </button>
-                </div>
+                newIsImage ? (
+                  <div style={{position:"relative",display:"inline-block"}}>
+                    <img
+                      src={newFilePreview}
+                      alt="preview"
+                      style={{maxHeight:200,maxWidth:"100%",borderRadius:10,border:"1px solid var(--border)",display:"block"}}
+                    />
+                    <button
+                      type="button"
+                      onClick={removeFile}
+                      style={{
+                        position:"absolute",top:6,right:6,
+                        background:"rgba(0,0,0,.6)",border:"none",borderRadius:"50%",
+                        width:24,height:24,display:"flex",alignItems:"center",justifyContent:"center",
+                        cursor:"pointer",color:"#fff",padding:0,
+                      }}
+                    >
+                      <IconX/>
+                    </button>
+                  </div>
+                ) : (
+                  <div style={{
+                    display:"flex",alignItems:"center",gap:10,padding:"10px 14px",
+                    borderRadius:8,background:"var(--bg3)",border:"1px solid var(--border)",fontSize:13,
+                  }}>
+                    <IconFile/>
+                    <span style={{flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{newFilePreview}</span>
+                    <button
+                      type="button"
+                      onClick={removeFile}
+                      style={{background:"none",border:"none",cursor:"pointer",color:"var(--t3)",padding:2,display:"flex"}}
+                    >
+                      <IconX/>
+                    </button>
+                  </div>
+                )
               ) : (
                 <button
                   type="button"
@@ -539,12 +650,13 @@ export default function Forum() {
                   onClick={() => fileInputRef.current?.click()}
                   style={{alignSelf:"flex-start",display:"flex",alignItems:"center",gap:6}}
                 >
-                  <IconPaperclip/> Attach file
+                  <IconPaperclip/> Attach file or image
                 </button>
               )}
               <input
                 ref={fileInputRef}
                 type="file"
+                accept="image/png,image/jpeg,image/gif,image/webp,.pdf,.txt,.log,.csv,.zip"
                 style={{display:"none"}}
                 onChange={handleFileSelect}
               />

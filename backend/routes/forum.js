@@ -44,7 +44,7 @@ router.get("/threads/:id", optionalAuth, async (req, res) => {
       id, title, body, category, created_at, views, file_url,
       profiles:user_id (id, name, avatar),
       forum_comments (
-        id, body, created_at, likes,
+        id, body, created_at, likes, file_url,
         profiles:user_id (id, name, avatar)
       )
     `)
@@ -75,13 +75,18 @@ router.post("/threads", forumLimiter, requireAuth, async (req, res) => {
 
 // POST /api/forum/threads/:id/comments
 router.post("/threads/:id/comments", forumLimiter, requireAuth, async (req, res) => {
-  const { body } = req.body;
-  if (!body?.trim()) return res.status(400).json({ error: "Comment body is required." });
+  const { body, file_url } = req.body;
+  if (!body?.trim() && !file_url) return res.status(400).json({ error: "Comment body or image is required." });
 
   const { data, error } = await supabase
     .from("forum_comments")
-    .insert({ thread_id: req.params.id, user_id: req.user.id, body: body.trim() })
-    .select(`id, body, created_at, profiles:user_id (id, name, avatar)`)
+    .insert({
+      thread_id: req.params.id,
+      user_id: req.user.id,
+      body: body?.trim() || "",
+      file_url: file_url || null,
+    })
+    .select(`id, body, created_at, likes, file_url, profiles:user_id (id, name, avatar)`)
     .single();
 
   if (error) return res.status(500).json({ error: error.message });
