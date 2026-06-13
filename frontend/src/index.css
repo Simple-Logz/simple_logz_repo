@@ -20,8 +20,8 @@
 
 /* ── Reset ──────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{font-size:18px;scroll-behavior:smooth;overflow-x:hidden;overflow-y:auto;touch-action:pan-y}
-body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px;overflow-x:hidden;overscroll-behavior:none;touch-action:pan-y}
+html{font-size:18px;scroll-behavior:smooth;overflow-x:clip;overflow-y:auto;touch-action:pan-y}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);line-height:1.7;min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s;font-size:16px;overflow-x:clip;overscroll-behavior:none;touch-action:pan-y}
 button{cursor:pointer;font-family:inherit;border:none;background:none}
 input,textarea,select{font-family:inherit;font-size:16px}
 a{color:var(--accent);text-decoration:none}

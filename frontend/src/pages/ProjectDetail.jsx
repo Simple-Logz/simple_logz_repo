@@ -351,12 +351,18 @@ const SEV_DOT = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--acc
 
 function LogAnalyzerTab({ project }) {
   const { getToken } = useAuth();
-  const [log,        setLog]        = useState("");
-  const [platform,   setPlatform]   = useState("auto");
-  const [result,     setResult]     = useState(null);
+  const LKEY = `slz_la_${project.id}`;
+
+  const [log,        setLog]        = useState(() => { try { return localStorage.getItem(`${LKEY}_log`) || ""; } catch { return ""; } });
+  const [platform,   setPlatform]   = useState(() => { try { return localStorage.getItem(`${LKEY}_platform`) || "auto"; } catch { return "auto"; } });
+  const [result,     setResult]     = useState(() => { try { const r = localStorage.getItem(`${LKEY}_result`); return r ? JSON.parse(r) : null; } catch { return null; } });
   const [loading,    setLoading]    = useState(false);
   const [error,      setError]      = useState(null);
   const [activeLine, setActiveLine] = useState(null);
+
+  useEffect(() => { try { localStorage.setItem(`${LKEY}_log`,      log);      } catch {} }, [log]);
+  useEffect(() => { try { localStorage.setItem(`${LKEY}_platform`,  platform); } catch {} }, [platform]);
+  useEffect(() => { try { if (result) localStorage.setItem(`${LKEY}_result`, JSON.stringify(result)); else localStorage.removeItem(`${LKEY}_result`); } catch {} }, [result]);
 
   async function analyze() {
     if (!log.trim()) return;
@@ -404,7 +410,7 @@ function LogAnalyzerTab({ project }) {
         >
           {loading ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/> Analyzing…</> : <><IconZap/> Analyze Logs</>}
         </button>
-        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setLog(""); }}>Clear</button>}
+        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setLog(""); try { localStorage.removeItem(`${LKEY}_log`); localStorage.removeItem(`${LKEY}_result`); } catch {} }}>Clear</button>}
       </div>
 
       {error && <div className={styles.aiError}>{error}</div>}
@@ -479,16 +485,24 @@ function scoreColor(s) {
 
 function CodeInspectorTab({ project }) {
   const { getToken } = useAuth();
-  const [code,        setCode]       = useState("");
-  const [lang,        setLang]       = useState("auto");
-  const [result,      setResult]     = useState(null);
+  const CKEY = `slz_ci_${project.id}`;
+
+  const [code,        setCode]       = useState(() => { try { return localStorage.getItem(`${CKEY}_code`) || ""; } catch { return ""; } });
+  const [lang,        setLang]       = useState(() => { try { return localStorage.getItem(`${CKEY}_lang`) || "auto"; } catch { return "auto"; } });
+  const [result,      setResult]     = useState(() => { try { const r = localStorage.getItem(`${CKEY}_result`); return r ? JSON.parse(r) : null; } catch { return null; } });
   const [loading,     setLoading]    = useState(false);
   const [error,       setError]      = useState(null);
-  const [resolved,    setResolved]   = useState(new Set());
+  const [resolved,    setResolved]   = useState(() => { try { const r = localStorage.getItem(`${CKEY}_resolved`); return r ? new Set(JSON.parse(r)) : new Set(); } catch { return new Set(); } });
   const [fixingIdx,   setFixingIdx]  = useState(null);
+  const [fixingAll,   setFixingAll]  = useState(false);
   const [fixError,    setFixError]   = useState(null);
   const [activeLine,  setActiveLine] = useState(null);
   const [codeHistory, setCodeHistory] = useState([]);
+
+  useEffect(() => { try { localStorage.setItem(`${CKEY}_code`,     code); } catch {} }, [code]);
+  useEffect(() => { try { localStorage.setItem(`${CKEY}_lang`,     lang); } catch {} }, [lang]);
+  useEffect(() => { try { if (result) localStorage.setItem(`${CKEY}_result`, JSON.stringify(result)); else localStorage.removeItem(`${CKEY}_result`); } catch {} }, [result]);
+  useEffect(() => { try { localStorage.setItem(`${CKEY}_resolved`, JSON.stringify([...resolved])); } catch {} }, [resolved]);
 
   function jumpTo(lineNum) {
     setActiveLine(lineNum);
@@ -544,6 +558,38 @@ function CodeInspectorTab({ project }) {
     } finally { setFixingIdx(null); }
   }
 
+  async function applyAllFixes() {
+    const remaining = result.issues.filter((_, i) => !resolved.has(i));
+    if (!remaining.length) return;
+    const snapshot = code;
+    setCodeHistory(h => [...h, snapshot]);
+    setFixingAll(true); setFixError(null);
+    try {
+      const token = await getToken();
+      const data  = await apiFetch("/api/apply-all-fixes", {
+        method: "POST",
+        body: JSON.stringify({
+          code,
+          issues: remaining.map(iss => ({
+            line:        iss.line,
+            description: iss.description,
+            suggestion:  iss.suggestion || iss.description,
+          })),
+        }),
+      }, token);
+      setCode(data.patched_code);
+      // Mark all remaining as resolved
+      setResolved(prev => {
+        const next = new Set(prev);
+        result.issues.forEach((_, i) => { if (!prev.has(i)) next.add(i); });
+        return next;
+      });
+    } catch (e) {
+      setCodeHistory(h => h.slice(0, -1));
+      setFixError(`Fix All failed: ${e.message}`);
+    } finally { setFixingAll(false); }
+  }
+
   const visibleIssues = result?.issues?.filter((_, i) => !resolved.has(i)) ?? [];
   const allFixed = result && result.issues?.length > 0 && visibleIssues.length === 0;
 
@@ -576,7 +622,7 @@ function CodeInspectorTab({ project }) {
         >
           {loading ? <><span className="spinner" style={{width:14,height:14,borderWidth:2}}/> Inspecting…</> : <><IconCode/> Inspect Code</>}
         </button>
-        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setCode(""); setResolved(new Set()); }}>Clear</button>}
+        {result && <button className="btn btn-outline btn-sm" onClick={() => { setResult(null); setCode(""); setResolved(new Set()); try { localStorage.removeItem(`${CKEY}_code`); localStorage.removeItem(`${CKEY}_result`); localStorage.removeItem(`${CKEY}_resolved`); } catch {} }}>Clear</button>}
       </div>
 
       {error    && <div className={styles.aiError}>{error}</div>}
@@ -611,9 +657,29 @@ function CodeInspectorTab({ project }) {
           {/* Issues */}
           {visibleIssues.length > 0 && (
             <div className={styles.flaggedSection}>
-              <div className={styles.secLabel} style={{marginBottom:10}}>
-                Issues Found
-                {resolved.size > 0 && <span style={{marginLeft:8,fontSize:11,color:"var(--green)",fontWeight:500}}>· {resolved.size} fixed</span>}
+              <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:10,flexWrap:"wrap",gap:8}}>
+                <div className={styles.secLabel}>
+                  Issues Found
+                  {resolved.size > 0 && <span style={{marginLeft:8,fontSize:11,color:"var(--green)",fontWeight:500}}>· {resolved.size} fixed</span>}
+                </div>
+                <button
+                  onClick={applyAllFixes}
+                  disabled={fixingAll || fixingIdx !== null}
+                  style={{
+                    display:"flex", alignItems:"center", gap:7,
+                    padding:"8px 18px", borderRadius:8,
+                    background: fixingAll ? "#5a4bd1" : "#6c5ce7",
+                    color:"#fff", border:"none", fontWeight:700,
+                    fontSize:13, cursor:"pointer", whiteSpace:"nowrap",
+                    opacity: fixingIdx !== null ? 0.5 : 1,
+                    boxShadow:"0 2px 10px rgba(108,92,231,0.45)",
+                    transition:"background .15s",
+                  }}
+                >
+                  {fixingAll
+                    ? <><span className="spinner" style={{width:12,height:12,borderWidth:2}}/> Fixing all…</>
+                    : <>⚡ Fix All ({visibleIssues.length})</>}
+                </button>
               </div>
               <div className={styles.flaggedTable}>
                 {result.issues.map((iss, i) => {
@@ -637,7 +703,7 @@ function CodeInspectorTab({ project }) {
                         {/* solid inline style — cannot be hidden by CSS modules */}
                         <button
                           onClick={() => applyFix(i, iss)}
-                          disabled={fixingIdx !== null}
+                          disabled={fixingIdx !== null || fixingAll}
                           style={{
                             flexShrink:0, whiteSpace:"nowrap",
                             background: isFixing ? "#5a4bd1" : "#6c5ce7",

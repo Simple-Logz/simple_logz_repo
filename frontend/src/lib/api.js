@@ -24,7 +24,7 @@ export const api = {
   createComment:   (id, body, tok)  => request(`/api/forum/threads/${id}/comments`, { method: "POST", body: JSON.stringify(body) }, tok),
   likeComment:     (id, token)      => request(`/api/forum/comments/${id}/like`,   { method: "POST" }, token),
   submitFeedback:  (body)           => request("/api/user/feedback",                { method: "POST", body: JSON.stringify(body) }),
-  createCheckout:  (token)          => request("/api/stripe/create-checkout",   { method: "POST" }, token),
+  createCheckout:  (token, billing)  => request("/api/stripe/create-checkout",   { method: "POST", body: JSON.stringify({ billing: billing || "monthly" }) }, token),
   openPortal:      (token)          => request("/api/stripe/portal",             { method: "POST" }, token),
   health:          ()               => request("/api/health"),
 };

@@ -84,9 +84,17 @@ export default function Pricing() {
   const { showToast } = useToast();
   const navigate = useNavigate();
   const [loading,         setLoading]         = useState(null);
+  const [billing,         setBilling]         = useState("monthly");
   const [showEnterprise,  setShowEnterprise]   = useState(false);
   const [showComparison,  setShowComparison]   = useState(false);
   const [openFaq,         setOpenFaq]          = useState(null);
+
+  const isAnnual = billing === "annual";
+  // $49/year = ~$4.08/month, saves $11 vs $60/year monthly
+  const ANNUAL_PRICE     = 49;
+  const MONTHLY_PRICE    = 5;
+  const ANNUAL_PER_MONTH = (ANNUAL_PRICE / 12).toFixed(2); // "9.92"
+  const ANNUAL_SAVINGS   = (MONTHLY_PRICE * 12) - ANNUAL_PRICE; // 25
 
   async function handleCta(plan) {
     if (plan === "free") { navigate(isLoggedIn ? "/" : "/signup"); return; }
@@ -97,7 +105,7 @@ export default function Pricing() {
       setLoading("developer");
       try {
         const token = await getToken();
-        const { url } = await api.createCheckout(token);
+        const { url } = await api.createCheckout(token, billing);
         window.location.href = url;
       } catch (err) {
         showToast(err.message || "Could not open checkout. Try again.", "error");
@@ -114,6 +122,42 @@ export default function Pricing() {
           <div className={styles.eyebrow}>Pricing</div>
           <div className={styles.title}>Build a real incident response workspace</div>
           <div className={styles.sub}>Start free. Upgrade to Developer when you're ready to go beyond single log analysis — into projects, timelines, runbooks, and team collaboration.</div>
+        </div>
+
+        {/* Billing toggle */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, marginBottom:36 }}>
+          <button
+            onClick={() => setBilling("monthly")}
+            style={{
+              padding:"8px 20px", borderRadius:8, fontSize:14, fontWeight:600, cursor:"pointer",
+              border:"1px solid var(--border)",
+              background: !isAnnual ? "var(--accent)" : "var(--bg2)",
+              color: !isAnnual ? "#fff" : "var(--t2)",
+              transition:"all .15s",
+            }}
+          >
+            Monthly
+          </button>
+          <button
+            onClick={() => setBilling("annual")}
+            style={{
+              padding:"8px 20px", borderRadius:8, fontSize:14, fontWeight:600, cursor:"pointer",
+              border:"1px solid var(--border)",
+              background: isAnnual ? "var(--accent)" : "var(--bg2)",
+              color: isAnnual ? "#fff" : "var(--t2)",
+              transition:"all .15s",
+              display:"flex", alignItems:"center", gap:8,
+            }}
+          >
+            Annual
+            <span style={{
+              background:"rgba(52,211,153,.18)", color:"var(--green)",
+              fontSize:11, fontWeight:700, padding:"2px 7px", borderRadius:99,
+              border:"1px solid rgba(52,211,153,.3)",
+            }}>
+              Save ${ANNUAL_SAVINGS}
+            </span>
+          </button>
         </div>
 
         {/* Plan cards */}
@@ -144,8 +188,35 @@ export default function Pricing() {
             <div className={styles.featuredBadge}>MOST POPULAR</div>
             <div className={styles.planTop}>
               <div className={styles.planName}>Developer</div>
-              <div className={styles.planPrice}>$12<span className={styles.period}>/month</span></div>
-              <div className={styles.planDesc}>A full incident response workspace for your applications.</div>
+
+              {isAnnual ? (
+                <div>
+                  <div className={styles.planPrice}>
+                    ${ANNUAL_PER_MONTH}<span className={styles.period}>/month</span>
+                  </div>
+                  <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:4, flexWrap:"wrap" }}>
+                    <span style={{ fontSize:13, color:"var(--t3)", textDecoration:"line-through" }}>
+                      ${MONTHLY_PRICE}/mo
+                    </span>
+                    <span style={{
+                      background:"rgba(52,211,153,.15)", color:"var(--green)",
+                      fontSize:12, fontWeight:700, padding:"2px 8px", borderRadius:99,
+                      border:"1px solid rgba(52,211,153,.25)",
+                    }}>
+                      2 months free
+                    </span>
+                  </div>
+                  <div style={{ fontSize:12, color:"var(--t3)", marginTop:4 }}>
+                    Billed as <strong style={{color:"var(--t2)"}}>${ANNUAL_PRICE}/year</strong>
+                  </div>
+                </div>
+              ) : (
+                <div className={styles.planPrice}>
+                  ${MONTHLY_PRICE}<span className={styles.period}>/month</span>
+                </div>
+              )}
+
+              <div className={styles.planDesc} style={{marginTop:10}}>A full incident response workspace for your applications.</div>
             </div>
             <ul className={styles.features}>
               {DEV_FEATURES.map((f, i) => (
@@ -160,8 +231,17 @@ export default function Pricing() {
               onClick={() => handleCta("developer")}
               disabled={loading === "developer"}
             >
-              {loading === "developer" ? <><span className="spinner"/> Processing…</> : "Upgrade to Developer"}
+              {loading === "developer"
+                ? <><span className="spinner"/> Processing…</>
+                : isAnnual
+                  ? `Pay $${ANNUAL_PRICE}/year — save $${ANNUAL_SAVINGS}`
+                  : "Upgrade to Developer"}
             </button>
+            {isAnnual && (
+              <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:10 }}>
+                One payment of ${ANNUAL_PRICE} · Cancel anytime
+              </p>
+            )}
           </div>
 
           {/* Enterprise */}
