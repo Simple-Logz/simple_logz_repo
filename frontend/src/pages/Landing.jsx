@@ -178,35 +178,89 @@ function StepChat({ step, result, log }) {
 }
 
 // ── Cursor Demo ──────────────────────────────────────────────
+// view: 'groups' | 'modal' | 'detail'
+// tab:  'overview' | 'log' | 'code' | 'runbook'
 const DEMO_SCENES = [
-  // 0 – cursor hovers over textarea
-  { dur: 900,  cx: 296, cy: 128, click: false, typed: false, analyzing: false, results: false, projects: false },
-  // 1 – text appears (typing)
-  { dur: 1800, cx: 296, cy: 148, click: false, typed: true,  analyzing: false, results: false, projects: false },
-  // 2 – cursor moves to Analyze button + click
-  { dur: 700,  cx: 462, cy: 198, click: false, typed: true,  analyzing: false, results: false, projects: false },
-  // 3 – analyzing pulse
-  { dur: 500,  cx: 462, cy: 198, click: true,  typed: true,  analyzing: true,  results: false, projects: false },
-  // 4 – results appear, cursor drifts to severity badge
-  { dur: 2200, cx: 142, cy: 248, click: false, typed: true,  analyzing: false, results: true,  projects: false },
-  // 5 – cursor scans to fix card
-  { dur: 1500, cx: 296, cy: 310, click: false, typed: true,  analyzing: false, results: true,  projects: false },
-  // 6 – cursor moves to sidebar Projects
-  { dur: 800,  cx: 56,  cy: 130, click: false, typed: true,  analyzing: false, results: true,  projects: false },
-  // 7 – click Projects
-  { dur: 500,  cx: 56,  cy: 130, click: true,  typed: false, analyzing: false, results: false, projects: true  },
-  // 8 – view projects list, hover first card
-  { dur: 1800, cx: 310, cy: 268, click: false, typed: false, analyzing: false, results: false, projects: true  },
-  // 9 – click project card
-  { dur: 600,  cx: 310, cy: 268, click: true,  typed: false, analyzing: false, results: false, projects: true  },
-  // 10 – pause before reset
-  { dur: 1000, cx: 310, cy: 268, click: false, typed: false, analyzing: false, results: false, projects: true  },
+  // 0 – Groups page loads
+  { dur:900,  cx:300, cy:200, click:false, view:"groups", modalText:"",             tab:"overview" },
+  // 1 – cursor moves to "+ New Group" button
+  { dur:900,  cx:476, cy:66,  click:false, view:"groups", modalText:"",             tab:"overview" },
+  // 2 – click → modal opens
+  { dur:500,  cx:476, cy:66,  click:true,  view:"modal",  modalText:"",             tab:"overview" },
+  // 3 – cursor moves to name input
+  { dur:700,  cx:310, cy:192, click:false, view:"modal",  modalText:"",             tab:"overview" },
+  // 4 – typing group name
+  { dur:1400, cx:310, cy:192, click:false, view:"modal",  modalText:"Production API", tab:"overview" },
+  // 5 – cursor moves to Create button
+  { dur:700,  cx:370, cy:232, click:false, view:"modal",  modalText:"Production API", tab:"overview" },
+  // 6 – click Create → group added
+  { dur:600,  cx:370, cy:232, click:true,  view:"groups", modalText:"Production API", tab:"overview" },
+  // 7 – cursor hovers new group card
+  { dur:1200, cx:300, cy:275, click:false, view:"groups", modalText:"Production API", tab:"overview" },
+  // 8 – click group → enter detail
+  { dur:500,  cx:300, cy:275, click:true,  view:"detail", modalText:"Production API", tab:"overview" },
+  // 9 – overview tab visible
+  { dur:1100, cx:300, cy:210, click:false, view:"detail", modalText:"Production API", tab:"overview" },
+  // 10 – cursor moves to Log Analyzer tab
+  { dur:800,  cx:192, cy:76,  click:false, view:"detail", modalText:"Production API", tab:"overview" },
+  // 11 – click Log Analyzer
+  { dur:500,  cx:192, cy:76,  click:true,  view:"detail", modalText:"Production API", tab:"log" },
+  // 12 – browse log analyzer
+  { dur:1800, cx:300, cy:240, click:false, view:"detail", modalText:"Production API", tab:"log" },
+  // 13 – cursor moves to Code Inspector tab
+  { dur:800,  cx:286, cy:76,  click:false, view:"detail", modalText:"Production API", tab:"log" },
+  // 14 – click Code Inspector
+  { dur:500,  cx:286, cy:76,  click:true,  view:"detail", modalText:"Production API", tab:"code" },
+  // 15 – browse code inspector
+  { dur:1800, cx:300, cy:220, click:false, view:"detail", modalText:"Production API", tab:"code" },
+  // 16 – cursor moves to Runbook tab
+  { dur:800,  cx:382, cy:76,  click:false, view:"detail", modalText:"Production API", tab:"code" },
+  // 17 – click Runbook Studio
+  { dur:500,  cx:382, cy:76,  click:true,  view:"detail", modalText:"Production API", tab:"runbook" },
+  // 18 – browse runbook
+  { dur:1800, cx:300, cy:230, click:false, view:"detail", modalText:"Production API", tab:"runbook" },
+  // 19 – pause before loop
+  { dur:900,  cx:300, cy:230, click:false, view:"detail", modalText:"Production API", tab:"runbook" },
+];
+
+const SCENE_LABELS = [
+  "Your engineering groups — one place for every service",
+  "Create a group for any service or team",
+  "Opening the group creator…",
+  "Name your group",
+  "Group name: Production API",
+  "Hit Create",
+  "Group created and ready",
+  "Click to open your group workspace",
+  "Entering Production API…",
+  "Group overview — health score, recent incidents",
+  "Navigate to Log Analyzer",
+  "Log Analyzer active",
+  "Paste logs → instant AI root cause + fix",
+  "Switch to Code Inspector",
+  "Code Inspector active",
+  "Upload code → AI detects bugs & vulnerabilities",
+  "Open Runbook Studio",
+  "Runbook Studio active",
+  "Auto-generated step-by-step incident runbooks",
+  "One group. Every tool your team needs. ⚡",
 ];
 
 function CursorDemo() {
   const [si, setSi] = useState(0);
   const [ripple, setRipple] = useState(false);
+  const [tilt, setTilt] = useState({ x: 8, y: -4 });
+  const [hovering, setHovering] = useState(false);
   const sc = DEMO_SCENES[si];
+
+  function handleMouseMove(e) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * -16, y: x * 16 });
+  }
+  function handleMouseEnter() { setHovering(true); }
+  function handleMouseLeave() { setHovering(false); setTilt({ x: 8, y: -4 }); }
 
   useEffect(() => {
     const t = setTimeout(() => setSi(i => (i + 1) % DEMO_SCENES.length), sc.dur);
@@ -214,24 +268,59 @@ function CursorDemo() {
   }, [si]);
 
   useEffect(() => {
-    if (sc.click) { setRipple(true); const t = setTimeout(() => setRipple(false), 350); return () => clearTimeout(t); }
+    if (sc.click) {
+      setRipple(true);
+      const t = setTimeout(() => setRipple(false), 350);
+      return () => clearTimeout(t);
+    }
   }, [si]);
 
+  const TABS = [
+    { key:"overview", label:"Overview",      icon:"📊" },
+    { key:"log",      label:"Log Analyzer",  icon:"📋" },
+    { key:"code",     label:"Code Inspector",icon:"🔍" },
+    { key:"runbook",  label:"Runbook Studio",icon:"📖" },
+  ];
+
   return (
-    <div style={{ width:"100%", maxWidth:600, margin:"120px auto 0" }}>
+    <div style={{ width:"100%", maxWidth:640, margin:"180px auto 0" }}>
       {/* Label */}
-      <div style={{ textAlign:"center", marginBottom:18 }}>
-        <span style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"var(--t3)" }}>
+      <div style={{ textAlign:"center", marginBottom:24 }}>
+        <span style={{ fontSize:15, fontWeight:800, letterSpacing:"0.08em", textTransform:"uppercase", color:"var(--t2)" }}>
           See how it works
         </span>
       </div>
 
+      {/* 3D perspective wrapper */}
+      <div
+        onMouseMove={handleMouseMove}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        style={{ perspective:"1100px", perspectiveOrigin:"50% 40%", position:"relative" }}
+      >
+        {/* Bottom glow that shifts with tilt */}
+        <div style={{
+          position:"absolute", bottom:-40, left:"10%", right:"10%", height:60,
+          background:"radial-gradient(ellipse, rgba(108,92,231,0.45) 0%, transparent 70%)",
+          filter:"blur(18px)",
+          transform:`translateX(${tilt.y * 1.5}px)`,
+          transition:"transform 0.15s ease",
+          pointerEvents:"none",
+        }}/>
+
       {/* Demo card */}
       <div style={{
-        border:"1px solid var(--border)", borderRadius:14, overflow:"hidden",
-        boxShadow:"0 12px 48px rgba(0,0,0,0.28)", position:"relative",
-        background:"var(--bg2)", userSelect:"none",
+        border:"1px solid rgba(108,92,231,0.3)", borderRadius:14, overflow:"hidden",
+        boxShadow:`0 ${24 + Math.abs(tilt.x) * 1.5}px 64px rgba(0,0,0,0.45), 0 0 0 1px rgba(108,92,231,0.12)`,
+        position:"relative", background:"var(--bg2)", userSelect:"none",
+        transform:`rotateX(${tilt.x}deg) rotateY(${tilt.y}deg) scale(${hovering ? 1.01 : 1})`,
+        transition: hovering
+          ? "transform 0.12s ease, box-shadow 0.12s ease"
+          : "transform 0.7s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.7s ease",
+        transformStyle:"preserve-3d",
+        willChange:"transform",
       }}>
+
         {/* Browser bar */}
         <div style={{ background:"var(--bg3)", borderBottom:"1px solid var(--border)", padding:"9px 14px", display:"flex", alignItems:"center", gap:8 }}>
           <div style={{ display:"flex", gap:5 }}>
@@ -243,25 +332,26 @@ function CursorDemo() {
         </div>
 
         {/* App layout */}
-        <div style={{ display:"flex", height:360 }}>
+        <div style={{ display:"flex", height:380 }}>
 
           {/* Sidebar */}
-          <div style={{ width:108, background:"var(--bg3)", borderRight:"1px solid var(--border)", flexShrink:0, padding:"12px 0", display:"flex", flexDirection:"column" }}>
+          <div style={{ width:110, background:"var(--bg3)", borderRight:"1px solid var(--border)", flexShrink:0, padding:"12px 0", display:"flex", flexDirection:"column" }}>
             <div style={{ padding:"0 11px 14px", fontSize:12, fontWeight:800, color:"var(--t1)", letterSpacing:"-0.5px" }}>
               Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
             </div>
             {[
-              { label:"Analyzer",  icon:"⚡", active: !sc.projects },
-              { label:"Projects",  icon:"📁", active: sc.projects },
+              { label:"Analyzer",  icon:"⚡", active: false },
+              { label:"Groups",    icon:"📁", active: true  },
               { label:"Community", icon:"💬", active: false },
               { label:"Pricing",   icon:"💳", active: false },
             ].map(item => (
               <div key={item.label} style={{
-                padding:"7px 11px", fontSize:10, color: item.active ? "var(--t1)" : "var(--t3)",
+                padding:"7px 11px", fontSize:10,
+                color: item.active ? "var(--t1)" : "var(--t3)",
                 fontWeight: item.active ? 700 : 400,
                 borderLeft: item.active ? "2px solid #6c5ce7" : "2px solid transparent",
                 background: item.active ? "rgba(108,92,231,0.1)" : "transparent",
-                display:"flex", alignItems:"center", gap:6, transition:"all 0.35s ease",
+                display:"flex", alignItems:"center", gap:6,
               }}>
                 {item.icon} {item.label}
               </div>
@@ -269,92 +359,215 @@ function CursorDemo() {
           </div>
 
           {/* Content pane */}
-          <div style={{ flex:1, padding:"14px 14px", overflow:"hidden", position:"relative" }}>
+          <div style={{ flex:1, overflow:"hidden", position:"relative" }}>
 
-            {/* ── Analyzer view ── */}
-            {!sc.projects && (
-              <div>
-                <div style={{ fontSize:9, fontWeight:700, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>Log Analyzer</div>
-
-                {/* Textarea */}
-                <div style={{
-                  background:"var(--bg3)", border:"1px solid",
-                  borderColor:(sc.typed && !sc.results) ? "#6c5ce7" : "var(--border)",
-                  borderRadius:7, padding:"8px 10px", height:88,
-                  fontFamily:"monospace", fontSize:10, color:"var(--t2)", lineHeight:1.6,
-                  overflow:"hidden", transition:"border-color 0.3s",
-                }}>
-                  {sc.typed
-                    ? <><span style={{color:"var(--red)"}}>ERROR:</span> connect ETIMEDOUT 10.0.2.50:3306{"\n"}<span style={{color:"var(--yellow)"}}>FATAL:</span> Task timed out after 30.02 seconds{"\n"}<span style={{color:"var(--t3)"}}>RequestId: 8f3d2c1a Version: $LATEST</span></>
-                    : <span style={{color:"var(--t3)"}}>Paste your error log here…</span>}
-                </div>
-
-                {/* Bottom bar */}
-                <div style={{ display:"flex", justifyContent:"flex-end", marginTop:7, gap:8 }}>
+            {/* ── Groups list view ── */}
+            {(sc.view === "groups" || sc.view === "modal") && (
+              <div style={{ padding:"14px", height:"100%", position:"relative" }}>
+                {/* Header row */}
+                <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:14 }}>
+                  <div style={{ fontSize:11, fontWeight:700, color:"var(--t1)" }}>My Groups</div>
                   <div style={{
-                    background: sc.analyzing ? "#5a4bd1" : "#6c5ce7", color:"#fff",
-                    borderRadius:6, padding:"5px 14px", fontSize:10, fontWeight:700,
-                    transition:"background 0.2s", display:"flex", alignItems:"center", gap:5,
-                  }}>
-                    {sc.analyzing ? <><span style={{ display:"inline-block", width:8, height:8, border:"1.5px solid rgba(255,255,255,0.4)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.7s linear infinite" }}/> Analyzing…</> : "→ Analyze"}
-                  </div>
+                    background:"#6c5ce7", color:"#fff", borderRadius:6,
+                    padding:"4px 10px", fontSize:9, fontWeight:700,
+                    display:"flex", alignItems:"center", gap:4,
+                  }}>+ New Group</div>
                 </div>
 
-                {/* Results */}
-                {sc.results && (
-                  <div style={{ marginTop:10, animation:"fadeIn 0.4s ease" }}>
-                    <div style={{ display:"flex", gap:5, marginBottom:8, flexWrap:"wrap" }}>
-                      {[
-                        { t:"CRITICAL", bg:"rgba(248,113,113,.2)", c:"#f87171" },
-                        { t:"AWS Lambda", bg:"var(--bg3)", c:"var(--t3)" },
-                        { t:"1 issue found", bg:"var(--bg3)", c:"var(--t2)" },
-                      ].map(b => (
-                        <span key={b.t} style={{ background:b.bg, color:b.c, padding:"2px 7px", borderRadius:99, fontSize:9, fontWeight:700, border:"1px solid rgba(255,255,255,0.06)" }}>{b.t}</span>
-                      ))}
+                {/* Existing group cards */}
+                {[
+                  { name:"Auth Service",  env:"staging",    sev:"LOW",      col:"#34d399", score:96 },
+                  { name:"Worker Queue",  env:"production", sev:"CRITICAL", col:"#f87171", score:58 },
+                ].map((g, i) => (
+                  <div key={g.name} style={{
+                    background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:8,
+                    padding:"9px 12px", marginBottom:8,
+                    display:"flex", alignItems:"center", justifyContent:"space-between",
+                  }}>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"var(--t1)", marginBottom:2 }}>{g.name}</div>
+                      <div style={{ fontSize:9, color:"var(--t3)", textTransform:"uppercase" }}>{g.env}</div>
                     </div>
-                    <div style={{ fontSize:10, color:"var(--t2)", lineHeight:1.65, marginBottom:7 }}>
-                      <strong style={{color:"var(--t1)"}}>Root cause:</strong> RDS instance unreachable from Lambda VPC subnet — connection times out after 30s.
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:9, fontWeight:700, color:g.col, marginBottom:2 }}>{g.sev}</div>
+                      <div style={{ fontSize:9, color:"var(--t3)" }}>Health <strong style={{color:"var(--t1)"}}>{g.score}</strong>/100</div>
                     </div>
-                    <div style={{ background:"rgba(108,92,231,0.08)", border:"1px solid rgba(108,92,231,0.2)", borderRadius:6, padding:"7px 9px", fontSize:10, color:"var(--t2)", lineHeight:1.6 }}>
-                      <span style={{color:"#6c5ce7",fontWeight:700}}>Fix →</span> Place Lambda in same VPC as RDS. Open inbound TCP 3306 in the DB security group.
+                  </div>
+                ))}
+
+                {/* Newly created group (appears after creation) */}
+                {sc.modalText && (
+                  <div style={{
+                    background:"var(--bg3)", border:"1px solid #6c5ce7", borderRadius:8,
+                    padding:"9px 12px", marginBottom:8,
+                    display:"flex", alignItems:"center", justifyContent:"space-between",
+                    animation:"fadeIn 0.35s ease",
+                    boxShadow:"0 0 0 1px rgba(108,92,231,0.2)",
+                  }}>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"var(--t1)", marginBottom:2 }}>{sc.modalText}</div>
+                      <div style={{ fontSize:9, color:"var(--t3)", textTransform:"uppercase" }}>production</div>
                     </div>
-                    <div style={{ marginTop:7, background:"rgba(52,211,153,0.06)", border:"1px solid rgba(52,211,153,0.18)", borderRadius:6, padding:"7px 9px", fontSize:10, color:"var(--t2)" }}>
-                      <span style={{color:"var(--green)",fontWeight:700}}>Step 1 →</span> Go to VPC console → subnets → confirm Lambda and RDS share a subnet.
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:9, fontWeight:700, color:"#a29bfe", marginBottom:2 }}>NEW</div>
+                      <div style={{ fontSize:9, color:"var(--t3)" }}>Health <strong style={{color:"var(--t1)"}}>—</strong>/100</div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Modal overlay */}
+                {sc.view === "modal" && (
+                  <div style={{
+                    position:"absolute", inset:0,
+                    background:"rgba(0,0,0,0.55)", display:"flex", alignItems:"center", justifyContent:"center",
+                    animation:"fadeIn 0.2s ease",
+                  }}>
+                    <div style={{
+                      background:"var(--bg2)", border:"1px solid var(--border)", borderRadius:10,
+                      padding:"20px", width:240,
+                      boxShadow:"0 16px 48px rgba(0,0,0,0.4)",
+                    }}>
+                      <div style={{ fontSize:12, fontWeight:800, color:"var(--t1)", marginBottom:14 }}>Create a Group</div>
+                      <div style={{ fontSize:9, color:"var(--t3)", marginBottom:5 }}>GROUP NAME</div>
+                      <div style={{
+                        background:"var(--bg3)", border:"1px solid",
+                        borderColor: sc.modalText ? "#6c5ce7" : "var(--border)",
+                        borderRadius:6, padding:"7px 10px", fontSize:10,
+                        color: sc.modalText ? "var(--t1)" : "var(--t3)",
+                        marginBottom:14, minHeight:28,
+                        transition:"border-color 0.2s",
+                      }}>
+                        {sc.modalText || "e.g. Production API"}
+                        {sc.modalText && <span style={{ animation:"blink 1s step-end infinite", color:"#6c5ce7" }}>|</span>}
+                      </div>
+                      <div style={{ display:"flex", gap:8, justifyContent:"flex-end" }}>
+                        <div style={{ padding:"5px 12px", fontSize:9, color:"var(--t3)", border:"1px solid var(--border)", borderRadius:6 }}>Cancel</div>
+                        <div style={{
+                          padding:"5px 12px", fontSize:9, fontWeight:700,
+                          background: sc.modalText ? "#6c5ce7" : "rgba(108,92,231,0.3)",
+                          color:"#fff", borderRadius:6, transition:"background 0.2s",
+                        }}>Create</div>
+                      </div>
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* ── Projects view ── */}
-            {sc.projects && (
-              <div style={{ animation:"fadeIn 0.3s ease" }}>
-                <div style={{ fontSize:9, fontWeight:700, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:10 }}>My Projects</div>
-                {[
-                  { name:"Production API", score:87, env:"production", sev:"HIGH",     sc:"#fbbf24" },
-                  { name:"Auth Service",   score:96, env:"staging",    sev:"LOW",      sc:"#34d399" },
-                  { name:"Worker Queue",   score:58, env:"production",  sev:"CRITICAL", sc:"#f87171" },
-                ].map((p, i) => (
-                  <div key={p.name} style={{
-                    background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:8,
-                    padding:"9px 12px", marginBottom:7,
-                    display:"flex", alignItems:"center", justifyContent:"space-between",
-                    animation:`fadeIn 0.3s ease ${i*0.08}s both`,
-                    transition:"border-color 0.2s",
-                    borderColor: (i === 0 && si >= 8) ? "#6c5ce7" : "var(--border)",
-                  }}>
-                    <div>
-                      <div style={{ fontSize:11, fontWeight:700, color:"var(--t1)", marginBottom:2 }}>{p.name}</div>
-                      <div style={{ fontSize:9, color:"var(--t3)", textTransform:"uppercase" }}>{p.env}</div>
+            {/* ── Group detail view ── */}
+            {sc.view === "detail" && (
+              <div style={{ height:"100%", display:"flex", flexDirection:"column" }}>
+
+                {/* Detail header */}
+                <div style={{ padding:"10px 14px", borderBottom:"1px solid var(--border)", display:"flex", alignItems:"center", gap:8 }}>
+                  <div style={{ fontSize:9, color:"var(--t3)" }}>← Groups</div>
+                  <div style={{ fontSize:11, fontWeight:800, color:"var(--t1)" }}>Production API</div>
+                  <span style={{ marginLeft:"auto", fontSize:8, background:"rgba(248,113,113,0.15)", color:"#f87171", padding:"2px 7px", borderRadius:99, fontWeight:700 }}>HIGH</span>
+                </div>
+
+                {/* Tab bar */}
+                <div style={{ display:"flex", borderBottom:"1px solid var(--border)", padding:"0 14px" }}>
+                  {TABS.map(tab => (
+                    <div key={tab.key} style={{
+                      padding:"8px 10px", fontSize:9, fontWeight: sc.tab === tab.key ? 700 : 400,
+                      color: sc.tab === tab.key ? "var(--t1)" : "var(--t3)",
+                      borderBottom: sc.tab === tab.key ? "2px solid #6c5ce7" : "2px solid transparent",
+                      marginBottom:"-1px", transition:"all 0.2s", whiteSpace:"nowrap",
+                    }}>
+                      {tab.icon} {tab.label}
                     </div>
-                    <div style={{ textAlign:"right" }}>
-                      <div style={{ fontSize:9, fontWeight:700, color:p.sc, marginBottom:2 }}>{p.sev}</div>
-                      <div style={{ fontSize:9, color:"var(--t3)" }}>Health <strong style={{color:"var(--t1)"}}>{p.score}</strong>/100</div>
+                  ))}
+                </div>
+
+                {/* Tab content */}
+                <div style={{ flex:1, padding:"12px 14px", overflow:"hidden" }}>
+
+                  {/* Overview */}
+                  {sc.tab === "overview" && (
+                    <div style={{ animation:"fadeIn 0.3s ease" }}>
+                      <div style={{ display:"flex", gap:8, marginBottom:10 }}>
+                        {[
+                          { label:"Health Score", val:"72/100", col:"#fbbf24" },
+                          { label:"Open Issues",  val:"3",      col:"#f87171" },
+                          { label:"Last Scan",    val:"2m ago", col:"var(--t2)" },
+                        ].map(s => (
+                          <div key={s.label} style={{ flex:1, background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:7, padding:"8px 10px" }}>
+                            <div style={{ fontSize:8, color:"var(--t3)", marginBottom:4 }}>{s.label}</div>
+                            <div style={{ fontSize:14, fontWeight:800, color:s.col }}>{s.val}</div>
+                          </div>
+                        ))}
+                      </div>
+                      <div style={{ background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:7, padding:"9px 12px" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:"var(--t2)", marginBottom:6 }}>Recent Activity</div>
+                        {["Log spike detected — 3 FATAL errors","Code scan: 2 vulnerabilities found","Runbook generated for DB timeout"].map((a,i) => (
+                          <div key={i} style={{ fontSize:9, color:"var(--t3)", padding:"4px 0", borderBottom: i < 2 ? "1px solid rgba(255,255,255,0.04)" : "none" }}>• {a}</div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  )}
+
+                  {/* Log Analyzer */}
+                  {sc.tab === "log" && (
+                    <div style={{ animation:"fadeIn 0.3s ease" }}>
+                      <div style={{ background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:7, padding:"8px 10px", fontFamily:"monospace", fontSize:9, color:"var(--t2)", lineHeight:1.7, marginBottom:8 }}>
+                        <span style={{color:"#f87171"}}>FATAL</span> connect ETIMEDOUT 10.0.2.50:3306<br/>
+                        <span style={{color:"#fbbf24"}}>WARN</span>  Retry attempt 3 of 3 failed<br/>
+                        <span style={{color:"var(--t3)"}}>INFO</span>  RequestId: 8f3d2c1a · Lambda timeout 30s
+                      </div>
+                      <div style={{ background:"rgba(108,92,231,0.08)", border:"1px solid rgba(108,92,231,0.25)", borderRadius:7, padding:"9px 12px" }}>
+                        <div style={{ fontSize:9, fontWeight:700, color:"#a29bfe", marginBottom:5 }}>⚡ AI Diagnosis</div>
+                        <div style={{ fontSize:9, color:"var(--t2)", lineHeight:1.65, marginBottom:6 }}><strong style={{color:"var(--t1)"}}>Root cause:</strong> RDS unreachable from Lambda VPC subnet.</div>
+                        <div style={{ fontSize:9, color:"#34d399" }}>Fix → Place Lambda in same VPC as RDS. Open TCP 3306 inbound.</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Code Inspector */}
+                  {sc.tab === "code" && (
+                    <div style={{ animation:"fadeIn 0.3s ease" }}>
+                      <div style={{ background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:7, padding:"8px 10px", fontFamily:"monospace", fontSize:9, color:"var(--t2)", lineHeight:1.7, marginBottom:8 }}>
+                        <span style={{color:"var(--t3)"}}>1  </span><span style={{color:"#a29bfe"}}>const</span> db = mysql.connect(&#123; host, port &#125;);<br/>
+                        <span style={{color:"var(--t3)"}}>2  </span><span style={{color:"#a29bfe"}}>const</span> data = db.query(<span style={{color:"#fbbf24"}}>`SELECT * FROM users`</span>);<br/>
+                        <span style={{color:"var(--t3)"}}>3  </span><span style={{color:"var(--t3)"}}>// no connection timeout set</span>
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                        {[
+                          { sev:"HIGH",   msg:"No connection timeout — can hang indefinitely", col:"#f87171" },
+                          { sev:"MEDIUM", msg:"Unparameterized query — SQL injection risk",    col:"#fbbf24" },
+                        ].map(issue => (
+                          <div key={issue.sev} style={{ background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:6, padding:"7px 10px", display:"flex", alignItems:"flex-start", gap:8 }}>
+                            <span style={{ fontSize:8, fontWeight:700, color:issue.col, background:`${issue.col}18`, padding:"2px 6px", borderRadius:99, flexShrink:0 }}>{issue.sev}</span>
+                            <span style={{ fontSize:9, color:"var(--t2)" }}>{issue.msg}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Runbook Studio */}
+                  {sc.tab === "runbook" && (
+                    <div style={{ animation:"fadeIn 0.3s ease" }}>
+                      <div style={{ fontSize:10, fontWeight:700, color:"var(--t1)", marginBottom:8 }}>DB Timeout Incident Runbook</div>
+                      {[
+                        { step:1, action:"Check VPC subnet config in AWS console",          status:"todo" },
+                        { step:2, action:"Confirm Lambda + RDS share a subnet",             status:"todo" },
+                        { step:3, action:"Open inbound TCP 3306 in DB security group",      status:"todo" },
+                        { step:4, action:"Set connectTimeout: 5000 in DB client config",    status:"todo" },
+                      ].map(r => (
+                        <div key={r.step} style={{ display:"flex", alignItems:"center", gap:9, padding:"6px 0", borderBottom:"1px solid rgba(255,255,255,0.04)" }}>
+                          <div style={{ width:16, height:16, borderRadius:"50%", border:"1.5px solid var(--border)", flexShrink:0, display:"flex", alignItems:"center", justifyContent:"center", fontSize:8, color:"var(--t3)", fontWeight:700 }}>{r.step}</div>
+                          <div style={{ fontSize:9, color:"var(--t2)" }}>{r.action}</div>
+                        </div>
+                      ))}
+                      <div style={{ marginTop:10, background:"rgba(52,211,153,0.06)", border:"1px solid rgba(52,211,153,0.2)", borderRadius:6, padding:"7px 10px", fontSize:9, color:"#34d399" }}>
+                        ✓ Runbook auto-generated from log analysis
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
+
           </div>
         </div>
 
@@ -362,10 +575,10 @@ function CursorDemo() {
         <div style={{
           position:"absolute",
           left: sc.cx, top: sc.cy,
-          transition:"left 0.65s cubic-bezier(0.4,0,0.2,1), top 0.65s cubic-bezier(0.4,0,0.2,1)",
-          pointerEvents:"none", zIndex:20,
+          transition:"left 0.6s cubic-bezier(0.4,0,0.2,1), top 0.6s cubic-bezier(0.4,0,0.2,1)",
+          pointerEvents:"none", zIndex:30,
         }}>
-          <svg width="18" height="22" viewBox="0 0 18 22" fill="none" style={{ filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.5))", display:"block" }}>
+          <svg width="18" height="22" viewBox="0 0 18 22" fill="none" style={{ filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.6))", display:"block" }}>
             <path d="M1 1L1 17.5L5.2 13.1L8.5 20L10.5 19L7.3 12.2L13 12.2Z" fill="white" stroke="#1a1a2e" strokeWidth="1.2" strokeLinejoin="round"/>
           </svg>
           {ripple && (
@@ -378,35 +591,34 @@ function CursorDemo() {
           )}
         </div>
 
-        {/* Scanline overlay for polish */}
+        {/* Scanline */}
         <div style={{
           position:"absolute", inset:0, borderRadius:14,
-          background:"repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.018) 3px,rgba(0,0,0,0.018) 4px)",
+          background:"repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.015) 3px,rgba(0,0,0,0.015) 4px)",
           pointerEvents:"none",
         }}/>
+
+        {/* Shine — moves with tilt */}
+        <div style={{
+          position:"absolute", inset:0, borderRadius:14, pointerEvents:"none", zIndex:25,
+          background:`radial-gradient(circle at ${50 + tilt.y * 2.5}% ${50 + tilt.x * 2.5}%, rgba(255,255,255,0.07) 0%, transparent 55%)`,
+          transition: hovering ? "background 0.1s ease" : "background 0.6s ease",
+        }}/>
       </div>
+      </div>{/* end perspective wrapper */}
 
       {/* Scene label */}
-      <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:14 }}>
-        {[
-          "Paste any error log",
-          "Log detected — AWS Lambda timeout",
-          "Click to analyze",
-          "Analyzing patterns…",
-          "Critical issue identified instantly",
-          "Step-by-step fix generated",
-          "Navigate to your projects",
-          "Opening Projects…",
-          "All services at a glance",
-          "Click to dive into a project",
-          "Full incident workspace",
-        ][si]}
+      <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:14, minHeight:18 }}>
+        {SCENE_LABELS[si]}
       </p>
 
       <style>{`
         @keyframes clickRipple {
           0%   { transform:scale(0.5); opacity:0.9; }
           100% { transform:scale(2.2); opacity:0; }
+        }
+        @keyframes blink {
+          0%, 100% { opacity:1; } 50% { opacity:0; }
         }
       `}</style>
     </div>
@@ -716,6 +928,69 @@ export default function Landing() {
 
       {/* Cursor demo — always visible below analyzer */}
       <CursorDemo/>
+
+      {/* CTA */}
+      <div style={{ position:"relative", textAlign:"center", marginTop:80, marginBottom:40, padding:"60px 24px" }}>
+
+        {/* Ambient glow */}
+        <div style={{
+          position:"absolute", top:"50%", left:"50%",
+          transform:"translate(-50%,-50%)",
+          width:500, height:200,
+          background:"radial-gradient(ellipse, rgba(108,92,231,0.18) 0%, transparent 70%)",
+          pointerEvents:"none",
+        }}/>
+
+        {/* Big headline with gradient */}
+        <h2 style={{
+          fontSize:"clamp(32px,5vw,58px)", fontWeight:900, letterSpacing:"-2px",
+          lineHeight:1.1, marginBottom:24,
+          background:"linear-gradient(135deg, #a29bfe 0%, #6c5ce7 50%, #4834d4 100%)",
+          WebkitBackgroundClip:"text", WebkitTextFillColor:"transparent",
+          backgroundClip:"text",
+        }}>
+          Your logs are<br/>trying to tell you something.
+        </h2>
+
+        {/* Sub */}
+        <p style={{ fontSize:16, color:"var(--t3)", maxWidth:380, margin:"0 auto 36px", lineHeight:1.7 }}>
+          Paste them. We'll translate chaos into a fix in under 10 seconds.
+        </p>
+
+        {/* CTA button — glowing border pill */}
+        <div style={{ position:"relative", display:"inline-block" }}>
+          <div style={{
+            position:"absolute", inset:-2, borderRadius:50,
+            background:"linear-gradient(135deg,#6c5ce7,#a29bfe,#6c5ce7)",
+            backgroundSize:"200% 200%",
+            animation:"gradientShift 3s ease infinite",
+            filter:"blur(6px)", opacity:0.7,
+          }}/>
+          <button
+            onClick={() => document.querySelector("textarea")?.focus()}
+            style={{
+              position:"relative", background:"#0f0f1a", color:"#fff",
+              border:"1.5px solid rgba(108,92,231,0.6)",
+              borderRadius:50, padding:"16px 44px",
+              fontSize:16, fontWeight:800, cursor:"pointer",
+              letterSpacing:"-0.3px",
+              transition:"background 0.2s, transform 0.15s",
+            }}
+            onMouseEnter={e=>{ e.currentTarget.style.background="#1a1030"; e.currentTarget.style.transform="scale(1.04)"; }}
+            onMouseLeave={e=>{ e.currentTarget.style.background="#0f0f1a"; e.currentTarget.style.transform="scale(1)"; }}
+          >
+            Analyze now &nbsp;⚡
+          </button>
+        </div>
+
+        <style>{`
+          @keyframes gradientShift {
+            0%   { background-position: 0% 50%; }
+            50%  { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+          }
+        `}</style>
+      </div>
 
     </div>
   );

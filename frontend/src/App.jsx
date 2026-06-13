@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
@@ -26,11 +26,19 @@ function ProtectedRoute({ children }) {
 }
 
 function AppShell() {
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState(() => {
+    const saved = localStorage.getItem("slz_theme");
+    return saved || "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+  }, [theme]);
 
   function toggleTheme() {
     const next = theme === "dark" ? "light" : "dark";
     setTheme(next);
+    localStorage.setItem("slz_theme", next);
     document.documentElement.setAttribute("data-theme", next);
   }
 
