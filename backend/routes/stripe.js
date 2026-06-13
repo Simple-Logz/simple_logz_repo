@@ -12,6 +12,16 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // Creates a Stripe Checkout session for the Developer plan
 router.post("/create-checkout", requireAuth, async (req, res) => {
   const { email } = req.user;
+  const { billing = "monthly" } = req.body;
+
+  // Choose monthly or annual Stripe price
+  const priceId = billing === "annual"
+    ? process.env.STRIPE_DEVELOPER_ANNUAL_PRICE_ID
+    : process.env.STRIPE_DEVELOPER_PRICE_ID;
+
+  if (!priceId) {
+    return res.status(500).json({ error: `Stripe price ID not configured for billing: ${billing}` });
+  }
 
   try {
     // Get or create Stripe customer
@@ -34,10 +44,7 @@ router.post("/create-checkout", requireAuth, async (req, res) => {
       customer: customerId,
       mode: "subscription",
       payment_method_types: ["card"],
-      line_items: [{
-        price: process.env.STRIPE_DEVELOPER_PRICE_ID,
-        quantity: 1,
-      }],
+      line_items: [{ price: priceId, quantity: 1 }],
       success_url: `${process.env.FRONTEND_URL}/settings?upgraded=true`,
       cancel_url:  `${process.env.FRONTEND_URL}/pricing`,
       metadata:    { supabase_id: req.user.id },

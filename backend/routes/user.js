@@ -58,6 +58,22 @@ router.patch("/profile", requireAuth, async (req, res) => {
   res.json({ profile: data });
 });
 
+// POST /api/user/feedback  (no auth required — guests can send too)
+router.post("/feedback", async (req, res) => {
+  const { rating, label, note, url } = req.body;
+  if (!label) return res.status(400).json({ error: "Rating label required." });
+  const { error } = await supabase.from("feedback").insert({
+    rating: rating || null,
+    label,
+    note: note || null,
+    page_url: url || null,
+    created_at: new Date().toISOString(),
+  });
+  // If table doesn't exist yet, still 200 — don't break the popup
+  if (error) console.error("Feedback insert error:", error.message);
+  res.json({ ok: true });
+});
+
 // DELETE /api/user/account
 router.delete("/account", requireAuth, async (req, res) => {
   // Delete all user data then delete auth user

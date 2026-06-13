@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
@@ -173,6 +173,242 @@ function StepChat({ step, result, log }) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// ── Cursor Demo ──────────────────────────────────────────────
+const DEMO_SCENES = [
+  // 0 – cursor hovers over textarea
+  { dur: 900,  cx: 296, cy: 128, click: false, typed: false, analyzing: false, results: false, projects: false },
+  // 1 – text appears (typing)
+  { dur: 1800, cx: 296, cy: 148, click: false, typed: true,  analyzing: false, results: false, projects: false },
+  // 2 – cursor moves to Analyze button + click
+  { dur: 700,  cx: 462, cy: 198, click: false, typed: true,  analyzing: false, results: false, projects: false },
+  // 3 – analyzing pulse
+  { dur: 500,  cx: 462, cy: 198, click: true,  typed: true,  analyzing: true,  results: false, projects: false },
+  // 4 – results appear, cursor drifts to severity badge
+  { dur: 2200, cx: 142, cy: 248, click: false, typed: true,  analyzing: false, results: true,  projects: false },
+  // 5 – cursor scans to fix card
+  { dur: 1500, cx: 296, cy: 310, click: false, typed: true,  analyzing: false, results: true,  projects: false },
+  // 6 – cursor moves to sidebar Projects
+  { dur: 800,  cx: 56,  cy: 130, click: false, typed: true,  analyzing: false, results: true,  projects: false },
+  // 7 – click Projects
+  { dur: 500,  cx: 56,  cy: 130, click: true,  typed: false, analyzing: false, results: false, projects: true  },
+  // 8 – view projects list, hover first card
+  { dur: 1800, cx: 310, cy: 268, click: false, typed: false, analyzing: false, results: false, projects: true  },
+  // 9 – click project card
+  { dur: 600,  cx: 310, cy: 268, click: true,  typed: false, analyzing: false, results: false, projects: true  },
+  // 10 – pause before reset
+  { dur: 1000, cx: 310, cy: 268, click: false, typed: false, analyzing: false, results: false, projects: true  },
+];
+
+function CursorDemo() {
+  const [si, setSi] = useState(0);
+  const [ripple, setRipple] = useState(false);
+  const sc = DEMO_SCENES[si];
+
+  useEffect(() => {
+    const t = setTimeout(() => setSi(i => (i + 1) % DEMO_SCENES.length), sc.dur);
+    return () => clearTimeout(t);
+  }, [si]);
+
+  useEffect(() => {
+    if (sc.click) { setRipple(true); const t = setTimeout(() => setRipple(false), 350); return () => clearTimeout(t); }
+  }, [si]);
+
+  return (
+    <div style={{ width:"100%", maxWidth:600, margin:"64px auto 0" }}>
+      {/* Label */}
+      <div style={{ textAlign:"center", marginBottom:18 }}>
+        <span style={{ fontSize:11, fontWeight:700, letterSpacing:"0.12em", textTransform:"uppercase", color:"var(--t3)" }}>
+          See how it works
+        </span>
+      </div>
+
+      {/* Demo card */}
+      <div style={{
+        border:"1px solid var(--border)", borderRadius:14, overflow:"hidden",
+        boxShadow:"0 12px 48px rgba(0,0,0,0.28)", position:"relative",
+        background:"var(--bg2)", userSelect:"none",
+      }}>
+        {/* Browser bar */}
+        <div style={{ background:"var(--bg3)", borderBottom:"1px solid var(--border)", padding:"9px 14px", display:"flex", alignItems:"center", gap:8 }}>
+          <div style={{ display:"flex", gap:5 }}>
+            {["#f87171","#fbbf24","#34d399"].map(c => <div key={c} style={{ width:9, height:9, borderRadius:"50%", background:c }}/>)}
+          </div>
+          <div style={{ flex:1, background:"var(--bg2)", borderRadius:5, padding:"3px 10px", fontSize:10, color:"var(--t3)", textAlign:"center", border:"1px solid var(--border)" }}>
+            simplelogz.com
+          </div>
+        </div>
+
+        {/* App layout */}
+        <div style={{ display:"flex", height:360 }}>
+
+          {/* Sidebar */}
+          <div style={{ width:108, background:"var(--bg3)", borderRight:"1px solid var(--border)", flexShrink:0, padding:"12px 0", display:"flex", flexDirection:"column" }}>
+            <div style={{ padding:"0 11px 14px", fontSize:12, fontWeight:800, color:"var(--t1)", letterSpacing:"-0.5px" }}>
+              Simple<span style={{ color:"#6c5ce7" }}>Logz</span>
+            </div>
+            {[
+              { label:"Analyzer",  icon:"⚡", active: !sc.projects },
+              { label:"Projects",  icon:"📁", active: sc.projects },
+              { label:"Community", icon:"💬", active: false },
+              { label:"Pricing",   icon:"💳", active: false },
+            ].map(item => (
+              <div key={item.label} style={{
+                padding:"7px 11px", fontSize:10, color: item.active ? "var(--t1)" : "var(--t3)",
+                fontWeight: item.active ? 700 : 400,
+                borderLeft: item.active ? "2px solid #6c5ce7" : "2px solid transparent",
+                background: item.active ? "rgba(108,92,231,0.1)" : "transparent",
+                display:"flex", alignItems:"center", gap:6, transition:"all 0.35s ease",
+              }}>
+                {item.icon} {item.label}
+              </div>
+            ))}
+          </div>
+
+          {/* Content pane */}
+          <div style={{ flex:1, padding:"14px 14px", overflow:"hidden", position:"relative" }}>
+
+            {/* ── Analyzer view ── */}
+            {!sc.projects && (
+              <div>
+                <div style={{ fontSize:9, fontWeight:700, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:8 }}>Log Analyzer</div>
+
+                {/* Textarea */}
+                <div style={{
+                  background:"var(--bg3)", border:"1px solid",
+                  borderColor:(sc.typed && !sc.results) ? "#6c5ce7" : "var(--border)",
+                  borderRadius:7, padding:"8px 10px", height:88,
+                  fontFamily:"monospace", fontSize:10, color:"var(--t2)", lineHeight:1.6,
+                  overflow:"hidden", transition:"border-color 0.3s",
+                }}>
+                  {sc.typed
+                    ? <><span style={{color:"var(--red)"}}>ERROR:</span> connect ETIMEDOUT 10.0.2.50:3306{"\n"}<span style={{color:"var(--yellow)"}}>FATAL:</span> Task timed out after 30.02 seconds{"\n"}<span style={{color:"var(--t3)"}}>RequestId: 8f3d2c1a Version: $LATEST</span></>
+                    : <span style={{color:"var(--t3)"}}>Paste your error log here…</span>}
+                </div>
+
+                {/* Bottom bar */}
+                <div style={{ display:"flex", justifyContent:"flex-end", marginTop:7, gap:8 }}>
+                  <div style={{
+                    background: sc.analyzing ? "#5a4bd1" : "#6c5ce7", color:"#fff",
+                    borderRadius:6, padding:"5px 14px", fontSize:10, fontWeight:700,
+                    transition:"background 0.2s", display:"flex", alignItems:"center", gap:5,
+                  }}>
+                    {sc.analyzing ? <><span style={{ display:"inline-block", width:8, height:8, border:"1.5px solid rgba(255,255,255,0.4)", borderTopColor:"#fff", borderRadius:"50%", animation:"spin 0.7s linear infinite" }}/> Analyzing…</> : "→ Analyze"}
+                  </div>
+                </div>
+
+                {/* Results */}
+                {sc.results && (
+                  <div style={{ marginTop:10, animation:"fadeIn 0.4s ease" }}>
+                    <div style={{ display:"flex", gap:5, marginBottom:8, flexWrap:"wrap" }}>
+                      {[
+                        { t:"CRITICAL", bg:"rgba(248,113,113,.2)", c:"#f87171" },
+                        { t:"AWS Lambda", bg:"var(--bg3)", c:"var(--t3)" },
+                        { t:"1 issue found", bg:"var(--bg3)", c:"var(--t2)" },
+                      ].map(b => (
+                        <span key={b.t} style={{ background:b.bg, color:b.c, padding:"2px 7px", borderRadius:99, fontSize:9, fontWeight:700, border:"1px solid rgba(255,255,255,0.06)" }}>{b.t}</span>
+                      ))}
+                    </div>
+                    <div style={{ fontSize:10, color:"var(--t2)", lineHeight:1.65, marginBottom:7 }}>
+                      <strong style={{color:"var(--t1)"}}>Root cause:</strong> RDS instance unreachable from Lambda VPC subnet — connection times out after 30s.
+                    </div>
+                    <div style={{ background:"rgba(108,92,231,0.08)", border:"1px solid rgba(108,92,231,0.2)", borderRadius:6, padding:"7px 9px", fontSize:10, color:"var(--t2)", lineHeight:1.6 }}>
+                      <span style={{color:"#6c5ce7",fontWeight:700}}>Fix →</span> Place Lambda in same VPC as RDS. Open inbound TCP 3306 in the DB security group.
+                    </div>
+                    <div style={{ marginTop:7, background:"rgba(52,211,153,0.06)", border:"1px solid rgba(52,211,153,0.18)", borderRadius:6, padding:"7px 9px", fontSize:10, color:"var(--t2)" }}>
+                      <span style={{color:"var(--green)",fontWeight:700}}>Step 1 →</span> Go to VPC console → subnets → confirm Lambda and RDS share a subnet.
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* ── Projects view ── */}
+            {sc.projects && (
+              <div style={{ animation:"fadeIn 0.3s ease" }}>
+                <div style={{ fontSize:9, fontWeight:700, color:"var(--t3)", textTransform:"uppercase", letterSpacing:"0.1em", marginBottom:10 }}>My Projects</div>
+                {[
+                  { name:"Production API", score:87, env:"production", sev:"HIGH",     sc:"#fbbf24" },
+                  { name:"Auth Service",   score:96, env:"staging",    sev:"LOW",      sc:"#34d399" },
+                  { name:"Worker Queue",   score:58, env:"production",  sev:"CRITICAL", sc:"#f87171" },
+                ].map((p, i) => (
+                  <div key={p.name} style={{
+                    background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:8,
+                    padding:"9px 12px", marginBottom:7,
+                    display:"flex", alignItems:"center", justifyContent:"space-between",
+                    animation:`fadeIn 0.3s ease ${i*0.08}s both`,
+                    transition:"border-color 0.2s",
+                    borderColor: (i === 0 && si >= 8) ? "#6c5ce7" : "var(--border)",
+                  }}>
+                    <div>
+                      <div style={{ fontSize:11, fontWeight:700, color:"var(--t1)", marginBottom:2 }}>{p.name}</div>
+                      <div style={{ fontSize:9, color:"var(--t3)", textTransform:"uppercase" }}>{p.env}</div>
+                    </div>
+                    <div style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:9, fontWeight:700, color:p.sc, marginBottom:2 }}>{p.sev}</div>
+                      <div style={{ fontSize:9, color:"var(--t3)" }}>Health <strong style={{color:"var(--t1)"}}>{p.score}</strong>/100</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Cursor ── */}
+        <div style={{
+          position:"absolute",
+          left: sc.cx, top: sc.cy,
+          transition:"left 0.65s cubic-bezier(0.4,0,0.2,1), top 0.65s cubic-bezier(0.4,0,0.2,1)",
+          pointerEvents:"none", zIndex:20,
+        }}>
+          <svg width="18" height="22" viewBox="0 0 18 22" fill="none" style={{ filter:"drop-shadow(0 2px 6px rgba(0,0,0,0.5))", display:"block" }}>
+            <path d="M1 1L1 17.5L5.2 13.1L8.5 20L10.5 19L7.3 12.2L13 12.2Z" fill="white" stroke="#1a1a2e" strokeWidth="1.2" strokeLinejoin="round"/>
+          </svg>
+          {ripple && (
+            <div style={{
+              position:"absolute", top:-10, left:-10,
+              width:28, height:28, borderRadius:"50%",
+              border:"2px solid #6c5ce7", opacity:0,
+              animation:"clickRipple 0.35s ease-out forwards",
+            }}/>
+          )}
+        </div>
+
+        {/* Scanline overlay for polish */}
+        <div style={{
+          position:"absolute", inset:0, borderRadius:14,
+          background:"repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,0,0,0.018) 3px,rgba(0,0,0,0.018) 4px)",
+          pointerEvents:"none",
+        }}/>
+      </div>
+
+      {/* Scene label */}
+      <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:14 }}>
+        {[
+          "Paste any error log",
+          "Log detected — AWS Lambda timeout",
+          "Click to analyze",
+          "Analyzing patterns…",
+          "Critical issue identified instantly",
+          "Step-by-step fix generated",
+          "Navigate to your projects",
+          "Opening Projects…",
+          "All services at a glance",
+          "Click to dive into a project",
+          "Full incident workspace",
+        ][si]}
+      </p>
+
+      <style>{`
+        @keyframes clickRipple {
+          0%   { transform:scale(0.5); opacity:0.9; }
+          100% { transform:scale(2.2); opacity:0; }
+        }
+      `}</style>
     </div>
   );
 }
@@ -477,6 +713,10 @@ export default function Landing() {
           </div>
         </div>
       )}
+
+      {/* Cursor demo — always visible below analyzer */}
+      <CursorDemo/>
+
     </div>
   );
 }
