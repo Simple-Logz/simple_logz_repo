@@ -124,6 +124,34 @@ export default function Pricing() {
           <div className={styles.sub}>Start free. Upgrade to Developer when you're ready to go beyond single log analysis — into projects, timelines, runbooks, and team collaboration.</div>
         </div>
 
+        {/* ── Promo banner ──────────────────────────────────── */}
+        <div style={{
+          maxWidth:680, margin:"0 auto 36px",
+          background:"linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(162,155,254,0.08) 100%)",
+          border:"1px solid rgba(108,92,231,0.3)",
+          borderRadius:14, padding:"16px 24px",
+          display:"flex", alignItems:"flex-start", gap:14,
+        }}>
+          {/* Flame icon */}
+          <div style={{
+            width:36, height:36, borderRadius:10, flexShrink:0,
+            background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",
+            display:"flex", alignItems:"center", justifyContent:"center",
+            fontSize:18,
+          }}>🚀</div>
+          <div>
+            <div style={{ fontSize:14, fontWeight:700, color:"var(--t1)", marginBottom:4 }}>
+              Founder's Rate — $5/month for early subscribers
+            </div>
+            <div style={{ fontSize:13, color:"var(--t2)", lineHeight:1.6 }}>
+              We're a new company and we want to reward the people who believe in us early.
+              The Developer plan is <strong style={{color:"#a29bfe"}}>$5/month</strong> for all subscribers
+              who join within our first 3 months. After that, the price moves to the standard rate.
+              Lock it in now and keep it forever.
+            </div>
+          </div>
+        </div>
+
         {/* Billing toggle */}
         <div style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:12, marginBottom:36 }}>
           <button
@@ -216,6 +244,16 @@ export default function Pricing() {
                 </div>
               )}
 
+              <div style={{
+                display:"inline-flex", alignItems:"center", gap:6, marginTop:8,
+                background:"rgba(108,92,231,0.12)", border:"1px solid rgba(108,92,231,0.25)",
+                borderRadius:20, padding:"3px 10px",
+              }}>
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="#a29bfe"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                <span style={{ fontSize:11.5, fontWeight:700, color:"#a29bfe", letterSpacing:"0.02em" }}>
+                  Founder's rate · locks in forever
+                </span>
+              </div>
               <div className={styles.planDesc} style={{marginTop:10}}>A full incident response workspace for your applications.</div>
             </div>
             <ul className={styles.features}>

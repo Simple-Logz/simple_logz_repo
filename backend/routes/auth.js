@@ -8,21 +8,41 @@ const router = Router();
 // Called by frontend after OAuth login to ensure profile exists in DB
 router.post("/sync", requireAuth, async (req, res) => {
   const { id, email, user_metadata } = req.user;
-  const name = user_metadata?.full_name || user_metadata?.name || email.split("@")[0];
-  const avatar = user_metadata?.avatar_url || null;
+  const oauthName   = user_metadata?.full_name || user_metadata?.name || email.split("@")[0];
+  const oauthAvatar = user_metadata?.avatar_url || null;
 
-  // Upsert profile
-  const { data, error } = await supabase
+  // Check if profile already exists
+  const { data: existing } = await supabase
     .from("profiles")
-    .upsert({
-      id,
-      email,
-      name,
-      avatar,
-      updated_at: new Date().toISOString(),
-    }, { onConflict: "id" })
-    .select()
+    .select("*")
+    .eq("id", id)
     .single();
+
+  let data, error;
+
+  if (existing) {
+    // Profile exists — only refresh email/timestamp.
+    // NEVER overwrite avatar or name the user has customised.
+    ({ data, error } = await supabase
+      .from("profiles")
+      .update({ email, updated_at: new Date().toISOString() })
+      .eq("id", id)
+      .select()
+      .single());
+  } else {
+    // First login — create profile with OAuth defaults.
+    ({ data, error } = await supabase
+      .from("profiles")
+      .insert({
+        id,
+        email,
+        name:   oauthName,
+        avatar: oauthAvatar,
+        updated_at: new Date().toISOString(),
+      })
+      .select()
+      .single());
+  }
 
   if (error) {
     console.error("Profile sync error:", error);

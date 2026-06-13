@@ -66,7 +66,7 @@ export function Dashboard() {
               <div style={{fontWeight:600,marginBottom:3}}>Upgrade to Developer</div>
               <div style={{fontSize:13,color:"var(--t2)"}}>Unlock unlimited analyses, downloadable reports, and 90-day history.</div>
             </div>
-            <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $10/month</Link>
+            <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $5/month</Link>
           </div>
         )}
 
@@ -270,7 +270,7 @@ export function Settings() {
                   <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:12}}>
                     <div>
                       <div style={{fontWeight:600,fontSize:16}}>{profile?.plan === "developer" ? "Developer Plan" : "Free Plan"}</div>
-                      <div style={{fontSize:14,color:"var(--t2)",marginTop:4}}>{profile?.plan === "developer" ? "Unlimited analyses — $10/month" : "2 analyses per day"}</div>
+                      <div style={{fontSize:14,color:"var(--t2)",marginTop:4}}>{profile?.plan === "developer" ? "Unlimited analyses — $5/month" : "2 analyses per day"}</div>
                     </div>
                     {profile?.plan === "developer"
                       ? <button className="btn btn-outline btn-sm" onClick={openBillingPortal}>Manage subscription</button>

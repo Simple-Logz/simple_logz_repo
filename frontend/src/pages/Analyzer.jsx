@@ -234,7 +234,7 @@ export default function Analyzer() {
                         <div className={styles.planGate}>
                           <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
                           <div style={{fontSize:13,color:"var(--t2)",marginBottom:14}}>Upgrade for complete step-by-step commands and downloadable reports.</div>
-                          <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $10/mo</Link>
+                          <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $5/mo</Link>
                         </div>
                       )}
                     </div>

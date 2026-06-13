@@ -34,6 +34,7 @@ a{color:var(--accent);text-decoration:none}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes scanFill{0%{width:0}70%,100%{width:100%}}
 @keyframes slideInLeft{from{transform:translateX(-100%)}to{transform:translateX(0)}}
+@keyframes fadeInBg{from{opacity:0}to{opacity:1}}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .container{max-width:1140px;margin:0 auto;padding:0 28px;width:100%}
@@ -97,7 +98,7 @@ textarea.form-input{resize:vertical;line-height:1.7}
 /* NOTE: overflow-x:clip (not hidden) — hidden creates a scroll container  */
 /* which traps overflow-y and kills page scroll on every sub-page.         */
 .app-content {
-  margin-left: 220px;
+  margin-left: 0;
   min-height: 100vh;
   overflow-x: clip;
 }
