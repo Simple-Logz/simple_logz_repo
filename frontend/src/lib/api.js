@@ -22,7 +22,5 @@ export const api = {
   createThread:    (body, token)    => request("/api/forum/threads",             { method: "POST", body: JSON.stringify(body) }, token),
   deleteThread:    (id, token)      => request(`/api/forum/threads/${id}`,        { method: "DELETE" }, token),
   createComment:   (id, body, tok)  => request(`/api/forum/threads/${id}/comments`, { method: "POST", body: JSON.stringify(body) }, tok),
-  createCheckout:  (token)          => request("/api/stripe/create-checkout",   { method: "POST" }, token),
-  openPortal:      (token)          => request("/api/stripe/portal",             { method: "POST" }, token),
-  health:          ()               => request("/api/health"),
-};
+  likeComment:     (id, token)      => request(`/api/forum/comments/${id}/like`,   { method: "POST" }, token),
+  submitFeedback:  (body)           => request("/api/user/fe

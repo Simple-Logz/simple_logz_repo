@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { api } from "../lib/api.js";
 
 // Show popup at most twice per day. Track in localStorage.
 const STORAGE_KEY = "slz_feedback_shown";
@@ -68,15 +69,20 @@ export default function FeedbackPopup() {
     setVisible(false);
   }
 
-  function submit() {
+  async function submit() {
     if (!selected) return;
-    const subject = encodeURIComponent(`[SimpleLogz Feedback] ${selected.label}`);
-    const body    = encodeURIComponent(
-      `Rating: ${selected.emoji} ${selected.label}\n\nNote:\n${note || "No additional comment."}`
-    );
-    window.open(`mailto:support@simplelogs.ai?subject=${subject}&body=${body}`, "_blank");
     setSent(true);
-    setTimeout(() => setVisible(false), 2000);
+    try {
+      await api.submitFeedback({
+        rating: selected.emoji,
+        label:  selected.label,
+        note:   note || null,
+        url:    window.location.pathname,
+      });
+    } catch {
+      // fail silently — user already sees thank-you
+    }
+    setTimeout(() => setVisible(false), 2500);
   }
 
   if (!visible) return null;
@@ -173,17 +179,4 @@ export default function FeedbackPopup() {
               style={{
                 background: selected ? "#6c5ce7" : "var(--bg3)",
                 color: selected ? "#fff" : "var(--t3)",
-                border: "none", borderRadius: 8, padding: "7px 16px",
-                fontSize: 13, fontWeight: 500, cursor: selected ? "pointer" : "default",
-                transition: "background .15s",
-              }}
-            >
-              Send feedback
-            </button>
-          </div>
-        </>
-      )}
-    </div>
-    </>
-  );
-}
+                border: "no

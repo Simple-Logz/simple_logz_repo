@@ -58,14 +58,11 @@ router.patch("/profile", requireAuth, async (req, res) => {
   res.json({ profile: data });
 });
 
-// DELETE /api/user/account
-router.delete("/account", requireAuth, async (req, res) => {
-  // Delete all user data then delete auth user
-  await supabase.from("analyses").delete().eq("user_id", req.user.id);
-  await supabase.from("forum_comments").delete().eq("user_id", req.user.id);
-  await supabase.from("profiles").delete().eq("id", req.user.id);
-  await supabase.auth.admin.deleteUser(req.user.id);
-  res.json({ success: true });
-});
-
-export default router;
+// POST /api/user/feedback  (no auth required — guests can send too)
+router.post("/feedback", async (req, res) => {
+  const { rating, label, note, url } = req.body;
+  if (!label) return res.status(400).json({ error: "Rating label required." });
+  const { error } = await supabase.from("feedback").insert({
+    rating: rating || null,
+    label,
+    note: note || 
