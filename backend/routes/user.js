@@ -42,10 +42,23 @@ router.get("/usage", requireAuth, async (req, res) => {
 // PATCH /api/user/profile
 router.patch("/profile", requireAuth, async (req, res) => {
   const { name, avatar } = req.body;
-  if (!name?.trim()) return res.status(400).json({ error: "Name is required." });
 
-  const updateData = { name: name.trim(), updated_at: new Date().toISOString() };
-  if (avatar !== undefined) updateData.avatar = avatar;
+  // Fetch current profile so we can fall back to existing values
+  const { data: current } = await supabase
+    .from("profiles")
+    .select("name, avatar")
+    .eq("id", req.user.id)
+    .single();
+
+  const resolvedName = name?.trim() || current?.name;
+  if (!resolvedName) return res.status(400).json({ error: "Name is required." });
+
+  const updateData = {
+    name: resolvedName,
+    updated_at: new Date().toISOString(),
+  };
+  // Only overwrite avatar if one was explicitly provided
+  if (avatar !== undefined && avatar !== null) updateData.avatar = avatar;
 
   const { data, error } = await supabase
     .from("profiles")

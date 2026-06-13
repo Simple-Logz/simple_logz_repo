@@ -81,6 +81,11 @@ export default function Settings() {
   );
   const avatarRef = useRef(null);
 
+  // Sync name state once profile loads (handles async profile fetch)
+  useEffect(() => {
+    if (profile?.name && !name) setName(profile.name);
+  }, [profile?.name]);
+
   const initials = profile?.name
     ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2)
     : (profile?.email?.[0] || "U").toUpperCase();
@@ -97,7 +102,8 @@ export default function Settings() {
       const path = `${user.id}/avatar.${ext}`;
       const url  = await uploadToStorage("avatars", path, file);
       const tok  = await getToken();
-      await api.updateProfile({ name: profile?.name || name, avatar: url }, tok);
+      // Send only avatar — backend keeps existing name
+      await api.updateProfile({ avatar: url }, tok);
       await refreshProfile();
       setAvatarPreview(null); // clear local blob — profile.avatar now has the real URL
       showToast("Profile picture updated!", "success");
