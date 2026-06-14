@@ -72,6 +72,7 @@ export default function Settings() {
   const location = useLocation();
 
   const [tab,             setTab]             = useState(location.state?.tab || "profile");
+  useEffect(() => { if (location.state?.tab) setTab(location.state.tab); }, [location.state?.tab]);
   const [name,            setName]            = useState(profile?.name || "");
   const [saving,          setSaving]          = useState(false);
   const [avatarPreview,   setAvatarPreview]   = useState(null);

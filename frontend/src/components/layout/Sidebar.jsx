@@ -111,6 +111,7 @@ function SidebarUserSection({ onThemeToggle, theme }) {
   const { isLoggedIn, profile, signOut, getToken, user, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const [userOpen,       setUserOpen]       = useState(false);
+  const [dropVisible,    setDropVisible]    = useState(false);
   const [avatarHover,    setAvatarHover]    = useState(false);
   const [avatarUploading,setAvatarUploading]= useState(false);
   const [mfaEnabled,     setMfaEnabled]     = useState(null);
@@ -119,11 +120,16 @@ function SidebarUserSection({ onThemeToggle, theme }) {
   const avatarRef  = useRef(null);
   const navigate   = useNavigate();
 
+  function closeMenu() {
+    setDropVisible(false);
+    setTimeout(() => setUserOpen(false), 180);
+  }
+
   useEffect(() => {
     function handleOutside(e) {
       if (userRef.current && !userRef.current.contains(e.target) &&
           triggerRef.current && !triggerRef.current.contains(e.target)) {
-        setUserOpen(false);
+        closeMenu();
       }
     }
     document.addEventListener("mousedown", handleOutside);
@@ -135,7 +141,9 @@ function SidebarUserSection({ onThemeToggle, theme }) {
   }, []);
 
   async function openMenu() {
-    setUserOpen(o => !o);
+    if (userOpen) { closeMenu(); return; }
+    setUserOpen(true);
+    requestAnimationFrame(() => setDropVisible(true));
     if (isLoggedIn) {
       try {
         const { data } = await supabase.auth.mfa.listFactors();
@@ -145,7 +153,7 @@ function SidebarUserSection({ onThemeToggle, theme }) {
   }
 
   async function handleSignOut() {
-    setUserOpen(false);
+    closeMenu();
     await signOut();
     navigate("/");
   }
@@ -170,8 +178,6 @@ function SidebarUserSection({ onThemeToggle, theme }) {
     ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
     : "U";
 
-  if (!isLoggedIn) return null;
-
   return (
     <>
       {/* Trigger row — sits at bottom of sidebar */}
@@ -191,22 +197,27 @@ function SidebarUserSection({ onThemeToggle, theme }) {
       >
         {/* Avatar */}
         <div style={{
-          width:34, height:34, borderRadius:"50%", background:"#6c5ce7",
+          width:34, height:34, borderRadius:"50%",
+          background: isLoggedIn ? "#6c5ce7" : "var(--bg3)",
           display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:12, fontWeight:700, color:"#fff", overflow:"hidden",
-          flexShrink:0, border:"2px solid var(--border)",
+          fontSize:12, fontWeight:700, color: isLoggedIn ? "#fff" : "var(--t3)",
+          overflow:"hidden", flexShrink:0,
+          border:"2px solid var(--border)",
         }}>
-          {profile?.avatar
-            ? <img src={profile.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-            : <span>{initials}</span>}
+          {isLoggedIn
+            ? (profile?.avatar
+                ? <img src={profile.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : <span>{initials}</span>)
+            : <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          }
         </div>
         {/* Name + plan */}
         <div style={{ minWidth:0, flex:1 }}>
           <div style={{ fontSize:12, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-            {profile?.name || "User"}
+            {isLoggedIn ? (profile?.name || "User") : "Guest"}
           </div>
           <div style={{ fontSize:10, color:"var(--t3)", marginTop:1 }}>
-            {profile?.plan === "developer" ? "Developer" : "Free plan"}
+            {isLoggedIn ? (profile?.plan === "developer" ? "Developer" : "Free plan") : "Not signed in"}
           </div>
         </div>
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -220,20 +231,50 @@ function SidebarUserSection({ onThemeToggle, theme }) {
             position:"fixed",
             bottom: 68,
             left: 8,
-            width: 228,
+            width: 200,
             background:"var(--bg2)",
             border:"1px solid var(--border)",
             borderRadius:14,
             boxShadow:"0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(108,92,231,0.08)",
             zIndex:9999,
             overflow:"hidden",
-            animation:"fadeIn .15s ease",
+            animation: dropVisible
+              ? "dropdownIn 0.22s cubic-bezier(0.22,1,0.36,1) both"
+              : "dropdownOut 0.18s cubic-bezier(0.4,0,1,1) both",
+            transformOrigin: "bottom left",
           }}
           onClick={e => e.stopPropagation()}
         >
+          {/* ── Logged-out view ── */}
+          {!isLoggedIn && (
+            <div style={{ padding:"8px 0" }}>
+              <Link to="/login" onClick={() => closeMenu()} style={{ display:"flex", alignItems:"center", gap:9, padding:"9px 14px", textDecoration:"none", transition:"background .1s", color:"var(--t1)" }}
+                onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+                onMouseLeave={e => e.currentTarget.style.background="none"}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                <span style={{ fontSize:13 }}>Sign in</span>
+              </Link>
+              <Link to="/signup" onClick={() => closeMenu()} style={{ display:"flex", alignItems:"center", gap:9, padding:"9px 14px", textDecoration:"none", transition:"background .1s", color:"var(--t1)" }}
+                onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+                onMouseLeave={e => e.currentTarget.style.background="none"}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
+                <span style={{ fontSize:13 }}>Create account</span>
+              </Link>
+              <div style={{ borderTop:"1px solid var(--border)", margin:"4px 0" }}/>
+              <button onClick={onThemeToggle} style={{ display:"flex", alignItems:"center", gap:9, padding:"9px 14px", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
+                onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+                onMouseLeave={e => e.currentTarget.style.background="none"}>
+                <span style={{ color:"var(--t3)", display:"flex" }}>{theme === "dark" ? <IconSun/> : <IconMoon/>}</span>
+                <span style={{ fontSize:12, color:"var(--t1)" }}>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+              </button>
+            </div>
+          )}
+
+          {/* ── Logged-in view ── */}
+          {isLoggedIn && <>
           {/* Profile header */}
-          <div style={{ padding:"12px 14px 10px", borderBottom:"1px solid var(--border)" }}>
-            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+          <div style={{ padding:"8px 12px 8px", borderBottom:"1px solid var(--border)" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:8 }}>
               <div
                 style={{ position:"relative", flexShrink:0, cursor:"pointer" }}
                 onMouseEnter={() => setAvatarHover(true)}
@@ -242,9 +283,9 @@ function SidebarUserSection({ onThemeToggle, theme }) {
                 title="Change photo"
               >
                 <div style={{
-                  width:36, height:36, borderRadius:"50%", background:"#6c5ce7",
+                  width:28, height:28, borderRadius:"50%", background:"#6c5ce7",
                   display:"flex", alignItems:"center", justifyContent:"center",
-                  fontSize:13, fontWeight:700, color:"#fff", overflow:"hidden",
+                  fontSize:11, fontWeight:700, color:"#fff", overflow:"hidden",
                 }}>
                   {avatarUploading
                     ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}/>
@@ -267,15 +308,15 @@ function SidebarUserSection({ onThemeToggle, theme }) {
                 <input ref={avatarRef} type="file" accept="image/png,image/jpeg,image/webp" style={{display:"none"}} onChange={handleAvatarUpload}/>
               </div>
               <div style={{ minWidth:0, flex:1 }}>
-                <div style={{ fontSize:13, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                <div style={{ fontSize:12, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                   {profile?.name || "User"}
                 </div>
-                <div style={{ fontSize:11, color:"var(--t3)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                <div style={{ fontSize:10, color:"var(--t3)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
                   {profile?.email}
                 </div>
               </div>
               <span style={{
-                fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:99, flexShrink:0,
+                fontSize:9, fontWeight:700, padding:"1px 5px", borderRadius:99, flexShrink:0,
                 background: profile?.plan === "developer" ? "rgba(52,211,153,.15)" : "var(--bg3)",
                 color: profile?.plan === "developer" ? "var(--green)" : "var(--t3)",
                 border: profile?.plan === "developer" ? "1px solid rgba(52,211,153,.3)" : "1px solid var(--border)",
@@ -286,7 +327,7 @@ function SidebarUserSection({ onThemeToggle, theme }) {
           </div>
 
           {/* Menu items */}
-          <div style={{ padding:"4px 0" }}>
+          <div style={{ padding:"3px 0" }}>
             {[
               { to:"/dashboard", label:"Dashboard",          Icon:IconDashboard },
               { to:"/settings",  label:"Profile & Settings", Icon:IconSettings  },
@@ -294,28 +335,28 @@ function SidebarUserSection({ onThemeToggle, theme }) {
             ].map(({ to, label, Icon }) => (
               <Link
                 key={to} to={to}
-                onClick={() => setUserOpen(false)}
-                style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", textDecoration:"none", transition:"background .1s", color:"var(--t1)" }}
+                onClick={() => closeMenu()}
+                style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", textDecoration:"none", transition:"background .1s", color:"var(--t1)" }}
                 onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
                 onMouseLeave={e => e.currentTarget.style.background="none"}
               >
                 <span style={{ color:"var(--t3)", display:"flex" }}><Icon/></span>
-                <span style={{ fontSize:13 }}>{label}</span>
+                <span style={{ fontSize:12 }}>{label}</span>
               </Link>
             ))}
 
             {/* MFA */}
             <Link
               to="/settings" state={{ tab:"security" }}
-              onClick={() => setUserOpen(false)}
-              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", textDecoration:"none", transition:"background .1s" }}
+              onClick={() => closeMenu()}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", textDecoration:"none", transition:"background .1s" }}
               onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
               onMouseLeave={e => e.currentTarget.style.background="none"}
             >
               <span style={{ color:"var(--t3)", display:"flex" }}>
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
               </span>
-              <span style={{ fontSize:13, color:"var(--t1)" }}>Two-factor auth</span>
+              <span style={{ fontSize:12, color:"var(--t1)" }}>Two-factor auth</span>
               {mfaEnabled === null
                 ? <span style={{ marginLeft:"auto", fontSize:10, color:"var(--t3)" }}>…</span>
                 : mfaEnabled
@@ -327,20 +368,20 @@ function SidebarUserSection({ onThemeToggle, theme }) {
             {/* Theme */}
             <button
               onClick={onThemeToggle}
-              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
               onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
               onMouseLeave={e => e.currentTarget.style.background="none"}
             >
               <span style={{ color:"var(--t3)", display:"flex" }}>{theme === "dark" ? <IconSun/> : <IconMoon/>}</span>
-              <span style={{ fontSize:13, color:"var(--t1)" }}>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+              <span style={{ fontSize:12, color:"var(--t1)" }}>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
             </button>
           </div>
 
           {/* Sign out */}
-          <div style={{ borderTop:"1px solid var(--border)", padding:"4px 0" }}>
+          <div style={{ borderTop:"1px solid var(--border)", padding:"3px 0" }}>
             <button
               onClick={handleSignOut}
-              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", fontSize:13, color:"var(--red)", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
+              style={{ display:"flex", alignItems:"center", gap:8, padding:"6px 12px", fontSize:12, color:"var(--red)", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
               onMouseEnter={e => e.currentTarget.style.background="rgba(248,113,113,.06)"}
               onMouseLeave={e => e.currentTarget.style.background="none"}
             >
@@ -348,6 +389,7 @@ function SidebarUserSection({ onThemeToggle, theme }) {
               <span>Log out</span>
             </button>
           </div>
+          </>}
         </div>,
         document.body
       )}

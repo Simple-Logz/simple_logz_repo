@@ -2,7 +2,7 @@
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:36px;width:100%;max-width:440px;box-shadow:var(--shadow)}
 .brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:18px;color:var(--t1);text-decoration:none;margin-bottom:28px}
 .logo{width:32px;height:32px;border-radius:7px;background:var(--accent);display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;font-weight:700;color:#fff}
-.title{font-size:24px;font-weight:700;margin-bottom:6px}
+.title{font-size:18px;font-weight:700;margin-bottom:6px}
 .sub{font-size:14px;color:var(--t2);margin-bottom:24px}
 .oauthGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .oauthBtn{display:flex;align-items:center;justify-content:center;gap:9px;padding:10px 14px;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--t1);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s}

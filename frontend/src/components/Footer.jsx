@@ -26,6 +26,7 @@ export default function Footer() {
         className={styles.toggle}
         onMouseEnter={handleEnter}
         onMouseLeave={startClose}
+        onClick={() => setOpen(o => !o)}
         aria-label="Show footer"
       >
         <svg

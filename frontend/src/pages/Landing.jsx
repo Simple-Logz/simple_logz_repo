@@ -1051,7 +1051,7 @@ function TestimonialCarousel() {
   React.useEffect(() => {
     import("../lib/api.js").then(({ api }) => {
       api.getTestimonials().then(res => {
-        if (res.testimonials && res.testimonials.length >= 3)
+        if (res.testimonials && res.testimonials.length >= 1)
           setData(res.testimonials.map(normalise));
       }).catch(() => {});
     });
