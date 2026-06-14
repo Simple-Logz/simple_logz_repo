@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
 import Sidebar        from "./components/layout/Sidebar.jsx";
@@ -7,6 +7,7 @@ import CommandPalette from "./components/CommandPalette.jsx";
 import ChatWidget     from "./components/ChatWidget.jsx";
 import FeedbackPopup  from "./components/FeedbackPopup.jsx";
 import Landing       from "./pages/Landing.jsx";
+import Analyzer      from "./pages/Analyzer.jsx";
 import About         from "./pages/About.jsx";
 import Docs          from "./pages/Docs.jsx";
 import Projects      from "./pages/Projects.jsx";
@@ -20,6 +21,24 @@ import Forum         from "./pages/Forum.jsx";
 import Terminal      from "./pages/Terminal.jsx";
 import { Dashboard } from "./pages/Dashboard.jsx";
 import Settings from "./pages/Settings.jsx";
+import Privacy from "./pages/Privacy.jsx";
+import Terms from "./pages/Terms.jsx";
+import Footer from "./components/Footer.jsx";
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  React.useEffect(() => { window.scrollTo({ top: 0, behavior: "instant" }); }, [pathname]);
+  return null;
+}
+
+function PageTransition({ children }) {
+  const location = useLocation();
+  return (
+    <div key={location.pathname} className="page-transition">
+      {children}
+    </div>
+  );
+}
 
 function ProtectedRoute({ children }) {
   const { isLoggedIn, loading } = useAuth();
@@ -61,27 +80,35 @@ function AppShell() {
 
   return (
     <>
+      <ScrollToTop/>
       <Sidebar onThemeToggle={toggleTheme} theme={theme} open={sidebarOpen} onToggle={() => setSidebarOpen(o => !o)}/>
       <div className="app-content">
-        <Routes>
-          <Route path="/"              element={<Landing/>}/>
-          <Route path="/login"         element={<Login/>}/>
-          <Route path="/signup"        element={<Signup/>}/>
-          <Route path="/auth/callback" element={<AuthCallback/>}/>
-          <Route path="/about"         element={<About/>}/>
-          <Route path="/docs"          element={<Docs/>}/>
-          <Route path="/projects"      element={<Projects/>}/>
-          <Route path="/projects/:id"  element={<ProtectedRoute><ProjectDetail/></ProtectedRoute>}/>
-          <Route path="/support"       element={<Support/>}/>
-          <Route path="/analyzer"      element={<Navigate to="/" replace/>}/>
-          <Route path="/pricing"       element={<Pricing/>}/>
-          <Route path="/forum"         element={<Forum/>}/>
-          <Route path="/terminal"      element={<Terminal/>}/>
-          <Route path="/dashboard"     element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
-          <Route path="/settings"      element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
-          <Route path="*"              element={<Navigate to="/" replace/>}/>
-        </Routes>
+        <PageTransition>
+          <Routes>
+            <Route path="/"              element={<Landing/>}/>
+            <Route path="/login"         element={<Login/>}/>
+            <Route path="/signup"        element={<Signup/>}/>
+            <Route path="/auth/callback" element={<AuthCallback/>}/>
+            <Route path="/about"         element={<About/>}/>
+            <Route path="/docs"          element={<Docs/>}/>
+            <Route path="/projects"      element={<Projects/>}/>
+            <Route path="/projects/:id"  element={<ProtectedRoute><ProjectDetail/></ProtectedRoute>}/>
+            <Route path="/support"       element={<Support/>}/>
+            <Route path="/analyzer"      element={<Analyzer/>}/>
+            <Route path="/pricing"       element={<Pricing/>}/>
+            <Route path="/forum"         element={<Forum/>}/>
+            <Route path="/terminal"      element={<Terminal/>}/>
+            <Route path="/dashboard"     element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
+            <Route path="/settings"      element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
+            <Route path="/privacy"       element={<Privacy/>}/>
+            <Route path="/terms"         element={<Terms/>}/>
+            <Route path="*"              element={<Navigate to="/" replace/>}/>
+          </Routes>
+        </PageTransition>
       </div>
+
+      {/* Footer drawer — arrow at bottom, slides up on click */}
+      <Footer/>
 
       {/* Search trigger button — top right */}
       <button

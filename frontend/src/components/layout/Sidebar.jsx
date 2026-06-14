@@ -1,6 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth.jsx";
+import { api } from "../../lib/api.js";
+import { uploadToStorage, supabase } from "../../lib/supabase.js";
+import { useToast } from "../ui/Toast.jsx";
 
 function IconAnalyzer() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>; }
 function IconTerminal() { return <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>; }
@@ -33,34 +37,9 @@ const NAV_LINKS = [
 ];
 
 function SidebarInner({ onThemeToggle, theme, onClose }) {
-  const { isLoggedIn, profile, signOut } = useAuth();
-  const [userOpen, setUserOpen] = useState(false);
-  const userRef  = useRef(null);
+  const { isLoggedIn } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    function handleOutside(e) {
-      if (userRef.current && !userRef.current.contains(e.target)) setUserOpen(false);
-    }
-    document.addEventListener("mousedown", handleOutside);
-    document.addEventListener("touchstart", handleOutside, { passive: true });
-    return () => {
-      document.removeEventListener("mousedown", handleOutside);
-      document.removeEventListener("touchstart", handleOutside);
-    };
-  }, []);
-
-  async function handleSignOut() {
-    setUserOpen(false);
-    if (onClose) onClose();
-    await signOut();
-    navigate("/");
-  }
-
-  const initials = profile?.name
-    ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
-    : "U";
 
   return (
     <>
@@ -126,139 +105,325 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
         No recent sessions
       </div>
 
-      {/* Bottom */}
-      <div style={{ marginTop:"auto", borderTop:"0.5px solid var(--border)", padding:"14px 10px" }}>
-        {/* Theme toggle */}
-        <button
-          onClick={onThemeToggle}
-          style={{
-            display:"flex", alignItems:"center", gap:8, padding:"8px 10px",
-            color:"var(--t2)", fontSize:12, background:"none", border:"none",
-            cursor:"pointer", borderRadius:6, width:"100%", marginBottom:6,
-          }}
-        >
-          {theme === "dark" ? <><IconSun/> Light mode</> : <><IconMoon/> Dark mode</>}
-        </button>
-
-        {/* Auth */}
-        {!isLoggedIn ? (
-          <Link
-            to="/login"
-            onClick={onClose}
-            style={{
-              display:"flex", alignItems:"center", gap:9, padding:"8px 10px",
-              color:"var(--t2)", fontSize:13, textDecoration:"none", borderRadius:6,
-            }}
-          >
-            <IconUser/> Sign in
-          </Link>
-        ) : (
-          <div style={{ position:"relative" }} ref={userRef}>
-            <button
-              onClick={() => setUserOpen(o => !o)}
-              style={{
-                display:"flex", alignItems:"center", gap:9, padding:"8px 10px",
-                background:"none", border:"none", cursor:"pointer", width:"100%", borderRadius:6,
-              }}
-            >
-              <div style={{
-                width:28, height:28, borderRadius:"50%", background:"#6c5ce7", flexShrink:0,
-                display:"flex", alignItems:"center", justifyContent:"center",
-                fontSize:11, fontWeight:700, color:"#fff", overflow:"hidden",
-              }}>
-                {profile?.avatar
-                  ? <img src={profile.avatar} alt={profile.name} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
-                  : <span>{initials}</span>}
-              </div>
-              <span style={{ fontSize:13, color:"var(--t1)", fontWeight:500, flex:1, textAlign:"left", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
-                {profile?.name || "User"}
-              </span>
-              <IconChevron/>
-            </button>
-
-            {userOpen && (
-              <div style={{
-                position:"absolute", bottom:"calc(100% + 6px)", left:0, right:0,
-                background:"var(--bg2)", border:"1px solid var(--border)", borderRadius:10,
-                boxShadow:"var(--shadow)", padding:"6px 0", zIndex:100,
-              }}>
-                <div style={{ padding:"10px 14px 8px", borderBottom:"1px solid var(--border)", marginBottom:4 }}>
-                  <div style={{ fontSize:13, fontWeight:600, color:"var(--t1)" }}>{profile?.name || "User"}</div>
-                  <div style={{ fontSize:12, color:"var(--t3)", marginTop:2 }}>{profile?.email}</div>
-                  <span className={`badge ${profile?.plan === "developer" ? "badge-green" : "badge-gray"}`} style={{ marginTop:6 }}>
-                    {profile?.plan === "developer" ? "Developer" : "Free Plan"}
-                  </span>
-                </div>
-                {[
-                  { to:"/dashboard", label:"Dashboard",   Icon:IconDashboard },
-                  { to:"/projects",  label:"My projects", Icon:IconFolder    },
-                  { to:"/settings",  label:"Settings",    Icon:IconSettings  },
-                  { to:"/pricing",   label:"Upgrade plan",Icon:IconUpgrade   },
-                ].map(({ to, label, Icon }) => (
-                  <Link
-                    key={to} to={to}
-                    onClick={() => { setUserOpen(false); if (onClose) onClose(); }}
-                    style={{
-                      display:"flex", alignItems:"center", gap:9, padding:"8px 14px",
-                      fontSize:13, color:"var(--t2)", textDecoration:"none",
-                    }}
-                  >
-                    <Icon/> {label}
-                  </Link>
-                ))}
-                <div style={{ height:1, background:"var(--border)", margin:"4px 0" }}/>
-                <button
-                  onClick={handleSignOut}
-                  style={{
-                    display:"flex", alignItems:"center", gap:9, padding:"8px 14px",
-                    fontSize:13, color:"var(--red)", background:"none", border:"none",
-                    cursor:"pointer", width:"100%",
-                  }}
-                >
-                  <IconLogout/> Sign out
-                </button>
-              </div>
-            )}
-          </div>
-        )}
-      </div>
+      {/* Spacer so content doesn't hide behind the fixed pill */}
+      <div style={{ height:60 }}/>
     </>
+  );
+}
+
+/* ── Always-visible fixed user pill (bottom-left) ─────────────── */
+function FloatingUserPill({ onThemeToggle, theme }) {
+  const { isLoggedIn, profile, signOut, getToken, user, refreshProfile } = useAuth();
+  const { showToast } = useToast();
+  const [userOpen,       setUserOpen]       = useState(false);
+  const [avatarHover,    setAvatarHover]    = useState(false);
+  const [avatarUploading,setAvatarUploading]= useState(false);
+  const [mfaEnabled,     setMfaEnabled]     = useState(null);
+  const userRef    = useRef(null);
+  const triggerRef = useRef(null);
+  const avatarRef  = useRef(null);
+  const navigate   = useNavigate();
+
+  useEffect(() => {
+    function handleOutside(e) {
+      if (userRef.current && !userRef.current.contains(e.target) &&
+          triggerRef.current && !triggerRef.current.contains(e.target)) {
+        setUserOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleOutside);
+    document.addEventListener("touchstart", handleOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleOutside);
+      document.removeEventListener("touchstart", handleOutside);
+    };
+  }, []);
+
+  async function openMenu() {
+    setUserOpen(o => !o);
+    if (isLoggedIn) {
+      try {
+        const { data } = await supabase.auth.mfa.listFactors();
+        setMfaEnabled(data?.totp?.some(f => f.status === "verified") ?? false);
+      } catch { setMfaEnabled(false); }
+    }
+  }
+
+  async function handleSignOut() {
+    setUserOpen(false);
+    await signOut();
+    navigate("/");
+  }
+
+  async function handleAvatarUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { showToast("Image must be under 5 MB", "error"); return; }
+    setAvatarUploading(true);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const url = await uploadToStorage("avatars", `${user.id}/avatar-${Date.now()}.${ext}`, file);
+      const token = await getToken();
+      await api.updateProfile({ avatar: url }, token);
+      await refreshProfile();
+      showToast("Profile picture updated!", "success");
+    } catch (err) { showToast("Upload failed: " + err.message, "error"); }
+    finally { setAvatarUploading(false); }
+  }
+
+  const initials = profile?.name
+    ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2)
+    : "U";
+
+  if (!isLoggedIn) return null;
+
+  return createPortal(
+    <>
+      {/* Avatar floating above the pill */}
+      <div
+        style={{
+          position:"fixed", bottom:46, left:16, zIndex:201,
+          pointerEvents:"none",
+        }}
+      >
+        <div style={{
+          width:42, height:42, borderRadius:"50%", background:"#6c5ce7",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          fontSize:14, fontWeight:700, color:"#fff", overflow:"hidden",
+          border:"2px solid var(--bg)",
+          boxShadow:"0 2px 10px rgba(0,0,0,0.35)",
+        }}>
+          {profile?.avatar
+            ? <img src={profile.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+            : <span>{initials}</span>}
+        </div>
+      </div>
+
+      {/* Fixed pill */}
+      <button
+        ref={triggerRef}
+        onClick={openMenu}
+        style={{
+          position:"fixed", bottom:0, left:0, zIndex:200,
+          display:"flex", alignItems:"center", gap:8,
+          padding:"8px 12px 8px 14px",
+          background:"var(--bg2)", border:"none",
+          borderTop:"1px solid var(--border)",
+          borderRight:"1px solid var(--border)",
+          borderRadius:"0 12px 0 0",
+          boxShadow:"0 -2px 16px rgba(0,0,0,0.2)",
+          cursor:"pointer", transition:"background .15s",
+        }}
+        onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+        onMouseLeave={e => e.currentTarget.style.background="var(--bg2)"}
+      >
+        <div style={{ textAlign:"left", minWidth:0 }}>
+          <div style={{ fontSize:12, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+            {profile?.name || "User"}
+          </div>
+          <div style={{ fontSize:10, color:"var(--t3)", marginTop:1 }}>
+            {profile?.plan === "developer" ? "Developer" : "Free plan"}
+          </div>
+        </div>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      {/* Dropdown */}
+      {userOpen && (
+        <div
+          ref={userRef}
+          style={{
+            position:"fixed",
+            bottom: 52,
+            left: 8,
+            width: 228,
+            background:"var(--bg2)",
+            border:"1px solid var(--border)",
+            borderRadius:14,
+            boxShadow:"0 8px 40px rgba(0,0,0,0.35), 0 0 0 1px rgba(108,92,231,0.08)",
+            zIndex:9999,
+            overflow:"hidden",
+            animation:"fadeIn .15s ease",
+          }}
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Profile header */}
+          <div style={{ padding:"12px 14px 10px", borderBottom:"1px solid var(--border)" }}>
+            <div style={{ display:"flex", alignItems:"center", gap:10 }}>
+              <div
+                style={{ position:"relative", flexShrink:0, cursor:"pointer" }}
+                onMouseEnter={() => setAvatarHover(true)}
+                onMouseLeave={() => setAvatarHover(false)}
+                onClick={() => avatarRef.current?.click()}
+                title="Change photo"
+              >
+                <div style={{
+                  width:36, height:36, borderRadius:"50%", background:"#6c5ce7",
+                  display:"flex", alignItems:"center", justifyContent:"center",
+                  fontSize:13, fontWeight:700, color:"#fff", overflow:"hidden",
+                }}>
+                  {avatarUploading
+                    ? <span className="spinner" style={{width:14,height:14,borderWidth:2}}/>
+                    : profile?.avatar
+                      ? <img src={profile.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                      : <span>{initials}</span>}
+                </div>
+                {avatarHover && !avatarUploading && (
+                  <div style={{
+                    position:"absolute", inset:0, borderRadius:"50%",
+                    background:"rgba(0,0,0,0.5)",
+                    display:"flex", alignItems:"center", justifyContent:"center",
+                  }}>
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
+                      <circle cx="12" cy="13" r="4"/>
+                    </svg>
+                  </div>
+                )}
+                <input ref={avatarRef} type="file" accept="image/png,image/jpeg,image/webp" style={{display:"none"}} onChange={handleAvatarUpload}/>
+              </div>
+              <div style={{ minWidth:0, flex:1 }}>
+                <div style={{ fontSize:13, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                  {profile?.name || "User"}
+                </div>
+                <div style={{ fontSize:11, color:"var(--t3)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
+                  {profile?.email}
+                </div>
+              </div>
+              <span style={{
+                fontSize:10, fontWeight:700, padding:"2px 7px", borderRadius:99, flexShrink:0,
+                background: profile?.plan === "developer" ? "rgba(52,211,153,.15)" : "var(--bg3)",
+                color: profile?.plan === "developer" ? "var(--green)" : "var(--t3)",
+                border: profile?.plan === "developer" ? "1px solid rgba(52,211,153,.3)" : "1px solid var(--border)",
+              }}>
+                {profile?.plan === "developer" ? "Pro" : "Free"}
+              </span>
+            </div>
+          </div>
+
+          {/* Menu items */}
+          <div style={{ padding:"4px 0" }}>
+            {[
+              { to:"/dashboard", label:"Dashboard",          Icon:IconDashboard },
+              { to:"/settings",  label:"Profile & Settings", Icon:IconSettings  },
+              { to:"/pricing",   label:"Upgrade plan",       Icon:IconUpgrade   },
+            ].map(({ to, label, Icon }) => (
+              <Link
+                key={to} to={to}
+                onClick={() => setUserOpen(false)}
+                style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", textDecoration:"none", transition:"background .1s", color:"var(--t1)" }}
+                onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+                onMouseLeave={e => e.currentTarget.style.background="none"}
+              >
+                <span style={{ color:"var(--t3)", display:"flex" }}><Icon/></span>
+                <span style={{ fontSize:13 }}>{label}</span>
+              </Link>
+            ))}
+
+            {/* MFA */}
+            <Link
+              to="/settings" state={{ tab:"security" }}
+              onClick={() => setUserOpen(false)}
+              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", textDecoration:"none", transition:"background .1s" }}
+              onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+              onMouseLeave={e => e.currentTarget.style.background="none"}
+            >
+              <span style={{ color:"var(--t3)", display:"flex" }}>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              </span>
+              <span style={{ fontSize:13, color:"var(--t1)" }}>Two-factor auth</span>
+              {mfaEnabled === null
+                ? <span style={{ marginLeft:"auto", fontSize:10, color:"var(--t3)" }}>…</span>
+                : mfaEnabled
+                  ? <span style={{ marginLeft:"auto", fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:99, background:"rgba(52,211,153,.15)", color:"var(--green)", border:"1px solid rgba(52,211,153,.25)" }}>On</span>
+                  : <span style={{ marginLeft:"auto", fontSize:10, fontWeight:700, padding:"1px 6px", borderRadius:99, background:"rgba(248,113,113,.15)", color:"#f87171", border:"1px solid rgba(248,113,113,.2)" }}>Off</span>
+              }
+            </Link>
+
+            {/* Theme */}
+            <button
+              onClick={onThemeToggle}
+              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
+              onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+              onMouseLeave={e => e.currentTarget.style.background="none"}
+            >
+              <span style={{ color:"var(--t3)", display:"flex" }}>{theme === "dark" ? <IconSun/> : <IconMoon/>}</span>
+              <span style={{ fontSize:13, color:"var(--t1)" }}>{theme === "dark" ? "Light mode" : "Dark mode"}</span>
+            </button>
+          </div>
+
+          {/* Sign out */}
+          <div style={{ borderTop:"1px solid var(--border)", padding:"4px 0" }}>
+            <button
+              onClick={handleSignOut}
+              style={{ display:"flex", alignItems:"center", gap:9, padding:"8px 14px", fontSize:13, color:"var(--red)", background:"none", border:"none", cursor:"pointer", width:"100%", transition:"background .1s" }}
+              onMouseEnter={e => e.currentTarget.style.background="rgba(248,113,113,.06)"}
+              onMouseLeave={e => e.currentTarget.style.background="none"}
+            >
+              <IconLogout/>
+              <span>Log out</span>
+            </button>
+          </div>
+        </div>
+      )}
+    </>,
+    document.body
   );
 }
 
 export default function Sidebar({ onThemeToggle, theme, open, onToggle }) {
   const location = useLocation();
+  const navigate = useNavigate();
   useEffect(() => { if (open) onToggle(); }, [location.pathname]);
 
   return (
     <>
-      {/* Floating trigger button — only visible when sidebar is closed */}
+      {/* Floating trigger — only visible when sidebar is closed */}
       {!open && (
-        <button
-          onClick={onToggle}
+        <div
           style={{
             position:"fixed", top:20, left:20, zIndex:200,
-            display:"flex", alignItems:"center", gap:9,
+            display:"flex", alignItems:"center",
             background:"var(--bg2)",
             border:"1px solid var(--border)",
-            borderRadius:12, padding:"9px 14px",
-            cursor:"pointer", color:"var(--t1)",
+            borderRadius:12,
             boxShadow:"0 4px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(108,92,231,0.12)",
-            transition:"box-shadow 0.2s, transform 0.15s",
+            overflow:"hidden",
           }}
-          onMouseEnter={e => { e.currentTarget.style.boxShadow="0 6px 28px rgba(108,92,231,0.3), 0 0 0 1px rgba(108,92,231,0.3)"; e.currentTarget.style.transform="translateY(-1px)"; }}
-          onMouseLeave={e => { e.currentTarget.style.boxShadow="0 4px 20px rgba(0,0,0,0.2), 0 0 0 1px rgba(108,92,231,0.12)"; e.currentTarget.style.transform="none"; }}
         >
-          {/* Animated bars */}
-          <div style={{ display:"flex", flexDirection:"column", gap:4, flexShrink:0 }}>
+          {/* Hamburger — opens the sidebar */}
+          <button
+            onClick={onToggle}
+            title="Open menu"
+            style={{
+              display:"flex", flexDirection:"column", gap:4, flexShrink:0,
+              padding:"9px 11px 9px 14px",
+              background:"none", border:"none", cursor:"pointer",
+              borderRight:"1px solid var(--border)",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+            onMouseLeave={e => e.currentTarget.style.background="none"}
+          >
             <div style={{ width:16, height:1.5, background:"#6c5ce7", borderRadius:2 }}/>
             <div style={{ width:11, height:1.5, background:"#a29bfe", borderRadius:2 }}/>
             <div style={{ width:14, height:1.5, background:"#6c5ce7", borderRadius:2 }}/>
-          </div>
-          <span style={{ fontSize:13, fontWeight:700, color:"var(--t1)", letterSpacing:"-0.2px" }}>
+          </button>
+
+          {/* Brand name — goes home */}
+          <button
+            onClick={() => { navigate("/"); window.scrollTo({ top: 0, behavior: "instant" }); }}
+            title="Go to Analyzer"
+            style={{
+              padding:"9px 14px 9px 11px",
+              background:"none", border:"none", cursor:"pointer",
+              fontSize:13, fontWeight:700, color:"var(--t1)", letterSpacing:"-0.2px",
+            }}
+            onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+            onMouseLeave={e => e.currentTarget.style.background="none"}
+          >
             Simple<span style={{color:"#6c5ce7"}}>Logz</span>
-          </span>
-        </button>
+          </button>
+        </div>
       )}
 
       {/* Backdrop */}
@@ -302,6 +467,9 @@ export default function Sidebar({ onThemeToggle, theme, open, onToggle }) {
         </button>
         <SidebarInner onThemeToggle={onThemeToggle} theme={theme} onClose={onToggle}/>
       </aside>
+
+      {/* Always-visible user pill — fixed bottom-left, outside sidebar */}
+      <FloatingUserPill onThemeToggle={onThemeToggle} theme={theme}/>
     </>
   );
 }

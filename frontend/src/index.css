@@ -1,10 +1,10 @@
 /* ── Tokens ─────────────────────────────────────────────── */
 :root {
-  --bg:       #0e1117;  --bg2: #161b25;  --bg3: #1c2333;  --bg4: #222d40;
-  --border:   #2a3650;  --border2: #344060;
-  --accent:   #4f8ef7;  --accent2: #3a7ae8;  --glow: rgba(79,142,247,0.14);
+  --bg:       #131720;  --bg2: #1b2130;  --bg3: #232b3e;  --bg4: #2a3450;
+  --border:   #2f3f5c;  --border2: #3a4e6e;
+  --accent:   #4f8ef7;  --accent2: #3a7ae8;  --glow: rgba(79,142,247,0.16);
   --green:    #34d399;  --yellow: #fbbf24;  --red: #f87171;
-  --t1: #f0f4ff;  --t2: #9baec8;  --t3: #5a6a85;
+  --t1: #f2f6ff;  --t2: #a8bdd4;  --t3: #6a7e9a;
   --mono: "JetBrains Mono", monospace;
   --sans: "Inter", system-ui, sans-serif;
   --r: 8px;  --r2: 12px;  --r3: 18px;
@@ -30,15 +30,27 @@ a{color:var(--accent);text-decoration:none}
 ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 
 /* ── Animations ─────────────────────────────────────────── */
-@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes scanFill{0%{width:0}70%,100%{width:100%}}
 @keyframes slideInLeft{from{transform:translateX(-100%)}to{transform:translateX(0)}}
 @keyframes fadeInBg{from{opacity:0}to{opacity:1}}
+@keyframes pageEnter{
+  from{opacity:0;transform:translateY(14px) scale(0.995)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+@keyframes pageExit{
+  from{opacity:1;transform:translateY(0) scale(1)}
+  to{opacity:0;transform:translateY(-8px) scale(0.998)}
+}
 
 /* ── Layout ─────────────────────────────────────────────── */
 .container{max-width:1140px;margin:0 auto;padding:0 28px;width:100%}
 .page{animation:fadeIn .25s ease}
+.page-transition{
+  animation:pageEnter .45s cubic-bezier(0.22,1,0.36,1) both;
+  will-change:opacity,transform;
+}
 
 /* ── Buttons ─────────────────────────────────────────────── */
 .btn{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:var(--r);font-size:15px;font-weight:500;transition:all .15s;cursor:pointer;border:none}
@@ -77,11 +89,11 @@ textarea.form-input{resize:vertical;line-height:1.7}
 .spinner{width:18px;height:18px;border:2px solid var(--bg3);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;flex-shrink:0}
 
 /* ── Toggle ──────────────────────────────────────────────── */
-.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
-.toggle input{opacity:0;width:0;height:0}
-.toggle-slider{position:absolute;inset:0;background:var(--bg4);border-radius:99px;cursor:pointer;transition:background .2s}
-.toggle-slider::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:3px;top:3px;transition:transform .2s}
-.toggle input:checked+.toggle-slider{background:var(--accent)}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0;display:inline-block}
+.toggle input{opacity:0;width:0;height:0;position:absolute}
+.toggle-slider{position:absolute;inset:0;background:var(--border2);border-radius:99px;cursor:pointer;transition:background .2s;border:1px solid var(--border2)}
+.toggle-slider::after{content:"";position:absolute;width:18px;height:18px;border-radius:50%;background:#fff;left:2px;top:2px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,0.3)}
+.toggle input:checked+.toggle-slider{background:#6c5ce7;border-color:#6c5ce7}
 .toggle input:checked+.toggle-slider::after{transform:translateX(20px)}
 
 /* ── Sidebar + content layout (fixed sidebar approach) ───── */

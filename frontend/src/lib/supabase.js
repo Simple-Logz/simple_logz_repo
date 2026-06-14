@@ -26,5 +26,6 @@ export async function uploadToStorage(bucket, path, file) {
     .from(bucket)
     .getPublicUrl(data.path);
 
-  return publicUrl;
+  // Cache-bust so browser always fetches the freshly uploaded file
+  return `${publicUrl}?t=${Date.now()}`;
 }

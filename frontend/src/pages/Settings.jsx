@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
 import { api } from "../lib/api.js";
-import { uploadToStorage } from "../lib/supabase.js";
+import { uploadToStorage, supabase } from "../lib/supabase.js";
 
 /* ── Icons ─────────────────────────────────────────────────── */
 const I = {
@@ -69,22 +69,42 @@ export default function Settings() {
   const { profile, signOut, getToken, user, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [tab,             setTab]             = useState("profile");
+  const [tab,             setTab]             = useState(location.state?.tab || "profile");
   const [name,            setName]            = useState(profile?.name || "");
   const [saving,          setSaving]          = useState(false);
   const [avatarPreview,   setAvatarPreview]   = useState(null);
   const [uploading,       setUploading]       = useState(false);
   const [deleting,        setDeleting]        = useState(false);
+  const [resetting,       setResetting]       = useState(false);
+  const [changingEmail,   setChangingEmail]   = useState(false);
+  const [newEmail,        setNewEmail]        = useState("");
+  const [emailSaving,     setEmailSaving]     = useState(false);
+  const [mfaStatus,       setMfaStatus]       = useState(null);   // null|"enrolled"|"unenrolled"
+  const [mfaFactorId,     setMfaFactorId]     = useState(null);
+  const [mfaStep,         setMfaStep]         = useState("idle"); // "idle"|"enrolling"|"confirming"|"disabling"
+  const [enrollData,      setEnrollData]      = useState(null);   // { qr_code, secret, id }
+  const [mfaCode,         setMfaCode]         = useState("");
+  const [mfaLoading,      setMfaLoading]      = useState(false);
   const [theme,           setThemeState]      = useState(
     () => localStorage.getItem("slz_theme") || "dark"
   );
+  const [notifPrefs, setNotifPrefs] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("slz_notif") || "{}"); }
+    catch { return {}; }
+  });
   const avatarRef = useRef(null);
 
   // Sync name state once profile loads (handles async profile fetch)
   useEffect(() => {
     if (profile?.name && !name) setName(profile.name);
   }, [profile?.name]);
+
+  // Load MFA status whenever Security tab is opened
+  useEffect(() => {
+    if (tab === "security" && mfaStatus === null) loadMfaStatus();
+  }, [tab]);
 
   const initials = profile?.name
     ? profile.name.split(" ").map(w => w[0]).join("").toUpperCase().slice(0,2)
@@ -99,7 +119,7 @@ export default function Settings() {
     setUploading(true);
     try {
       const ext  = file.name.split(".").pop() || "jpg";
-      const path = `${user.id}/avatar.${ext}`;
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
       const url  = await uploadToStorage("avatars", path, file);
       const tok  = await getToken();
       // Send only avatar — backend keeps existing name
@@ -133,6 +153,129 @@ export default function Settings() {
     document.documentElement.setAttribute("data-theme", t);
   }
 
+  /* ── Notification prefs ────────────────────────────────── */
+  function toggleNotif(key, defaultVal) {
+    const current = key in notifPrefs ? notifPrefs[key] : defaultVal;
+    const updated = { ...notifPrefs, [key]: !current };
+    setNotifPrefs(updated);
+    localStorage.setItem("slz_notif", JSON.stringify(updated));
+  }
+  function getNotif(key, defaultVal) {
+    return key in notifPrefs ? notifPrefs[key] : defaultVal;
+  }
+
+  /* ── Reset password ─────────────────────────────────────── */
+  async function resetPassword() {
+    if (!profile?.email) return;
+    setResetting(true);
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(profile.email, {
+        redirectTo: `${window.location.origin}/auth/callback?type=recovery`,
+      });
+      if (error) throw error;
+      showToast("Password reset email sent to " + profile.email, "success");
+    } catch (err) {
+      showToast(err.message || "Failed to send reset email", "error");
+    } finally { setResetting(false); }
+  }
+
+  /* ── Change email ───────────────────────────────────────── */
+  async function changeEmail() {
+    if (!newEmail.trim() || !newEmail.includes("@")) { showToast("Enter a valid email address", "error"); return; }
+    if (newEmail.trim() === profile?.email) { showToast("That's already your email", "error"); return; }
+    setEmailSaving(true);
+    try {
+      const { error } = await supabase.auth.updateUser({ email: newEmail.trim() });
+      if (error) throw error;
+      showToast(`Confirmation sent to ${newEmail.trim()} — click the link to confirm the change`, "success");
+      setChangingEmail(false);
+      setNewEmail("");
+    } catch (err) { showToast(err.message || "Failed to update email", "error"); }
+    finally { setEmailSaving(false); }
+  }
+
+  /* ── Connect social account ─────────────────────────────── */
+  async function connectProvider(provider) {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider,
+      options: { redirectTo: `${window.location.origin}/auth/callback` },
+    });
+    if (error) showToast(error.message, "error");
+  }
+
+
+  /* MFA functions */
+  async function loadMfaStatus() {
+    try {
+      const { data, error } = await supabase.auth.mfa.listFactors();
+      if (error) throw error;
+      const totp = data?.totp?.find(f => f.status === "verified");
+      if (totp) { setMfaStatus("enrolled"); setMfaFactorId(totp.id); }
+      else { setMfaStatus("unenrolled"); setMfaFactorId(null); }
+    } catch { setMfaStatus("unenrolled"); }
+  }
+
+  async function startEnroll() {
+    setMfaLoading(true);
+    try {
+      // Clean up ALL existing TOTP factors (verified or not) before enrolling fresh
+      const { data: existing } = await supabase.auth.mfa.listFactors();
+      const allFactors = [
+        ...(existing?.all ?? []),
+        ...(existing?.totp ?? []),
+      ];
+      // Deduplicate by id
+      const seen = new Set();
+      const toClean = allFactors.filter(f => {
+        if (seen.has(f.id)) return false;
+        seen.add(f.id);
+        return f.factor_type === "totp" && f.status !== "verified";
+      });
+      for (const f of toClean) {
+        const { error: uErr } = await supabase.auth.mfa.unenroll({ factorId: f.id });
+        if (uErr) console.warn("unenroll stale:", uErr.message);
+      }
+
+      const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp", friendlyName: "SimpleLogz" });
+      if (error) throw error;
+      setEnrollData({ qr_code: data.totp.qr_code, secret: data.totp.secret, id: data.id });
+      setMfaStep("confirming");
+      setMfaCode("");
+    } catch (err) { showToast(err.message || "Failed to start MFA setup", "error"); }
+    finally { setMfaLoading(false); }
+  }
+
+  async function confirmEnroll() {
+    if (mfaCode.length !== 6) { showToast("Enter your 6-digit code", "error"); return; }
+    setMfaLoading(true);
+    try {
+      const { data: chData, error: chErr } = await supabase.auth.mfa.challenge({ factorId: enrollData.id });
+      if (chErr) throw chErr;
+      const { error: vErr } = await supabase.auth.mfa.verify({ factorId: enrollData.id, challengeId: chData.id, code: mfaCode });
+      if (vErr) throw vErr;
+      setMfaStatus("enrolled"); setMfaFactorId(enrollData.id);
+      setMfaStep("idle"); setEnrollData(null); setMfaCode("");
+      showToast("Two-factor authentication enabled!", "success");
+    } catch (err) { showToast(err.message || "Invalid code — try again", "error"); }
+    finally { setMfaLoading(false); }
+  }
+
+  async function disableMfa() {
+    if (mfaCode.length !== 6) { showToast("Enter your authenticator code to confirm", "error"); return; }
+    setMfaLoading(true);
+    try {
+      const { data: chData, error: chErr } = await supabase.auth.mfa.challenge({ factorId: mfaFactorId });
+      if (chErr) throw chErr;
+      const { error: vErr } = await supabase.auth.mfa.verify({ factorId: mfaFactorId, challengeId: chData.id, code: mfaCode });
+      if (vErr) throw vErr;
+      const { error: uErr } = await supabase.auth.mfa.unenroll({ factorId: mfaFactorId });
+      if (uErr) throw uErr;
+      setMfaStatus("unenrolled"); setMfaFactorId(null);
+      setMfaStep("idle"); setMfaCode("");
+      showToast("Two-factor authentication disabled", "info");
+    } catch (err) { showToast(err.message || "Invalid code — try again", "error"); }
+    finally { setMfaLoading(false); }
+  }
   /* ── Billing portal ─────────────────────────────────────── */
   async function openPortal() {
     try {
@@ -164,6 +307,19 @@ export default function Settings() {
 
         {/* Page header */}
         <div style={{ marginBottom:36 }}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{
+              display:"inline-flex", alignItems:"center", gap:6,
+              fontSize:13, color:"var(--t3)", background:"none", border:"none",
+              cursor:"pointer", padding:"0 0 14px", transition:"color .15s",
+            }}
+            onMouseEnter={e => e.currentTarget.style.color="var(--t1)"}
+            onMouseLeave={e => e.currentTarget.style.color="var(--t3)"}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back
+          </button>
           <h1 style={{ fontSize:26, fontWeight:800, letterSpacing:"-0.5px", marginBottom:6 }}>Settings</h1>
           <p style={{ fontSize:14, color:"var(--t3)" }}>Manage your account, appearance, billing, and more.</p>
         </div>
@@ -351,13 +507,6 @@ export default function Settings() {
                   </div>
                 </div>
 
-                {/* Font size hint */}
-                <SettingRow label="Compact mode" sub="Reduce spacing and font sizes across the app" last>
-                  <label className="toggle">
-                    <input type="checkbox" defaultChecked={false}/>
-                    <div className="toggle-slider"/>
-                  </label>
-                </SettingRow>
 
               </Section>
             )}
@@ -434,7 +583,11 @@ export default function Settings() {
                       borderRadius:10, padding:"10px 14px",
                       fontSize:13, color:"var(--t2)", lineHeight:1.6,
                     }}>
-                      🚀 <strong style={{color:"#a29bfe"}}>Founder's rate:</strong> Subscribe within our first 3 months and lock in <strong style={{color:"var(--t1)"}}>$5/month forever</strong>. Price goes up after the promo ends.
+                      <span style={{display:"inline-flex",alignItems:"center",gap:6,verticalAlign:"middle"}}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#a29bfe" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20h20"/><path d="M5 20V10l7-6 7 6v10"/><path d="M2 10l4.5 3L12 4l5.5 9L22 10"/></svg>
+                        <strong style={{color:"#a29bfe"}}>Founder's rate:</strong>
+                      </span>{" "}
+                      We're a new company, and we want to reward people who show up early. Subscribe to the <strong style={{color:"#a29bfe"}}>annual plan now at $5/month</strong> and you won't pay the new price — after our 3-month launch window it goes to <strong style={{color:"var(--t1)"}}>$12/month</strong> for everyone else.
                     </div>
                     <div style={{ padding:"12px 0 4px", display:"flex", gap:10 }}>
                       <Link to="/pricing" className="btn btn-primary">Upgrade — $5/month</Link>
@@ -456,47 +609,199 @@ export default function Settings() {
 
             {/* ── NOTIFICATIONS ────────────────────────────── */}
             {tab === "notifications" && (
-              <Section title="Notifications" sub="Choose which emails SimpleLogz sends you.">
-                {[
-                  { label:"Forum replies",    sub:"When someone replies to your post or comment", def:true  },
-                  { label:"Product updates",  sub:"New features, improvements and releases",       def:true  },
-                  { label:"Weekly digest",    sub:"Summary of your analysis activity",             def:false },
-                  { label:"Marketing emails", sub:"Tips, use cases, and special offers",           def:false },
-                ].map((r, i, arr) => (
-                  <SettingRow key={r.label} label={r.label} sub={r.sub} last={i === arr.length - 1}>
-                    <label className="toggle">
-                      <input type="checkbox" defaultChecked={r.def}/>
-                      <div className="toggle-slider"/>
-                    </label>
-                  </SettingRow>
-                ))}
-              </Section>
+              <div>
+                <Section title="Email Notifications" sub="Choose which emails SimpleLogz sends you. Preferences are saved to your device.">
+                  {[
+                    { key:"forum",    label:"Forum replies",    sub:"When someone replies to your post or comment", def:true  },
+                    { key:"product",  label:"Product updates",  sub:"New features, improvements and releases",       def:true  },
+                    { key:"digest",   label:"Weekly digest",    sub:"Summary of your analysis activity",             def:false },
+                    { key:"marketing",label:"Marketing emails", sub:"Tips, use cases, and special offers",           def:false },
+                  ].map((r, i, arr) => (
+                    <SettingRow key={r.key} label={r.label} sub={r.sub} last={i === arr.length - 1}>
+                      <label className="toggle">
+                        <input
+                          type="checkbox"
+                          checked={getNotif(r.key, r.def)}
+                          onChange={() => toggleNotif(r.key, r.def)}
+                        />
+                        <div className="toggle-slider"/>
+                      </label>
+                    </SettingRow>
+                  ))}
+                </Section>
+                <div style={{
+                  fontSize:12.5, color:"var(--t3)", lineHeight:1.6,
+                  background:"var(--bg2)", border:"1px solid var(--border)",
+                  borderRadius:10, padding:"12px 16px",
+                }}>
+                  <strong style={{color:"var(--t2)"}}>Note:</strong> Forum reply and digest emails require our email service to be fully configured. Product update emails are sent from our team manually. Your preferences are saved and will apply when the full notification system goes live.
+                </div>
+              </div>
             )}
 
             {/* ── SECURITY ─────────────────────────────────── */}
             {tab === "security" && (
               <div>
                 <Section title="Account Security" sub="Control access to your SimpleLogz account.">
-                  <SettingRow label="Email" sub={profile?.email || "—"}>
-                    <span style={{ fontSize:12, color:"var(--t3)" }}>Cannot change</span>
-                  </SettingRow>
-                  <SettingRow label="Password" sub="Change your account password" last>
-                    <button className="btn btn-outline btn-sm" onClick={() => showToast("Password reset email sent!", "success")}>
-                      Reset password
+                  {/* Email */}
+                  {!changingEmail ? (
+                    <SettingRow label="Email" sub={profile?.email || "—"}>
+                      <button className="btn btn-outline btn-sm" onClick={() => { setNewEmail(profile?.email || ""); setChangingEmail(true); }}>
+                        Change
+                      </button>
+                    </SettingRow>
+                  ) : (
+                    <div style={{ padding:"14px 0", borderBottom:"1px solid var(--border)" }}>
+                      <div style={{ fontSize:14, fontWeight:500, color:"var(--t1)", marginBottom:8 }}>New email address</div>
+                      <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+                        <input
+                          className="form-input"
+                          type="email"
+                          style={{ flex:1, minWidth:180, padding:"8px 12px", fontSize:14 }}
+                          placeholder="you@example.com"
+                          value={newEmail}
+                          onChange={e => setNewEmail(e.target.value)}
+                          onKeyDown={e => { if (e.key === "Enter") changeEmail(); }}
+                          autoFocus
+                        />
+                        <button className="btn btn-primary btn-sm" onClick={changeEmail} disabled={emailSaving}>
+                          {emailSaving ? <span className="spinner" style={{width:11,height:11,borderWidth:2}}/> : "Send confirmation"}
+                        </button>
+                        <button className="btn btn-ghost btn-sm" onClick={() => { setChangingEmail(false); setNewEmail(""); }}>Cancel</button>
+                      </div>
+                      <div style={{ fontSize:12, color:"var(--t3)", marginTop:8 }}>
+                        We'll email a confirmation link to the new address. Your email won't change until you click it.
+                      </div>
+                    </div>
+                  )}
+                  <SettingRow label="Password" sub="We'll email you a secure reset link" last>
+                    <button
+                      className="btn btn-outline btn-sm"
+                      onClick={resetPassword}
+                      disabled={resetting}
+                    >
+                      {resetting ? <><span className="spinner" style={{width:11,height:11,borderWidth:2}}/> Sending…</> : "Reset password"}
                     </button>
                   </SettingRow>
                 </Section>
 
-                <Section title="Connected Accounts" sub="Sign in faster with your social accounts.">
+                <Section title="Connected Accounts" sub="Link a social account to sign in faster. You'll be redirected to authenticate.">
                   {[
-                    { name:"Google",    color:"#EA4335", logo:"G" },
-                    { name:"GitHub",    color:"var(--t1)", logo:"GH" },
-                    { name:"Microsoft", color:"#00A4EF", logo:"M" },
+                    { key:"google",    name:"Google",    sub:"Sign in with your Google account"    },
+                    { key:"github",    name:"GitHub",    sub:"Sign in with your GitHub account"    },
                   ].map((p, i, arr) => (
-                    <SettingRow key={p.name} label={p.name} sub={`Sign in with ${p.name}`} last={i === arr.length - 1}>
-                      <button className="btn btn-outline btn-sm">Connect</button>
+                    <SettingRow key={p.key} label={p.name} sub={p.sub} last={i === arr.length - 1}>
+                      <button
+                        className="btn btn-outline btn-sm"
+                        onClick={() => connectProvider(p.key)}
+                      >
+                        Connect
+                      </button>
                     </SettingRow>
                   ))}
+                </Section>
+
+                {/* Two-Factor Authentication */}
+                <Section
+                  title="Two-Factor Authentication"
+                  sub="Add an extra layer of security with an authenticator app (Google Authenticator, Authy, etc.)."
+                >
+                  {mfaStatus === null && (
+                    <SettingRow label="Loading…" last>
+                      <span className="spinner"/>
+                    </SettingRow>
+                  )}
+
+                  {mfaStatus === "enrolled" && mfaStep === "idle" && (
+                    <SettingRow
+                      label="Two-factor auth is active"
+                      sub="Your account is protected with a time-based one-time password."
+                      last
+                    >
+                      <button
+                        className="btn btn-sm"
+                        onClick={() => { setMfaStep("disabling"); setMfaCode(""); }}
+                        style={{ background:"rgba(248,113,113,.1)", color:"var(--red)", border:"1px solid rgba(248,113,113,.25)" }}
+                      >
+                        Disable
+                      </button>
+                    </SettingRow>
+                  )}
+
+                  {mfaStatus === "enrolled" && mfaStep === "disabling" && (
+                    <div style={{ padding:"12px 0", display:"flex", alignItems:"center", flexWrap:"wrap", gap:8 }}>
+                      <span style={{ fontSize:13, color:"var(--t3)", marginRight:4 }}>Enter your 6-digit code:</span>
+                      <input
+                        className="form-input"
+                        style={{ width:130, letterSpacing:3, fontFamily:"monospace", fontSize:14, textAlign:"center", padding:"7px 10px" }}
+                        placeholder="000000"
+                        maxLength={6}
+                        value={mfaCode}
+                        onChange={e => setMfaCode(e.target.value.replace(/\D/g,"").slice(0,6))}
+                        onKeyDown={e => { if (e.key === "Enter") disableMfa(); }}
+                        autoFocus
+                      />
+                      <button className="btn btn-sm" onClick={disableMfa} disabled={mfaLoading}
+                        style={{ background:"rgba(248,113,113,.1)", color:"var(--red)", border:"1px solid rgba(248,113,113,.25)" }}>
+                        {mfaLoading ? <span className="spinner" style={{width:11,height:11,borderWidth:2,borderTopColor:"var(--red)"}}/> : "Confirm"}
+                      </button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => { setMfaStep("idle"); setMfaCode(""); }}>Cancel</button>
+                    </div>
+                  )}
+
+                  {mfaStatus === "unenrolled" && mfaStep === "idle" && (
+                    <SettingRow
+                      label="Two-factor auth is off"
+                      sub="Require a code from your authenticator app at sign-in."
+                      last
+                    >
+                      <button className="btn btn-outline btn-sm" onClick={startEnroll} disabled={mfaLoading}>
+                        {mfaLoading ? <><span className="spinner" style={{width:11,height:11,borderWidth:2}}/> Setting up…</> : "Enable MFA"}
+                      </button>
+                    </SettingRow>
+                  )}
+
+                  {mfaStep === "confirming" && enrollData && (
+                    <div style={{ padding:"14px 0" }}>
+                      <div style={{ display:"flex", alignItems:"flex-start", gap:16 }}>
+                        {/* QR Code — compact */}
+                        <div style={{ padding:8, background:"#fff", borderRadius:8, border:"1px solid var(--border)", flexShrink:0 }}>
+                          <img src={enrollData.qr_code} alt="MFA QR code" style={{ width:100, height:100, display:"block" }}/>
+                        </div>
+                        <div style={{ flex:1, minWidth:0 }}>
+                          <div style={{ fontSize:13, fontWeight:600, color:"var(--t1)", marginBottom:4 }}>Scan with your authenticator app</div>
+                          <div style={{ fontSize:12, color:"var(--t3)", marginBottom:10, lineHeight:1.5 }}>
+                            Open Google Authenticator, Authy, or any TOTP app and scan the QR code.
+                          </div>
+                          <div style={{ fontSize:11, color:"var(--t3)", marginBottom:4 }}>Or enter manually:</div>
+                          <div style={{
+                            fontFamily:"monospace", fontSize:11, letterSpacing:1,
+                            background:"var(--bg3)", border:"1px solid var(--border)",
+                            borderRadius:6, padding:"5px 8px", color:"var(--t2)",
+                            wordBreak:"break-all", userSelect:"all", marginBottom:12,
+                          }}>
+                            {enrollData.secret}
+                          </div>
+                          <div style={{ display:"flex", gap:8, alignItems:"center", flexWrap:"wrap" }}>
+                            <input
+                              className="form-input"
+                              style={{ width:130, letterSpacing:3, fontFamily:"monospace", fontSize:14, textAlign:"center", padding:"7px 10px" }}
+                              placeholder="000000"
+                              maxLength={6}
+                              value={mfaCode}
+                              onChange={e => setMfaCode(e.target.value.replace(/\D/g,"").slice(0,6))}
+                              onKeyDown={e => { if (e.key === "Enter") confirmEnroll(); }}
+                              autoFocus
+                            />
+                            <button className="btn btn-primary btn-sm" onClick={confirmEnroll} disabled={mfaLoading}>
+                              {mfaLoading ? <span className="spinner" style={{width:11,height:11,borderWidth:2}}/> : "Verify"}
+                            </button>
+                            <button className="btn btn-ghost btn-sm" onClick={() => { setMfaStep("idle"); setEnrollData(null); setMfaCode(""); }}>Cancel</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </Section>
 
                 <Section title="Sessions" sub="Manage where you're logged in.">

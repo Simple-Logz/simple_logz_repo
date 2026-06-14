@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
@@ -7,45 +8,33 @@ import styles from "./Pricing.module.css";
 
 const FREE_FEATURES = [
   { ok: true,  text: "2 analyses per day" },
-  { ok: true,  text: "All log types supported" },
   { ok: true,  text: "Plain English diagnosis" },
+  { ok: true,  text: "Step-by-step fix instructions" },
+  { ok: true,  text: "All log types supported" },
   { ok: true,  text: "Community forum access" },
-  { ok: true,  text: "Browser terminal" },
-  { ok: false, text: "Projects & incident history" },
-  { ok: false, text: "AI incident timeline" },
-  { ok: false, text: "Project health score" },
-  { ok: false, text: "AI runbooks" },
+  { ok: false, text: "Projects & history" },
+  { ok: false, text: "AI runbooks & chat" },
   { ok: false, text: "Downloadable reports" },
-  { ok: false, text: "Per-step AI chat" },
 ];
 
 const DEV_FEATURES = [
-  { ok: true, text: "Unlimited analyses", highlight: false },
-  { ok: true, text: "Unlimited projects", highlight: false },
-  { ok: true, text: "Incident history & knowledge base", highlight: false },
-  { ok: true, text: "AI incident timeline — spot patterns", highlight: true },
-  { ok: true, text: "Project health score", highlight: true },
-  { ok: true, text: "Known issues library", highlight: true },
-  { ok: true, text: "Root cause database", highlight: false },
-  { ok: true, text: "AI runbooks — auto-generated playbooks", highlight: true },
-  { ok: true, text: "Per-step AI chat assistant", highlight: false },
-  { ok: true, text: "Downloadable incident reports", highlight: false },
-  { ok: true, text: "Environment tracking (Dev / QA / Prod)", highlight: false },
-  { ok: true, text: "Team collaboration — up to 5 users", highlight: false },
-  { ok: true, text: "File upload up to 10 MB", highlight: false },
-  { ok: true, text: "90-day analysis history", highlight: false },
+  { ok: true, text: "Unlimited analyses" },
+  { ok: true, text: "Unlimited projects & 90-day history" },
+  { ok: true, text: "GitHub & GitLab project integration" },
+  { ok: true, text: "AI incident timeline & health score" },
+  { ok: true, text: "AI runbooks — auto-generated playbooks" },
+  { ok: true, text: "Per-step AI chat assistant" },
+  { ok: true, text: "Downloadable incident reports (PDF)" },
+  { ok: true, text: "Up to 5 team members" },
+  { ok: true, text: "Email support" },
 ];
 
 const ENT_FEATURES = [
   { ok: true, text: "Everything in Developer" },
   { ok: true, text: "Unlimited team seats" },
   { ok: true, text: "SSO / SAML / Azure AD" },
-  { ok: true, text: "GitHub, GitLab, Jenkins, Azure DevOps integrations" },
-  { ok: true, text: "AWS CloudWatch & Azure Monitor connectors" },
-  { ok: true, text: "Plugin marketplace access" },
+  { ok: true, text: "REST API & plugin marketplace" },
   { ok: true, text: "Custom AI models" },
-  { ok: true, text: "REST API access" },
-  { ok: true, text: "Compliance reporting" },
   { ok: true, text: "Private deployment option" },
   { ok: true, text: "Dedicated support SLA" },
 ];
@@ -126,28 +115,31 @@ export default function Pricing() {
 
         {/* ── Promo banner ──────────────────────────────────── */}
         <div style={{
-          maxWidth:680, margin:"0 auto 36px",
-          background:"linear-gradient(135deg, rgba(108,92,231,0.12) 0%, rgba(162,155,254,0.08) 100%)",
+          maxWidth:620, margin:"0 auto 36px",
+          background:"linear-gradient(135deg, rgba(108,92,231,0.13) 0%, rgba(162,155,254,0.07) 100%)",
           border:"1px solid rgba(108,92,231,0.3)",
-          borderRadius:14, padding:"16px 24px",
-          display:"flex", alignItems:"flex-start", gap:14,
+          borderRadius:14, padding:"14px 20px",
+          display:"flex", alignItems:"center", gap:14,
         }}>
-          {/* Flame icon */}
+          {/* Crown icon */}
           <div style={{
             width:36, height:36, borderRadius:10, flexShrink:0,
             background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",
             display:"flex", alignItems:"center", justifyContent:"center",
-            fontSize:18,
-          }}>🚀</div>
+          }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 20h20"/>
+              <path d="M5 20V10l7-6 7 6v10"/>
+              <path d="M2 10l4.5 3L12 4l5.5 9L22 10"/>
+            </svg>
+          </div>
           <div>
-            <div style={{ fontSize:14, fontWeight:700, color:"var(--t1)", marginBottom:4 }}>
-              Founder's Rate — $5/month for early subscribers
+            <div style={{ fontSize:13.5, fontWeight:700, color:"var(--t1)", marginBottom:3 }}>
+              Founder's Rate — $5/month for the annual plan
             </div>
-            <div style={{ fontSize:13, color:"var(--t2)", lineHeight:1.6 }}>
-              We're a new company and we want to reward the people who believe in us early.
-              The Developer plan is <strong style={{color:"#a29bfe"}}>$5/month</strong> for all subscribers
-              who join within our first 3 months. After that, the price moves to the standard rate.
-              Lock it in now and keep it forever.
+            <div style={{ fontSize:12.5, color:"var(--t2)", lineHeight:1.6 }}>
+              We're a new company, and we want to reward people who show up early.
+              Subscribe to the <strong style={{color:"#a29bfe"}}>annual plan now at $5/month</strong> and you won't pay the new price — after our 3-month launch window, the price goes to <strong style={{color:"var(--t1)"}}>$12/month</strong> for everyone else.
             </div>
           </div>
         </div>
@@ -193,15 +185,13 @@ export default function Pricing() {
 
           {/* Free */}
           <div className={styles.card}>
-            <div className={styles.planTop}>
-              <div className={styles.planName}>Free</div>
-              <div className={styles.planPrice}>$0<span className={styles.period}>/month</span></div>
-              <div className={styles.planDesc}>For developers who need occasional log help.</div>
-            </div>
+            <div className={styles.planName}>Free</div>
+            <div className={styles.planPrice}>$0<span className={styles.period}>/month</span></div>
+            <div className={styles.planDesc}>For developers who need occasional log help.</div>
             <ul className={styles.features}>
               {FREE_FEATURES.map((f, i) => (
                 <li key={i} className={styles.feature}>
-                  <span className={f.ok ? styles.check : styles.cross}>{f.ok ? "✓" : "—"}</span>
+                  <span className={f.ok ? styles.check : styles.cross}>{f.ok ? "✓" : "✕"}</span>
                   <span className={f.ok ? styles.featureOn : styles.featureOff}>{f.text}</span>
                 </li>
               ))}
@@ -214,51 +204,24 @@ export default function Pricing() {
           {/* Developer */}
           <div className={`${styles.card} ${styles.featured}`}>
             <div className={styles.featuredBadge}>MOST POPULAR</div>
-            <div className={styles.planTop}>
-              <div className={styles.planName}>Developer</div>
-
-              {isAnnual ? (
-                <div>
-                  <div className={styles.planPrice}>
-                    ${ANNUAL_PER_MONTH}<span className={styles.period}>/month</span>
-                  </div>
-                  <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:4, flexWrap:"wrap" }}>
-                    <span style={{ fontSize:13, color:"var(--t3)", textDecoration:"line-through" }}>
-                      ${MONTHLY_PRICE}/mo
-                    </span>
-                    <span style={{
-                      background:"rgba(52,211,153,.15)", color:"var(--green)",
-                      fontSize:12, fontWeight:700, padding:"2px 8px", borderRadius:99,
-                      border:"1px solid rgba(52,211,153,.25)",
-                    }}>
-                      2 months free
-                    </span>
-                  </div>
-                  <div style={{ fontSize:12, color:"var(--t3)", marginTop:4 }}>
-                    Billed as <strong style={{color:"var(--t2)"}}>${ANNUAL_PRICE}/year</strong>
-                  </div>
+            <div className={styles.planName}>Developer</div>
+            {isAnnual ? (
+              <>
+                <div className={styles.planPrice}>${ANNUAL_PER_MONTH}<span className={styles.period}>/month</span></div>
+                <div style={{ fontSize:12, color:"var(--t3)", marginBottom:4 }}>
+                  Billed as <strong style={{color:"var(--t2)"}}>${ANNUAL_PRICE}/year</strong>
+                  <span style={{ marginLeft:8, background:"rgba(52,211,153,.15)", color:"var(--green)", fontSize:11, fontWeight:700, padding:"1px 7px", borderRadius:99, border:"1px solid rgba(52,211,153,.25)" }}>
+                    Save ${ANNUAL_SAVINGS}
+                  </span>
                 </div>
-              ) : (
-                <div className={styles.planPrice}>
-                  ${MONTHLY_PRICE}<span className={styles.period}>/month</span>
-                </div>
-              )}
-
-              <div style={{
-                display:"inline-flex", alignItems:"center", gap:6, marginTop:8,
-                background:"rgba(108,92,231,0.12)", border:"1px solid rgba(108,92,231,0.25)",
-                borderRadius:20, padding:"3px 10px",
-              }}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="#a29bfe"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                <span style={{ fontSize:11.5, fontWeight:700, color:"#a29bfe", letterSpacing:"0.02em" }}>
-                  Founder's rate · locks in forever
-                </span>
-              </div>
-              <div className={styles.planDesc} style={{marginTop:10}}>A full incident response workspace for your applications.</div>
-            </div>
+              </>
+            ) : (
+              <div className={styles.planPrice}>${MONTHLY_PRICE}<span className={styles.period}>/month</span></div>
+            )}
+            <div className={styles.planDesc}>Full incident response workspace — unlimited everything.</div>
             <ul className={styles.features}>
               {DEV_FEATURES.map((f, i) => (
-                <li key={i} className={`${styles.feature} ${f.highlight ? styles.featureHighlight : ""}`}>
+                <li key={i} className={styles.feature}>
                   <span className={styles.check}>✓</span>
                   <span className={styles.featureOn}>{f.text}</span>
                 </li>
@@ -269,26 +232,16 @@ export default function Pricing() {
               onClick={() => handleCta("developer")}
               disabled={loading === "developer"}
             >
-              {loading === "developer"
-                ? <><span className="spinner"/> Processing…</>
-                : isAnnual
-                  ? `Pay $${ANNUAL_PRICE}/year — save $${ANNUAL_SAVINGS}`
-                  : "Upgrade to Developer"}
+              {loading === "developer" ? <><span className="spinner"/> Processing…</> : isAnnual ? `Pay $${ANNUAL_PRICE}/year` : "Upgrade to Developer"}
             </button>
-            {isAnnual && (
-              <p style={{ textAlign:"center", fontSize:12, color:"var(--t3)", marginTop:10 }}>
-                One payment of ${ANNUAL_PRICE} · Cancel anytime
-              </p>
-            )}
+            {isAnnual && <p style={{ textAlign:"center", fontSize:11, color:"var(--t3)", marginTop:8 }}>One payment · Cancel anytime</p>}
           </div>
 
           {/* Enterprise */}
           <div className={styles.card}>
-            <div className={styles.planTop}>
-              <div className={styles.planName}>Enterprise</div>
-              <div className={styles.planPrice}>Custom<span className={styles.period}></span></div>
-              <div className={styles.planDesc}>For teams that need integrations, SSO, and dedicated support.</div>
-            </div>
+            <div className={styles.planName}>Enterprise</div>
+            <div className={styles.planPrice}>Custom</div>
+            <div className={styles.planDesc}>For teams that need SSO, integrations, and dedicated support.</div>
             <ul className={styles.features}>
               {ENT_FEATURES.map((f, i) => (
                 <li key={i} className={styles.feature}>
@@ -402,8 +355,8 @@ export default function Pricing() {
 
       </div>
 
-      {/* Enterprise modal */}
-      {showEnterprise && (
+      {/* Enterprise modal — portalled to body so CSS transforms don't break position:fixed */}
+      {showEnterprise && createPortal(
         <div className={styles.overlay} onClick={() => setShowEnterprise(false)}>
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <button className={styles.modalClose} onClick={() => setShowEnterprise(false)}>✕</button>
@@ -425,7 +378,8 @@ export default function Pricing() {
               </button>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

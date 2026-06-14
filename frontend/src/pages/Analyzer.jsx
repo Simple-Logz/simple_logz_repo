@@ -19,11 +19,12 @@ export default function Analyzer() {
   const { isLoggedIn, isPro, getToken } = useAuth();
   const { showToast } = useToast();
 
-  const [log,       setLog]       = useState("");
-  const [source,    setSource]    = useState("auto");
-  const [status,    setStatus]    = useState("idle");
-  const [result,    setResult]    = useState(null);
-  const [activeTab, setActiveTab] = useState(0);
+  const [log,          setLog]          = useState("");
+  const [source,       setSource]       = useState("auto");
+  const [status,       setStatus]       = useState("idle");
+  const [result,       setResult]       = useState(null);
+  const [activeTab,    setActiveTab]    = useState(0);
+  const [reportFormat, setReportFormat] = useState("both"); // "commands"|"portal"|"both"
   const fileRef = useRef(null);
 
   const canAnalyze = log.trim().length >= 5 && status !== "analyzing";
@@ -60,32 +61,117 @@ export default function Analyzer() {
     }
   }
 
-  function exportReport() {
+  function generateReport() {
     if (!result) return;
-    const lines = [
-      "═══════════════════════════════════════",
-      "  SIMPLELOGZ ANALYSIS REPORT",
-      `  ${new Date().toLocaleString()}`,
-      "═══════════════════════════════════════",
-      `\nSEVERITY: ${result.severity}  |  SOURCE: ${result.source_detected}`,
-      `TITLE:    ${result.title}`,
-      `ROOT CAUSE: ${result.root_cause_category}  |  FIX TIME: ${result.estimated_fix_time}`,
-      `\n── PLAIN ENGLISH\n${result.plain_english}`,
-      `\n── RESOLUTION STEPS`,
-      ...(result.resolution_steps||[]).map(s => `${s.step}. ${s.action}${s.command ? `\n   $ ${s.command}` : ""}`),
-      `\n── VERIFICATION`,
-      ...(result.verification_commands||[]).map(c => `$ ${c}`),
-      `\n── TECHNICAL CONTEXT\n${result.technical_context}`,
-      `\n── PREVENTION`,
-      ...(result.prevention||[]).map(p => `• ${p}`),
-      `\n── ORIGINAL LOG\n${log}`,
-      "\n═══════════════════════════════════════",
-    ];
-    const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-    const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `simplelogz-${Date.now()}.txt`;
-    a.click(); URL.revokeObjectURL(a.href);
+    const now = new Date();
+    const reportId = `SLZ-${now.getFullYear()}${String(now.getMonth()+1).padStart(2,"0")}${String(now.getDate()).padStart(2,"0")}-${Math.random().toString(36).slice(2,6).toUpperCase()}`;
+    const sevColors = { CRITICAL:"#ef4444", HIGH:"#f97316", MEDIUM:"#3b82f6", LOW:"#22c55e" };
+    const sevBg     = { CRITICAL:"#fef2f2", HIGH:"#fff7ed", MEDIUM:"#eff6ff", LOW:"#f0fdf4" };
+    const sevCol   = sevColors[result.severity] || "#3b82f6";
+    const sevBgCol = sevBg[result.severity]     || "#eff6ff";
+
+    const stepsHtml = (result.resolution_steps || []).map(s => {
+      const showCmd    = (reportFormat === "commands" || reportFormat === "both") && s.command;
+      const showPortal = (reportFormat === "portal"   || reportFormat === "both");
+      return `
+        <div style="display:flex;gap:16px;margin-bottom:22px;align-items:flex-start">
+          <div style="width:34px;height:34px;border-radius:50%;background:#6c5ce7;color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;flex-shrink:0">${s.step}</div>
+          <div style="flex:1">
+            ${showPortal ? `<div style="font-size:16px;font-weight:600;color:#1e293b;margin-bottom:${showCmd ? "10px" : "0"};line-height:1.5">${s.action}</div>` : ""}
+            ${showCmd ? `<div style="background:#0f172a;border-radius:8px;padding:12px 16px;font-family:monospace;font-size:14px;color:#e2e8f0">$ ${s.command}</div>` : ""}
+          </div>
+        </div>`;
+    }).join("");
+
+    const verifyHtml = (result.verification_commands || []).map(c =>
+      `<div style="background:#0f172a;border-radius:6px;padding:10px 14px;font-family:monospace;font-size:14px;color:#86efac;margin-bottom:8px">$ ${c}</div>`
+    ).join("");
+
+    const preventHtml = (result.prevention || []).map(p =>
+      `<div style="display:flex;gap:10px;margin-bottom:12px"><span style="color:#6c5ce7;font-size:20px;line-height:1">·</span><span style="font-size:16px;color:#334155;line-height:1.65">${p}</span></div>`
+    ).join("");
+
+    const formatLabel = reportFormat === "commands" ? "CLI Commands" : reportFormat === "portal" ? "Console / UI Steps" : "CLI + Console Steps";
+
+    const html = `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/>
+<title>SimpleLogz Incident Report — ${reportId}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#f8fafc;color:#1e293b;font-size:16px;line-height:1.7}
+  .page{max-width:820px;margin:0 auto;background:#fff;min-height:100vh}
+  @media print{body{background:#fff}@page{margin:20mm}}
+</style></head><body>
+<div class="page">
+  <div style="background:linear-gradient(135deg,#6c5ce7,#a29bfe);padding:36px 48px;color:#fff">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:16px">
+      <div>
+        <div style="font-size:22px;font-weight:800;letter-spacing:-0.5px;margin-bottom:4px">SimpleLogz</div>
+        <div style="font-size:13px;opacity:0.85;letter-spacing:1px;text-transform:uppercase">Incident Report</div>
+      </div>
+      <div style="text-align:right;font-size:14px;opacity:0.85">
+        <div style="font-weight:600;font-size:16px">${reportId}</div>
+        <div>${now.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</div>
+        <div>${now.toLocaleTimeString()}</div>
+      </div>
+    </div>
+    <div style="margin-top:28px">
+      <div style="font-size:26px;font-weight:700;line-height:1.3">${result.title || "Log Analysis"}</div>
+    </div>
+  </div>
+
+  <div style="padding:40px 48px">
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:36px">
+      ${[["Severity",result.severity,sevCol,sevBgCol],["Source",result.source_detected,"#64748b","#f8fafc"],["Root Cause",result.root_cause_category,"#64748b","#f8fafc"],["Est. Fix Time",result.estimated_fix_time,"#64748b","#f8fafc"]].map(([label,val,col,bg]) => `
+        <div style="background:${bg};border:1px solid #e2e8f0;border-radius:12px;padding:16px">
+          <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:#94a3b8;margin-bottom:6px">${label}</div>
+          <div style="font-size:17px;font-weight:700;color:${col}">${val||"—"}</div>
+        </div>`).join("")}
+    </div>
+
+    <div style="margin-bottom:36px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:12px">What happened</div>
+      <div style="font-size:17px;color:#334155;line-height:1.75;background:#f8fafc;border-left:4px solid #6c5ce7;padding:20px 24px;border-radius:0 10px 10px 0">${result.plain_english}</div>
+    </div>
+
+    <div style="margin-bottom:36px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8">Resolution Steps</div>
+        <div style="font-size:12px;background:#ede9fe;color:#6c5ce7;padding:3px 10px;border-radius:99px;font-weight:600">${formatLabel}</div>
+      </div>
+      ${stepsHtml}
+    </div>
+
+    ${verifyHtml ? `<div style="margin-bottom:36px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:12px">Verification</div>
+      ${verifyHtml}
+    </div>` : ""}
+
+    <div style="margin-bottom:36px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:12px">Technical Context</div>
+      <div style="font-size:16px;color:#334155;line-height:1.75">${result.technical_context||""}</div>
+    </div>
+
+    ${preventHtml ? `<div style="margin-bottom:36px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:12px">Prevention</div>
+      ${preventHtml}
+    </div>` : ""}
+
+    <div style="margin-bottom:36px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:0.1em;color:#94a3b8;margin-bottom:12px">Original Log</div>
+      <pre style="background:#0f172a;color:#94a3b8;padding:20px;border-radius:10px;font-size:13px;line-height:1.65;overflow-x:auto;white-space:pre-wrap;word-break:break-all">${log.replace(/</g,"&lt;").replace(/>/g,"&gt;")}</pre>
+    </div>
+
+    <div style="border-top:1px solid #e2e8f0;padding-top:24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="font-size:14px;color:#94a3b8">Generated by <strong style="color:#6c5ce7">SimpleLogz</strong></div>
+      <div style="font-size:13px;color:#cbd5e1">${reportId}</div>
+    </div>
+  </div>
+</div>
+<script>window.addEventListener("load",()=>{setTimeout(()=>window.print(),400);})<\/script>
+</body></html>`;
+
+    const win = window.open("", "_blank");
+    if (win) { win.document.write(html); win.document.close(); }
   }
 
   const sevColor = { CRITICAL:"var(--red)", HIGH:"var(--yellow)", MEDIUM:"var(--accent)", LOW:"var(--green)" };
@@ -106,7 +192,7 @@ export default function Analyzer() {
         </div>
 
         <div className={styles.layout}>
-          {/* Input */}
+          {/* ── Input panel ─────────────────────────────── */}
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <span className={styles.panelLabel}>INPUT LOG</span>
@@ -151,16 +237,10 @@ export default function Analyzer() {
             </div>
           </div>
 
-          {/* Result */}
+          {/* ── Result panel ─────────────────────────────── */}
           <div className={styles.panel}>
             <div className={styles.panelHeader}>
               <span className={styles.panelLabel}>RESULT</span>
-              {result && isPro && (
-                <button className="btn btn-ghost btn-sm" onClick={exportReport}>↓ Export</button>
-              )}
-              {result && !isPro && (
-                <Link to="/pricing" className="btn btn-outline btn-sm">↓ Export (Developer)</Link>
-              )}
             </div>
 
             {status === "idle" && (
@@ -182,6 +262,7 @@ export default function Analyzer() {
 
             {(status === "done" || status === "error") && result && (
               <div style={{display:"flex",flexDirection:"column",flex:1}}>
+                {/* Metrics */}
                 <div className={styles.metrics}>
                   <div className={styles.metric}>
                     <div className={styles.metricLabel}>Severity</div>
@@ -201,6 +282,41 @@ export default function Analyzer() {
                   </div>
                 </div>
 
+                {/* ── Format picker — always visible, above tabs ── */}
+                <div style={{padding:"10px 0 12px",borderBottom:"1px solid var(--border)"}}>
+                  <div style={{fontSize:11,fontWeight:700,color:"var(--t3)",textTransform:"uppercase",letterSpacing:"0.08em",marginBottom:8}}>
+                    Resolution style
+                  </div>
+                  <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                    {[
+                      { value:"commands", label:"CLI Commands",       hint:"Terminal commands" },
+                      { value:"portal",   label:"Console / UI Steps", hint:"Click-by-click" },
+                      { value:"both",     label:"Both",               hint:"Commands + UI" },
+                    ].map(opt => (
+                      <button
+                        key={opt.value}
+                        onClick={() => setReportFormat(opt.value)}
+                        title={opt.hint}
+                        style={{
+                          padding:"5px 12px", borderRadius:99, fontSize:12, fontWeight:500, cursor:"pointer",
+                          border: reportFormat === opt.value ? "2px solid #6c5ce7" : "1px solid var(--border2)",
+                          background: reportFormat === opt.value ? "rgba(108,92,231,0.12)" : "transparent",
+                          color: reportFormat === opt.value ? "#a29bfe" : "var(--t2)",
+                          transition:"all .12s",
+                        }}
+                      >
+                        {opt.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div style={{fontSize:11,color:"var(--t3)",marginTop:6,lineHeight:1.4}}>
+                    {reportFormat === "commands" && "Shows exact terminal commands — no UI instructions."}
+                    {reportFormat === "portal"   && "Shows click-by-click console/UI guidance — no CLI."}
+                    {reportFormat === "both"     && "Shows both UI steps and CLI commands together."}
+                  </div>
+                </div>
+
+                {/* Tabs */}
                 <div className={styles.tabs}>
                   {TABS.map((t, i) => (
                     <button key={t} className={`${styles.tab} ${activeTab===i?styles.tabActive:""}`} onClick={()=>setActiveTab(i)}>{t}</button>
@@ -220,46 +336,61 @@ export default function Analyzer() {
                   {activeTab === 1 && (
                     <div>
                       <ol className={styles.steps}>
-                        {(result.resolution_steps||[]).map(s => (
-                          <li key={s.step} className={styles.step}>
-                            <div className={styles.stepNum}>{s.step}</div>
-                            <div>
-                              <div className={styles.stepAction}>{s.action}</div>
-                              {s.command && <code className={styles.cmd}>$ {s.command}</code>}
-                            </div>
-                          </li>
-                        ))}
+                        {(result.resolution_steps||[]).map(s => {
+                          const showAction = reportFormat === "portal" || reportFormat === "both";
+                          const showCmd    = (reportFormat === "commands" || reportFormat === "both") && s.command;
+                          return (
+                            <li key={s.step} className={styles.step}>
+                              <div className={styles.stepNum}>{s.step}</div>
+                              <div>
+                                {showAction && <div className={styles.stepAction}>{s.action}</div>}
+                                {showCmd    && <code className={styles.cmd}>$ {s.command}</code>}
+                                {!showAction && !showCmd && <div className={styles.stepAction}>{s.action}</div>}
+                              </div>
+                            </li>
+                          );
+                        })}
                       </ol>
-                      {!isPro && (
-                        <div className={styles.planGate}>
-                          <div style={{fontWeight:600,marginBottom:6}}>🔒 Full CLI commands on Developer plan</div>
-                          <div style={{fontSize:13,color:"var(--t2)",marginBottom:14}}>Upgrade for complete step-by-step commands and downloadable reports.</div>
-                          <Link to="/pricing" className="btn btn-primary btn-sm">Upgrade — $5/mo</Link>
-                        </div>
-                      )}
                     </div>
                   )}
                   {activeTab === 2 && (
                     <div>
-                      <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.8,marginBottom:16}}>{result.technical_context}</p>
-                      {(result.related_errors||[]).length > 0 && (
-                        <>
-                          <div className={styles.sectionLabel}>Related errors</div>
-                          <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:6,marginTop:8}}>
-                            {result.related_errors.map((e,i)=><li key={i} style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--t2)",paddingLeft:14,position:"relative"}}>→ {e}</li>)}
-                          </ul>
-                        </>
+                      <p style={{fontSize:14,color:"var(--t2)",lineHeight:1.7,marginBottom:16}}>{result.technical_context}</p>
+                      {result.verification_commands?.length > 0 && (
+                        <div>
+                          <div style={{fontSize:12,fontWeight:600,color:"var(--t3)",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:8}}>Verification</div>
+                          {result.verification_commands.map((c,i) => (
+                            <code key={i} className={styles.cmd} style={{display:"block",marginBottom:6}}>$ {c}</code>
+                          ))}
+                        </div>
                       )}
                     </div>
                   )}
                   {activeTab === 3 && (
-                    <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:12}}>
-                      {(result.prevention||[]).map((p,i)=>(
-                        <li key={i} style={{display:"flex",gap:10,fontSize:14}}>
-                          <span style={{color:"var(--green)",fontWeight:700,flexShrink:0}}>✓</span>{p}
+                    <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:10}}>
+                      {(result.prevention||[]).map((p,i) => (
+                        <li key={i} style={{display:"flex",gap:10,fontSize:14,color:"var(--t2)",lineHeight:1.6}}>
+                          <span style={{color:"var(--accent)",flexShrink:0}}>·</span>{p}
                         </li>
                       ))}
                     </ul>
+                  )}
+                </div>
+
+                {/* ── Download button ── */}
+                <div style={{borderTop:"1px solid var(--border)",marginTop:"auto",paddingTop:12}}>
+                  {isPro ? (
+                    <button
+                      className="btn btn-primary btn-sm"
+                      style={{width:"100%",justifyContent:"center",gap:8}}
+                      onClick={generateReport}
+                    >
+                      ↓ Download PDF Report
+                    </button>
+                  ) : (
+                                       <Link to="/pricing" className="btn btn-outline btn-sm" style={{width:"100%",justifyContent:"center",display:"flex"}}>
+                      ↓ Download Report · Developer plan
+                    </Link>
                   )}
                 </div>
               </div>

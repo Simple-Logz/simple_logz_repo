@@ -1,6 +1,6 @@
-.page{padding:28px 0 48px}
+.page{padding:72px 0 48px}
 .welcome{margin-bottom:24px}
-.welcome h1{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.welcome h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
 .welcome p{font-size:14px;color:var(--t2);margin-top:4px}
 .statsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
 .statCard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}

@@ -13,6 +13,7 @@ function IconGlobe() { return <svg width="18" height="18" viewBox="0 0 24 24" fi
 
 export function Dashboard() {
   const { profile, getToken } = useAuth();
+  const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [usage, setUsage] = useState({ daily: 0, total: 0 });
 
@@ -33,6 +34,15 @@ export function Dashboard() {
     <div className={styles.page}>
       <div className="container">
         <div className={styles.welcome}>
+          <button
+            onClick={() => navigate(-1)}
+            style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:13,color:"var(--t3)",background:"none",border:"none",cursor:"pointer",padding:"0 0 12px",transition:"color .15s"}}
+            onMouseEnter={e=>e.currentTarget.style.color="var(--t1)"}
+            onMouseLeave={e=>e.currentTarget.style.color="var(--t3)"}
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+            Back
+          </button>
           <h1>Dashboard</h1>
           <p>Welcome back, {profile?.name?.split(" ")[0] || "there"}. Here is your activity overview.</p>
         </div>
@@ -136,7 +146,7 @@ export function Settings() {
     setAvatarUploading(true);
     try {
       const ext = file.name.split(".").pop() || "jpg";
-      const uploadPath = `${user.id}/avatar.${ext}`;
+      const uploadPath = `${user.id}/avatar-${Date.now()}.${ext}`;
       const avatarUrl = await uploadToStorage("avatars", uploadPath, file);
       const token = await getToken();
       await api.updateProfile({ name: profile?.name || name, avatar: avatarUrl }, token);

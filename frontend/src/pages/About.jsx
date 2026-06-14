@@ -126,7 +126,7 @@ export default function About() {
               <p className={styles.featuresIntro}>
                 SimpleLogz is not a log aggregator. It is not a monitoring dashboard. It is the tool you reach for the moment something breaks — and it gets you to the fix faster than anything else.
               </p>
-              <Link to="/" className="btn btn-primary" style={{marginTop:24,display:"inline-block"}}>Try it now — it's free</Link>
+              <Link to="/" className="btn btn-primary" style={{marginTop:24,display:"inline-block"}} onClick={() => window.scrollTo({top:0,behavior:"instant"})}>Try it now — it's free</Link>
             </div>
             <div className={styles.featuresRight}>
               {[
@@ -158,8 +158,8 @@ export default function About() {
             <h2 className={styles.ctaTitle}>Stop wasting time on errors<br/>you don't need to understand.</h2>
             <p className={styles.ctaSub}>Paste your first log in under 30 seconds. No setup required.</p>
             <div className={styles.ctaActions}>
-              <Link to="/" className="btn btn-primary btn-lg">Start analyzing — free</Link>
-              <Link to="/pricing" className="btn btn-outline btn-lg">See pricing</Link>
+              <Link to="/" className="btn btn-primary btn-lg" onClick={() => window.scrollTo({top:0,behavior:"instant"})}>Start analyzing — free</Link>
+              <Link to="/pricing" className="btn btn-outline btn-lg" onClick={() => window.scrollTo({top:0,behavior:"instant"})}>See pricing</Link>
             </div>
           </div>
         </div>
