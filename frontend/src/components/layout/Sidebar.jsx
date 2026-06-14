@@ -36,10 +36,8 @@ const NAV_LINKS = [
   { to: "/support",   label: "Support",   Icon: IconSupport  },
 ];
 
-function SidebarInner({ onThemeToggle, theme, onClose }) {
-  const { isLoggedIn } = useAuth();
+function SidebarInner({ onClose }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
   return (
     <>
@@ -104,15 +102,12 @@ function SidebarInner({ onThemeToggle, theme, onClose }) {
       <div style={{ padding:"6px 18px 8px", fontSize:12, color:"var(--t3)", fontStyle:"italic" }}>
         No recent sessions
       </div>
-
-      {/* Spacer so content doesn't hide behind the fixed pill */}
-      <div style={{ height:60 }}/>
     </>
   );
 }
 
-/* ── Always-visible fixed user pill (bottom-left) ─────────────── */
-function FloatingUserPill({ onThemeToggle, theme }) {
+/* ── User section pinned to sidebar bottom ─────────────────────── */
+function SidebarUserSection({ onThemeToggle, theme }) {
   const { isLoggedIn, profile, signOut, getToken, user, refreshProfile } = useAuth();
   const { showToast } = useToast();
   const [userOpen,       setUserOpen]       = useState(false);
@@ -177,47 +172,36 @@ function FloatingUserPill({ onThemeToggle, theme }) {
 
   if (!isLoggedIn) return null;
 
-  return createPortal(
+  return (
     <>
-      {/* Avatar floating above the pill */}
-      <div
+      {/* Trigger row — sits at bottom of sidebar */}
+      <button
+        ref={triggerRef}
+        onClick={openMenu}
         style={{
-          position:"fixed", bottom:46, left:16, zIndex:201,
-          pointerEvents:"none",
+          display:"flex", alignItems:"center", gap:10,
+          padding:"12px 14px",
+          background:"none", border:"none",
+          borderTop:"1px solid var(--border)",
+          cursor:"pointer", transition:"background .15s",
+          width:"100%", textAlign:"left",
         }}
+        onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
+        onMouseLeave={e => e.currentTarget.style.background="none"}
       >
+        {/* Avatar */}
         <div style={{
-          width:42, height:42, borderRadius:"50%", background:"#6c5ce7",
+          width:34, height:34, borderRadius:"50%", background:"#6c5ce7",
           display:"flex", alignItems:"center", justifyContent:"center",
-          fontSize:14, fontWeight:700, color:"#fff", overflow:"hidden",
-          border:"2px solid var(--bg)",
-          boxShadow:"0 2px 10px rgba(0,0,0,0.35)",
+          fontSize:12, fontWeight:700, color:"#fff", overflow:"hidden",
+          flexShrink:0, border:"2px solid var(--border)",
         }}>
           {profile?.avatar
             ? <img src={profile.avatar} alt="" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
             : <span>{initials}</span>}
         </div>
-      </div>
-
-      {/* Fixed pill */}
-      <button
-        ref={triggerRef}
-        onClick={openMenu}
-        style={{
-          position:"fixed", bottom:0, left:0, zIndex:200,
-          display:"flex", alignItems:"center", gap:8,
-          padding:"8px 12px 8px 14px",
-          background:"var(--bg2)", border:"none",
-          borderTop:"1px solid var(--border)",
-          borderRight:"1px solid var(--border)",
-          borderRadius:"0 12px 0 0",
-          boxShadow:"0 -2px 16px rgba(0,0,0,0.2)",
-          cursor:"pointer", transition:"background .15s",
-        }}
-        onMouseEnter={e => e.currentTarget.style.background="var(--bg3)"}
-        onMouseLeave={e => e.currentTarget.style.background="var(--bg2)"}
-      >
-        <div style={{ textAlign:"left", minWidth:0 }}>
+        {/* Name + plan */}
+        <div style={{ minWidth:0, flex:1 }}>
           <div style={{ fontSize:12, fontWeight:600, color:"var(--t1)", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>
             {profile?.name || "User"}
           </div>
@@ -228,13 +212,13 @@ function FloatingUserPill({ onThemeToggle, theme }) {
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--t3)" strokeWidth="2" strokeLinecap="round"><polyline points="9 18 15 12 9 6"/></svg>
       </button>
 
-      {/* Dropdown */}
-      {userOpen && (
+      {/* Dropdown — portal so it overlays everything */}
+      {userOpen && createPortal(
         <div
           ref={userRef}
           style={{
             position:"fixed",
-            bottom: 52,
+            bottom: 68,
             left: 8,
             width: 228,
             background:"var(--bg2)",
@@ -364,10 +348,10 @@ function FloatingUserPill({ onThemeToggle, theme }) {
               <span>Log out</span>
             </button>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
-    </>,
-    document.body
+    </>
   );
 }
 
@@ -445,7 +429,7 @@ export default function Sidebar({ onThemeToggle, theme, open, onToggle }) {
         width:220, background:"var(--bg2)",
         borderRight:"0.5px solid var(--border)",
         display:"flex", flexDirection:"column",
-        overflowY:"auto", zIndex:150,
+        zIndex:150,
         transform: open ? "translateX(0)" : "translateX(-240px)",
         transition:"transform 0.3s cubic-bezier(0.4,0,0.2,1)",
         boxShadow: open ? "4px 0 32px rgba(0,0,0,0.25)" : "none",
@@ -465,11 +449,15 @@ export default function Sidebar({ onThemeToggle, theme, open, onToggle }) {
             <path d="M18 6L6 18M6 6l12 12"/>
           </svg>
         </button>
-        <SidebarInner onThemeToggle={onThemeToggle} theme={theme} onClose={onToggle}/>
-      </aside>
 
-      {/* Always-visible user pill — fixed bottom-left, outside sidebar */}
-      <FloatingUserPill onThemeToggle={onThemeToggle} theme={theme}/>
+        {/* Scrollable content */}
+        <div style={{ flex:1, overflowY:"auto" }}>
+          <SidebarInner onClose={onToggle}/>
+        </div>
+
+        {/* User section pinned to bottom */}
+        <SidebarUserSection onThemeToggle={onThemeToggle} theme={theme}/>
+      </aside>
     </>
   );
 }

@@ -16,7 +16,6 @@ export function Dashboard() {
   const navigate = useNavigate();
   const [history, setHistory] = useState([]);
   const [usage, setUsage] = useState({ daily: 0, total: 0 });
-
   useEffect(() => {
     (async () => {
       try {
@@ -114,6 +113,7 @@ export function Dashboard() {
             </table>
           )}
         </div>
+
       </div>
     </div>
   );

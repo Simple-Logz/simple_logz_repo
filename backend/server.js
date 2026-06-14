@@ -25,6 +25,7 @@ import patternIntelRouter  from "./routes/patternIntel.js";
 import generateRunbookRouter from "./routes/generateRunbook.js";
 import applyFixRouter        from "./routes/applyFix.js";
 import applyAllFixesRouter   from "./routes/applyAllFixes.js";
+import testimonialsRouter    from "./routes/testimonials.js";
 
 const app  = express();
 const PORT = process.env.PORT || 3001;
@@ -69,7 +70,8 @@ app.use("/api/pattern-intel",     patternIntelRouter);
 app.use("/api/generate-runbook",  generateRunbookRouter);
 app.use("/api/apply-fix",         applyFixRouter);
 app.use("/api/apply-all-fixes",   applyAllFixesRouter);
-app.use("/api/chat",    chatRouter);
+app.use("/api/chat",         chatRouter);
+app.use("/api/testimonials", testimonialsRouter);
 
 // ── Health check ─────────────────────────────────────────────
 app.get("/api/health", (_req, res) => {

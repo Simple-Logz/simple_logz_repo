@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth.jsx";
 import { useToast } from "../components/ui/Toast.jsx";
 import { api } from "../lib/api.js";
+import TestimonialModal from "../components/TestimonialModal.jsx";
 import styles from "./Landing.module.css";
 
 // ── SVG Icons ────────────────────────────────────────────────
@@ -527,6 +528,9 @@ function CursorDemo() {
 export default function Landing() {
   const { isLoggedIn, isPro, getToken } = useAuth();
   const { showToast } = useToast();
+  const [showTestimonial, setShowTestimonial] = useState(false);
+  const [anchorRect,      setAnchorRect]      = useState(null);
+  const reviewBtnRef = useRef(null);
 
   const [log,          setLog]          = useState("");
   const [source,       setSource]       = useState("auto");
@@ -861,6 +865,269 @@ export default function Landing() {
         </div>
       </div>
 
+      {/* ── Testimonials carousel ─────────────────────────────── */}
+      <TestimonialCarousel/>
+
+      {/* ── Share your experience ─────────────────────────────── */}
+      <div className="container">
+        <div style={{
+          margin:"0 0 100px",
+          borderRadius:20,
+          background:"linear-gradient(135deg, rgba(108,92,231,0.18) 0%, rgba(130,110,255,0.12) 100%)",
+          border:"1px solid rgba(108,92,231,0.3)",
+          boxShadow:"0 4px 24px rgba(108,92,231,0.12)",
+          padding:"18px 32px",
+          display:"flex", alignItems:"center", justifyContent:"space-between", gap:24, flexWrap:"wrap",
+          position:"relative", overflow:"hidden",
+        }}>
+          {/* Subtle glow orb */}
+          <div style={{
+            position:"absolute", top:"-30px", left:"60px",
+            width:180, height:180,
+            borderRadius:"50%",
+            background:"radial-gradient(circle, rgba(108,92,231,0.06) 0%, transparent 70%)",
+            pointerEvents:"none",
+          }}/>
+
+          <div style={{ display:"flex", alignItems:"center", gap:16, position:"relative" }}>
+            {/* Icon mark */}
+            <div style={{
+              width:36, height:36, borderRadius:10, flexShrink:0,
+              background:"linear-gradient(135deg, rgba(108,92,231,0.2), rgba(162,155,254,0.08))",
+              border:"1px solid rgba(108,92,231,0.25)",
+              display:"flex", alignItems:"center", justifyContent:"center",
+              fontSize:16,
+            }}>⭐</div>
+            <div>
+              <div style={{ fontWeight:700, fontSize:14, color:"var(--t1)", letterSpacing:"-0.2px" }}>
+                Enjoyed using SimpleLogz?
+              </div>
+              <div style={{ fontSize:12, color:"var(--t3)", marginTop:3, lineHeight:1.5 }}>
+                Share a quick review — it helps other engineers discover us.
+              </div>
+            </div>
+          </div>
+
+          {isLoggedIn
+            ? (
+              <button
+                ref={reviewBtnRef}
+                onClick={() => {
+                  document.documentElement.style.overflow = "hidden";
+                  setAnchorRect(reviewBtnRef.current?.getBoundingClientRect() || null);
+                  setShowTestimonial(true);
+                }}
+                style={{
+                  flexShrink:0, position:"relative",
+                  padding:"9px 20px", borderRadius:10,
+                  background:"linear-gradient(135deg, #6c5ce7, #8b7cf8)",
+                  border:"1px solid rgba(162,155,254,0.3)",
+                  boxShadow:"0 4px 20px rgba(108,92,231,0.35)",
+                  color:"#fff", fontSize:13, fontWeight:600,
+                  cursor:"pointer", letterSpacing:"-0.1px",
+                  transition:"opacity .15s, transform .15s",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.opacity="0.88"; e.currentTarget.style.transform="translateY(-1px)"; }}
+                onMouseLeave={e => { e.currentTarget.style.opacity="1"; e.currentTarget.style.transform="translateY(0)"; }}
+              >
+                Write a review
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                style={{
+                  flexShrink:0,
+                  padding:"11px 24px", borderRadius:12,
+                  background:"linear-gradient(135deg, #6c5ce7, #8b7cf8)",
+                  border:"1px solid rgba(162,155,254,0.3)",
+                  boxShadow:"0 4px 20px rgba(108,92,231,0.35)",
+                  color:"#fff", fontSize:13, fontWeight:600,
+                  textDecoration:"none", letterSpacing:"-0.1px",
+                }}
+              >
+                Sign in to leave a review
+              </Link>
+            )
+          }
+        </div>
+      </div>
+
+      {showTestimonial && (
+        <TestimonialModal
+          anchorRect={anchorRect}
+          onClose={() => { setShowTestimonial(false); setAnchorRect(null); }}
+        />
+      )}
+
+    </div>
+  );
+}
+
+const TESTIMONIALS = [
+  {
+    quote: "SimpleLogz cut our incident response time in half. The AI diagnosis caught a race condition our team had been chasing for two weeks.",
+    name: "Samuel Kubiangha",
+    role: "Senior Backend Engineer",
+    company: "Fintech startup, Lagos",
+    initials: "JO",
+    color: "#6c5ce7",
+    tags: ["Log Analyzer", "AI Diagnosis"],
+    icon: "🔍",
+    iconBg: "linear-gradient(135deg,#6c5ce7,#a29bfe)",
+  },
+  {
+    quote: "I pasted a 400-line stack trace and got a plain-English explanation with exact file and line numbers in seconds.",
+    name: "Sarah Chen",
+    role: "DevOps Lead",
+    company: "E-commerce platform, Singapore",
+    initials: "SC",
+    color: "#00b894",
+    tags: ["Stack Traces", "Error Analysis"],
+    icon: "⚡",
+    iconBg: "linear-gradient(135deg,#00b894,#55efc4)",
+  },
+  {
+    quote: "The runbook generator alone is worth the subscription. We went from 2 hours writing incident docs to under 10 minutes.",
+    name: "Marcus Rivera",
+    role: "Site Reliability Engineer",
+    company: "SaaS company, Austin TX",
+    initials: "MR",
+    color: "#e17055",
+    tags: ["Runbook Studio", "Incidents"],
+    icon: "📋",
+    iconBg: "linear-gradient(135deg,#e17055,#fab1a0)",
+  },
+  {
+    quote: "Our junior devs now resolve production issues independently. SimpleLogz gives them the context they need without escalating every time.",
+    name: "Priya Nair",
+    role: "Engineering Manager",
+    company: "HealthTech, Bangalore",
+    initials: "PN",
+    color: "#0984e3",
+    tags: ["Team Productivity", "Projects"],
+    icon: "👥",
+    iconBg: "linear-gradient(135deg,#0984e3,#74b9ff)",
+  },
+  {
+    quote: "The Code Inspector found a SQL injection vulnerability that slipped past our review. Like having a senior security engineer on call 24/7.",
+    name: "Tom Whitfield",
+    role: "Full-Stack Developer",
+    company: "Agency, London",
+    initials: "TW",
+    color: "#fd79a8",
+    tags: ["Code Inspector", "Security"],
+    icon: "🛡️",
+    iconBg: "linear-gradient(135deg,#fd79a8,#fdcfe8)",
+  },
+  {
+    quote: "When an alert fires at 3am, our engineers have a full diagnosis before they even fully wake up. SimpleLogz changed our on-call culture.",
+    name: "Amara Diallo",
+    role: "Platform Engineer",
+    company: "Telecom, Paris",
+    initials: "AD",
+    color: "#fdcb6e",
+    tags: ["On-Call", "Log Analyzer"],
+    icon: "🌙",
+    iconBg: "linear-gradient(135deg,#fdcb6e,#ffeaa7)",
+  },
+];
+
+function normalise(t) {
+  const initials = t.name ? t.name.split(" ").map(w=>w[0]).join("").toUpperCase().slice(0,2) : "??";
+  return {
+    ...t,
+    initials,
+    color:   t.avatar_color || t.color || "#6c5ce7",
+    iconBg:  t.icon_bg      || t.iconBg || "linear-gradient(135deg,#6c5ce7,#a29bfe)",
+    icon:    t.icon         || "⚡",
+    tags:    Array.isArray(t.tags) ? t.tags : [],
+  };
+}
+
+function TestimonialCarousel() {
+  const [offset, setOffset] = React.useState(0);
+  const [data, setData] = React.useState(TESTIMONIALS.map(normalise));
+
+  React.useEffect(() => {
+    import("../lib/api.js").then(({ api }) => {
+      api.getTestimonials().then(res => {
+        if (res.testimonials && res.testimonials.length >= 3)
+          setData(res.testimonials.map(normalise));
+      }).catch(() => {});
+    });
+  }, []);
+  const timerRef = React.useRef(null);
+  const total = data.length;
+
+  function go(dir) {
+    setOffset(o => (o + dir + total) % total);
+  }
+
+  function restart(dir) {
+    clearInterval(timerRef.current);
+    go(dir);
+    timerRef.current = setInterval(() => go(1), 5000);
+  }
+
+  React.useEffect(() => {
+    timerRef.current = setInterval(() => go(1), 5000);
+    return () => clearInterval(timerRef.current);
+  }, [total]);
+
+  // Build visible set: 3 cards centered on current offset
+  const visible = [0, 1, 2].map(i => data[(offset + i) % total]);
+
+  return (
+    <div className={styles.testimonialSection}>
+      <p className={styles.testimonialLabel}>Loved by engineers worldwide</p>
+
+      {/* Track */}
+      <div className={styles.testimonialTrack}>
+        {visible.map((t, i) => (
+          <div key={`${offset}-${i}`} className={`${styles.tCard} ${i === 1 ? styles.tCardCenter : styles.tCardSide}`}>
+            {/* Icon */}
+            <div className={styles.tIcon} style={{ background: t.iconBg }}>
+              <span style={{ fontSize: 20 }}>{t.icon}</span>
+            </div>
+            {/* Quote */}
+            <p className={styles.tQuote}>"{t.quote}"</p>
+            {/* Tags */}
+            <div className={styles.tTags}>
+              {t.tags.map(tag => (
+                <span key={tag} className={styles.tTag}>{tag}</span>
+              ))}
+            </div>
+            {/* Author */}
+            <div className={styles.tDivider}/>
+            <div className={styles.tAuthor}>
+              <div className={styles.tAvatar} style={{ background: t.color }}>{t.initials}</div>
+              <div>
+                <div className={styles.tName}>{t.name}</div>
+                <div className={styles.tRole}>{t.role}</div>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Controls */}
+      <div className={styles.testimonialControls}>
+        <button className={styles.tArrow} onClick={() => restart(-1)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+        </button>
+        <div className={styles.tDots}>
+          {data.map((_, i) => (
+            <button
+              key={i}
+              className={`${styles.tDot} ${i === offset ? styles.tDotActive : ""}`}
+              onClick={() => { clearInterval(timerRef.current); setOffset(i); timerRef.current = setInterval(() => go(1), 5000); }}
+            />
+          ))}
+        </div>
+        <button className={styles.tArrow} onClick={() => restart(1)}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </div>
     </div>
   );
 }

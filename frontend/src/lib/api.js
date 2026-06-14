@@ -26,5 +26,7 @@ export const api = {
   submitFeedback:  (body)           => request("/api/user/feedback",                { method: "POST", body: JSON.stringify(body) }),
   createCheckout:  (token, billing)  => request("/api/stripe/create-checkout",   { method: "POST", body: JSON.stringify({ billing: billing || "monthly" }) }, token),
   openPortal:      (token)          => request("/api/stripe/portal",             { method: "POST" }, token),
-  health:          ()               => request("/api/health"),
+  health:              ()            => request("/api/health"),
+  getTestimonials:     ()            => request("/api/testimonials"),
+  submitTestimonial:   (body, token) => request("/api/testimonials", { method: "POST", body: JSON.stringify(body) }, token),
 };
