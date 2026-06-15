@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { ClerkProvider } from "@clerk/clerk-react";
 import { AuthProvider, useAuth } from "./hooks/useAuth.jsx";
 import { ToastProvider } from "./components/ui/Toast.jsx";
+
+const CLERK_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 import Sidebar        from "./components/layout/Sidebar.jsx";
 import CommandPalette from "./components/CommandPalette.jsx";
 import ChatWidget     from "./components/ChatWidget.jsx";
@@ -23,6 +26,8 @@ import { Dashboard } from "./pages/Dashboard.jsx";
 import Settings from "./pages/Settings.jsx";
 import Privacy from "./pages/Privacy.jsx";
 import Terms from "./pages/Terms.jsx";
+import ForgotPassword from "./pages/ForgotPassword.jsx";
+import ResetPassword from "./pages/ResetPassword.jsx";
 import Footer from "./components/Footer.jsx";
 
 function ScrollToTop() {
@@ -86,8 +91,8 @@ function AppShell() {
         <PageTransition>
           <Routes>
             <Route path="/"              element={<Landing/>}/>
-            <Route path="/login"         element={<Login/>}/>
-            <Route path="/signup"        element={<Signup/>}/>
+            <Route path="/login/*"        element={<Login/>}/>
+            <Route path="/signup/*"      element={<Signup/>}/>
             <Route path="/auth/callback" element={<AuthCallback/>}/>
             <Route path="/about"         element={<About/>}/>
             <Route path="/docs"          element={<Docs/>}/>
@@ -100,9 +105,11 @@ function AppShell() {
             <Route path="/terminal"      element={<Terminal/>}/>
             <Route path="/dashboard"     element={<ProtectedRoute><Dashboard/></ProtectedRoute>}/>
             <Route path="/settings"      element={<ProtectedRoute><Settings/></ProtectedRoute>}/>
-            <Route path="/privacy"       element={<Privacy/>}/>
-            <Route path="/terms"         element={<Terms/>}/>
-            <Route path="*"              element={<Navigate to="/" replace/>}/>
+            <Route path="/privacy"         element={<Privacy/>}/>
+            <Route path="/terms"           element={<Terms/>}/>
+            <Route path="/forgot-password" element={<ForgotPassword/>}/>
+            <Route path="/reset-password"  element={<ResetPassword/>}/>
+            <Route path="*"                element={<Navigate to="/" replace/>}/>
           </Routes>
         </PageTransition>
       </div>
@@ -148,12 +155,14 @@ function AppShell() {
 
 export default function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <ToastProvider>
-          <AppShell/>
-        </ToastProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <ClerkProvider publishableKey={CLERK_KEY} afterSignOutUrl="/">
+      <BrowserRouter>
+        <AuthProvider>
+          <ToastProvider>
+            <AppShell/>
+          </ToastProvider>
+        </AuthProvider>
+      </BrowserRouter>
+    </ClerkProvider>
   );
 }

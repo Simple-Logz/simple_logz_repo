@@ -19,6 +19,9 @@ router.post("/create-checkout", requireAuth, async (req, res) => {
     ? process.env.STRIPE_DEVELOPER_ANNUAL_PRICE_ID
     : process.env.STRIPE_DEVELOPER_PRICE_ID;
 
+  console.log("🔑 Using price ID:", priceId);
+  console.log("🔑 Using Stripe key:", process.env.STRIPE_SECRET_KEY?.slice(0, 20) + "...");
+
   if (!priceId) {
     return res.status(500).json({ error: `Stripe price ID not configured for billing: ${billing}` });
   }

@@ -1,34 +1,26 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { supabase } from "../lib/supabase.js";
+import { useUser, useAuth as useClerkAuth, useClerk } from "@clerk/clerk-react";
 import { api } from "../lib/api.js";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-  const [user,    setUser]    = useState(null);
-  const [profile, setProfile] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const { user, isLoaded, isSignedIn } = useUser();
+  const { getToken }                   = useClerkAuth();
+  const { signOut: clerkSignOut }      = useClerk();
+  const [profile, setProfile]          = useState(null);
 
   useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user || null);
-      if (session?.user) syncProfile(session.access_token);
-      setLoading(false);
-    });
+    if (isLoaded && isSignedIn && user) {
+      syncProfile();
+    } else if (isLoaded && !isSignedIn) {
+      setProfile(null);
+    }
+  }, [isLoaded, isSignedIn, user?.id]);
 
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user || null);
-      if (session?.user) syncProfile(session.access_token);
-      else setProfile(null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  async function syncProfile(token) {
+  async function syncProfile() {
     try {
+      const token = await getToken();
       const { profile } = await api.syncProfile(token);
       setProfile(profile);
     } catch (err) {
@@ -36,73 +28,35 @@ export function AuthProvider({ children }) {
     }
   }
 
-  async function getToken() {
-    const { data: { session } } = await supabase.auth.getSession();
-    return session?.access_token || null;
-  }
-
-  async function signInWithGoogle() {
-    await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signInWithGithub() {
-    await supabase.auth.signInWithOAuth({
-      provider: "github",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signInWithMicrosoft() {
-    await supabase.auth.signInWithOAuth({
-      provider: "azure",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signInWithApple() {
-    await supabase.auth.signInWithOAuth({
-      provider: "apple",
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
-    });
-  }
-
-  async function signInWithEmail(email, password) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    if (error) throw error;
-  }
-
-  async function signUpWithEmail(email, password, name) {
-    const { error } = await supabase.auth.signUp({
-      email, password,
-      options: { data: { full_name: name } },
-    });
-    if (error) throw error;
-  }
-
   async function signOut() {
-    await supabase.auth.signOut();
-    setUser(null);
+    await clerkSignOut();
     setProfile(null);
   }
 
   async function refreshProfile() {
-    const token = await getToken();
-    if (token) await syncProfile(token);
+    await syncProfile();
   }
+
+  // Normalize Clerk user to match the shape the rest of the app expects
+  const normalizedUser = user ? {
+    id:            user.id,
+    email:         user.emailAddresses[0]?.emailAddress,
+    user_metadata: {
+      full_name:  user.fullName || user.firstName,
+      avatar_url: user.imageUrl,
+    },
+  } : null;
 
   return (
     <AuthContext.Provider value={{
-      user, profile, loading,
-      getToken, refreshProfile,
-      signInWithGoogle, signInWithGithub,
-      signInWithMicrosoft, signInWithApple,
-      signInWithEmail, signUpWithEmail,
+      user:          normalizedUser,
+      profile,
+      loading:       !isLoaded,
+      getToken,
+      refreshProfile,
       signOut,
-      isLoggedIn: !!user,
-      isPro: profile?.plan === "developer" || profile?.plan === "enterprise",
+      isLoggedIn:    !!isSignedIn,
+      isPro:         profile?.plan === "developer" || profile?.plan === "enterprise",
     }}>
       {children}
     </AuthContext.Provider>
