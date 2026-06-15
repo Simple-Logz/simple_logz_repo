@@ -327,6 +327,32 @@
   .footerGrid{grid-template-columns:1fr}
   .ctaInner{padding:32px 20px}
   .analyzerFrame{padding:10px}
+
+  /* Testimonials — show only center card on mobile */
+  .testimonialSection{padding:48px 0 56px;gap:20px}
+  .testimonialTrack{gap:0;padding:0 16px}
+  .tCardSide{display:none}
+  .tCardCenter{
+    flex:1;
+    padding:22px 18px;
+    gap:12px;
+    border-radius:16px;
+  }
+  .tIcon{width:36px;height:36px;border-radius:10px}
+  .tIcon span{font-size:16px !important}
+  .tQuote{font-size:13px;line-height:1.65}
+  .tName{font-size:12px}
+  .tRole{font-size:10px}
+  .tAvatar{width:32px;height:32px;font-size:11px}
+  .tTag{font-size:10px;padding:2px 8px}
+
+  /* "Share your experience" banner — stack on mobile */
+  .reviewBanner{
+    flex-direction:column !important;
+    align-items:flex-start !important;
+    padding:18px 16px !important;
+    gap:14px !important;
+  }
 }
 
 /* ── Resolution steps with chat ─────────────────────────────── */

@@ -870,7 +870,7 @@ export default function Landing() {
 
       {/* ── Share your experience ─────────────────────────────── */}
       <div className="container">
-        <div style={{
+        <div className={styles.reviewBanner} style={{
           margin:"0 0 100px",
           borderRadius:20,
           background:"linear-gradient(135deg, rgba(108,92,231,0.18) 0%, rgba(130,110,255,0.12) 100%)",
