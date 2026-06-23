@@ -1,0 +1,31 @@
+.page{padding:72px 0 48px}
+.welcome{margin-bottom:24px}
+.welcome h1{font-size:20px;font-weight:700;letter-spacing:-.3px}
+.welcome p{font-size:14px;color:var(--t2);margin-top:4px}
+.statsGrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:20px}
+.statCard{background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:20px}
+.statNum{font-size:28px;font-weight:700}
+.statLabel{font-size:12px;color:var(--t2);margin-top:4px}
+.upgradeBanner{background:var(--glow);border:1px solid rgba(79,142,247,.2);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px}
+.table{width:100%;border-collapse:collapse;font-size:14px}
+.table th{text-align:left;padding:10px 14px;font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--t3);border-bottom:1px solid var(--border)}
+.table td{padding:12px 14px;border-bottom:1px solid var(--border)}
+.table tr:hover td{background:var(--bg3)}
+.table tr:last-child td{border-bottom:none}
+/* Settings */
+.settingsPage{padding:28px 0 48px}
+.settingsHeader{margin-bottom:24px}
+.settingsHeader h1{font-size:26px;font-weight:700;letter-spacing:-.3px}
+.settingsHeader p{font-size:14px;color:var(--t2);margin-top:4px}
+.settingsLayout{display:grid;grid-template-columns:200px 1fr;gap:24px}
+.settingsNav{display:flex;flex-direction:column;gap:3px}
+.settingsNavItem{padding:9px 12px;border-radius:8px;font-size:14px;color:var(--t2);cursor:pointer;transition:all .15s;text-align:left;width:100%}
+.settingsNavItem:hover{background:var(--bg3);color:var(--t1)}
+.settingsNavActive{background:var(--glow)!important;color:var(--accent)!important}
+.settingSectionTitle{font-size:20px;font-weight:700;margin-bottom:6px}
+.settingSectionSub{font-size:14px;color:var(--t2);margin-bottom:20px}
+.settingsRow{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);gap:16px}
+.settingsRow:last-child{border-bottom:none}
+.rowLabel{font-size:15px;font-weight:500}
+.rowSub{font-size:13px;color:var(--t2);margin-top:2px}
+@media(max-width:700px){.settingsLayout{grid-template-columns:1fr}.settingsNav{flex-direction:row;flex-wrap:wrap}}

@@ -1,0 +1,84 @@
+/* ââ Page ââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.page{display:flex;flex-direction:column}
+
+/* ââ Shared ââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.sectionEyebrow{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:12px}
+.sectionTitle{font-size:clamp(24px,3.5vw,36px);font-weight:700;letter-spacing:-.5px;line-height:1.2;margin-bottom:0}
+.accent{background:linear-gradient(135deg,var(--accent),#a78bfa);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ââ Hero ââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.hero{padding:72px 0 0;text-align:center}
+.heroInner{max-width:680px;margin:0 auto;padding-bottom:64px}
+.eyebrow{display:inline-flex;align-items:center;background:var(--glow);border:1px solid rgba(79,142,247,.25);border-radius:99px;padding:5px 16px;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:28px}
+.heroTitle{font-size:clamp(26px,3.5vw,44px);font-weight:700;line-height:1.15;letter-spacing:-1px;margin-bottom:20px}
+.heroSub{font-size:18px;color:var(--t2);line-height:1.75;max-width:540px;margin:0 auto}
+.heroDivider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent)}
+
+/* ââ Story âââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.storySection{padding:80px 0}
+.storyGrid{display:grid;grid-template-columns:1fr 2fr;gap:64px;align-items:start}
+.storyLeft{position:sticky;top:100px}
+.storyLeft .sectionTitle{margin-top:12px}
+.storyRight{display:flex;flex-direction:column;gap:0}
+.timelineItem{display:flex;gap:24px;padding-bottom:40px;position:relative}
+.timelineItem:not(:last-child)::after{content:"";position:absolute;left:7px;top:16px;bottom:0;width:1px;background:linear-gradient(to bottom,var(--accent),transparent)}
+.timelineMarker{width:15px;height:15px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:4px;box-shadow:0 0 0 4px rgba(79,142,247,.15)}
+.timelineContent{padding-bottom:8px}
+.timelineYear{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:8px}
+.timelineText{font-size:16px;color:var(--t2);line-height:1.8;margin:0}
+
+/* ââ Stats âââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.statsSection{padding:0 0 80px}
+.statsGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.statCard{background:var(--bg2);padding:36px 24px;text-align:center}
+.statNum{font-size:42px;font-weight:700;color:var(--accent);letter-spacing:-1px;line-height:1}
+.statLabel{font-size:13px;color:var(--t2);margin-top:8px;font-weight:500}
+
+/* ââ Pillars âââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.pillarsSection{padding:0 0 80px}
+.pillarsHead{text-align:center;margin-bottom:48px}
+.pillarsHead .sectionTitle{margin-top:12px}
+.pillarsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.pillarCard{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;transition:border-color .2s,transform .2s}
+.pillarCard:hover{border-color:var(--accent);transform:translateY(-2px)}
+.pillarNumber{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--accent);letter-spacing:2px;margin-bottom:16px}
+.pillarTitle{font-size:18px;font-weight:700;margin-bottom:12px;letter-spacing:-.3px}
+.pillarBody{font-size:14px;color:var(--t2);line-height:1.75;margin:0}
+
+/* ââ Features ââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.featuresSection{padding:0 0 80px}
+.featuresInner{display:grid;grid-template-columns:1fr 1.4fr;gap:80px;align-items:start}
+.featuresLeft{position:sticky;top:100px}
+.featuresLeft .sectionTitle{margin-top:12px;margin-bottom:0}
+.featuresIntro{font-size:15px;color:var(--t2);line-height:1.8;margin-top:20px}
+.featuresRight{display:flex;flex-direction:column;gap:0}
+.featureRow{display:flex;gap:16px;padding:20px 0;border-bottom:1px solid var(--border)}
+.featureRow:first-child{padding-top:0}
+.featureRow:last-child{border-bottom:none}
+.featureRowDot{width:8px;height:8px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:6px}
+.featureRowLabel{font-size:15px;font-weight:600;margin-bottom:4px}
+.featureRowDesc{font-size:14px;color:var(--t2);line-height:1.7}
+
+/* ââ CTA âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
+.ctaSection{padding:0 0 80px}
+.ctaInner{background:linear-gradient(135deg,rgba(79,142,247,.08),rgba(167,139,250,.06));border:1px solid rgba(79,142,247,.2);border-radius:24px;padding:64px;text-align:center}
+.ctaEyebrow{font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:2px;margin-bottom:16px}
+.ctaTitle{font-size:clamp(24px,3.5vw,40px);font-weight:700;letter-spacing:-.5px;line-height:1.2;margin-bottom:16px}
+.ctaSub{font-size:16px;color:var(--t2);margin-bottom:32px}
+.ctaActions{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+
+/* ââ Responsive ââââââââââââââââââââââââââââââââââââââââââââââââ */
+@media(max-width:900px){
+  .storyGrid{grid-template-columns:1fr}
+  .storyLeft{position:static}
+  .statsGrid{grid-template-columns:repeat(2,1fr)}
+  .pillarsGrid{grid-template-columns:1fr}
+  .featuresInner{grid-template-columns:1fr}
+  .featuresLeft{position:static}
+  .ctaInner{padding:40px 24px}
+}
+@media(max-width:600px){
+  .hero{padding:48px 0 0}
+  .statsGrid{grid-template-columns:repeat(2,1fr)}
+
+}
