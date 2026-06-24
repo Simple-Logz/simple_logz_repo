@@ -90,6 +90,6 @@ app.use((err, _req, res, _next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`\nð SimpleLogz API running on port ${PORT}`);
-  console.log(`   ENV: ${process.env.NODE_ENV || "development"}\n`);
+  // [sandbox-ai] removed debug: console.log(`\nð SimpleLogz API running on port ${PORT}`);
+  // [sandbox-ai] removed debug: console.log(`   ENV: ${process.env.NODE_ENV || "development"}\n`);
 });

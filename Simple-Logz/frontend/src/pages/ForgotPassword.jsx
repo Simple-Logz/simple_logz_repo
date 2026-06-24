@@ -29,7 +29,7 @@ export default function ForgotPassword() {
           <img src="/simplelogz-logo-dark.png" alt="SimpleLogz" style={{height:36,width:"auto"}}/>
         </Link>
         <h1 className={styles.title}>Reset your password</h1>
-        <p className={styles.sub}>Enter your email and we'll send you a reset link</p>
+        <p className={styles.sub}>Enter your email and we'll send you a reset link</p>'
 
         {sent ? (
           <div style={{textAlign:"center",padding:"20px 0"}}>

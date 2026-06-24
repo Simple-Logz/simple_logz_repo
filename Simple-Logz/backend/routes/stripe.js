@@ -19,8 +19,8 @@ router.post("/create-checkout", requireAuth, async (req, res) => {
     ? process.env.STRIPE_DEVELOPER_ANNUAL_PRICE_ID
     : process.env.STRIPE_DEVELOPER_PRICE_ID;
 
-  console.log("ð Using price ID:", priceId);
-  console.log("ð Using Stripe key:", process.env.STRIPE_SECRET_KEY?.slice(0, 20) + "...");
+  // [sandbox-ai] removed debug: console.log("ð Using price ID:", priceId);
+  // [sandbox-ai] removed debug: console.log("ð Using Stripe key:", process.env.STRIPE_SECRET_KEY?.slice(0, 20) + "...");
 
   if (!priceId) {
     return res.status(500).json({ error: `Stripe price ID not configured for billing: ${billing}` });
@@ -113,14 +113,14 @@ router.post("/webhook", async (req, res) => {
           plan,
           stripe_subscription_id: session.subscription || session.id,
         }).eq("id", supabaseId);
-        console.log(`â Plan updated to ${plan} for user ${supabaseId}`);
+        // [sandbox-ai] removed debug: console.log(`â Plan updated to ${plan} for user ${supabaseId}`);
       }
       break;
 
     case "customer.subscription.deleted":
       if (supabaseId) {
         await supabase.from("profiles").update({ plan: "free", stripe_subscription_id: null }).eq("id", supabaseId);
-        console.log(`â¬ï¸  Plan downgraded to free for user ${supabaseId}`);
+        // [sandbox-ai] removed debug: console.log(`â¬ï¸  Plan downgraded to free for user ${supabaseId}`);
       }
       break;
   }

@@ -4,7 +4,7 @@ const supabaseUrl  = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnon = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 if (!supabaseUrl || !supabaseAnon) {
-  console.warn("â ï¸  Supabase env vars missing. Auth will not work.");
+  // [sandbox-ai] removed debug: console.warn("â ï¸  Supabase env vars missing. Auth will not work.");
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnon);

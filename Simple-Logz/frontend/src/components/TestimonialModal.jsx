@@ -82,7 +82,7 @@ export default function TestimonialModal({ onClose, anchorRect }) {
             <div style={{ width:46, height:46, borderRadius:"50%", background:"rgba(0,184,148,.15)", display:"flex", alignItems:"center", justifyContent:"center", fontSize:22 }}>ð</div>
             <div style={{ fontSize:14, fontWeight:600, color:"var(--t1)" }}>Thank you, {profile?.name?.split(" ")[0] || "friend"}!</div>
             <p style={{ fontSize:13, color:"var(--t2)", lineHeight:1.6, maxWidth:320 }}>
-              Submitted for review. Once approved it'll appear on the homepage.
+              Submitted for review. Once approved it'll appear on the homepage.'
             </p>
             <button className="btn btn-primary btn-sm" onClick={onClose} style={{ marginTop:4 }}>Done</button>
           </div>

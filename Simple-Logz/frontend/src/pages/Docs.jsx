@@ -328,7 +328,7 @@ export default function Docs() {
         <section style={{ marginBottom:60 }}>
           <SectionHeading id="intro" title="Introduction" icon={Icons.Book}/>
           <p style={{ fontSize:14, color:"var(--t2)", lineHeight:1.8, marginBottom:20 }}>
-            SimpleLogz is an AI-powered developer platform that transforms raw error logs, stack traces, and application errors into instant root-cause diagnoses and actionable fixes. Whether you're debugging a production outage or reviewing code for security vulnerabilities, SimpleLogz returns answers in seconds â not hours.
+            SimpleLogz is an AI-powered developer platform that transforms raw error logs, stack traces, and application errors into instant root-cause diagnoses and actionable fixes. Whether you're debugging a production outage or reviewing code for security vulnerabilities, SimpleLogz returns answers in seconds â not hours.'
           </p>
           <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(190px,1fr))", gap:12 }}>
             <FeatureCard icon={Icons.Zap}      title="Instant diagnosis"      desc="Paste any error log and receive a root cause + fix in under 10 seconds." accent="#6c5ce7"/>
@@ -354,7 +354,7 @@ export default function Docs() {
             Hit <strong style={{color:"var(--t1)"}}>â Analyze</strong> or press <kbd style={{ background:"var(--bg3)", border:"1px solid var(--border)", borderRadius:5, padding:"2px 7px", fontSize:11, fontFamily:"var(--mono)" }}>Ctrl+Enter</kbd>. The AI reads your log and returns a structured diagnosis.
           </StepItem>
           <StepItem n={3} title="Read the diagnosis">
-            You'll receive a severity rating, a plain-English root cause, numbered fix steps, verification commands, and prevention tips.
+            You'll receive a severity rating, a plain-English root cause, numbered fix steps, verification commands, and prevention tips.'
           </StepItem>
           <StepItem n={4} title="Create a free account to unlock everything">
             Sign up to access saved history, Groups, Code Inspector, Runbook Studio, Pattern Intelligence, and the Community Forum.
@@ -458,7 +458,7 @@ RequestId: 8f3d2c1a-e4b9-11ed-a05b Version: $LATEST`}
           </p>
           <StepItem n={1} title='Navigate to Groups'>Click <strong style={{color:"var(--t1)"}}>Groups</strong> in the sidebar.</StepItem>
           <StepItem n={2} title='Create a new group'>Click <strong style={{color:"var(--t1)"}}>+ New Group</strong> and name it after the service â e.g. "Production API", "Auth Service", "Worker Queue".</StepItem>
-          <StepItem n={3} title="Start working">Paste logs, inspect code, generate runbooks â all scoped to that group's history and context.</StepItem>
+          <StepItem n={3} title="Start working">Paste logs, inspect code, generate runbooks â all scoped to that group's history and context.</StepItem>'
           <Callout type="warning">
             Recommended: one group per service or microservice. Mixing services in a single group makes it harder to track incident history and patterns over time.
           </Callout>
